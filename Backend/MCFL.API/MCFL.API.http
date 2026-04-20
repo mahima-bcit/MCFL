@@ -1,0 +1,6 @@
+@MCFL.API_HostAddress = http://localhost:5096
+
+GET {{MCFL.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
