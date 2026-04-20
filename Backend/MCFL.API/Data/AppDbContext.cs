@@ -165,6 +165,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
                 "(entryType = 'CashIn' AND fkCashInCategoryId IS NOT NULL AND fkCashOutCategoryId IS NULL) OR " +
                 "(entryType = 'CashOut' AND fkCashOutCategoryId IS NOT NULL AND fkCashInCategoryId IS NULL)"));
 
+        modelBuilder.Entity<ParentConsent>()
+            .ToTable(t => t.HasCheckConstraint(
+                "CK_ParentConsent_ConsentGivenAt",
+                "(consentGiven = 0 AND consentGivenAt IS NULL) OR (consentGiven = 1 AND consentGivenAt IS NOT NULL)"));
+
         modelBuilder.Entity<SavingsGoal>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_SavingsGoal_Amounts",

@@ -298,7 +298,7 @@ namespace MCFL.API.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("consentGiven");
 
-                    b.Property<DateTime>("ConsentGivenAt")
+                    b.Property<DateTime?>("ConsentGivenAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("consentGivenAt");
 
@@ -328,7 +328,10 @@ namespace MCFL.API.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("ParentConsent");
+                    b.ToTable("ParentConsent", t =>
+                        {
+                            t.HasCheckConstraint("CK_ParentConsent_ConsentGivenAt", "(consentGiven = 0 AND consentGivenAt IS NULL) OR (consentGiven = 1 AND consentGivenAt IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("MCFL.API.Models.ParentFeedback", b =>

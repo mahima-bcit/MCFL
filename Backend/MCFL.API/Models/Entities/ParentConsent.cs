@@ -29,7 +29,7 @@ namespace MCFL.API.Models
         public bool ConsentGiven { get; set; }
 
         [Column("consentGivenAt")]
-        public DateTime ConsentGivenAt { get; set; }
+        public DateTime? ConsentGivenAt { get; set; }
 
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

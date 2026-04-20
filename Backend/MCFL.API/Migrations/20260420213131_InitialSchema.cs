@@ -275,13 +275,14 @@ namespace MCFL.API.Migrations
                     parentName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     parentEmail = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
                     consentGiven = table.Column<bool>(type: "INTEGER", nullable: false),
-                    consentGivenAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    consentGivenAt = table.Column<DateTime>(type: "TEXT", nullable: true),
                     createdAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     fkUserId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ParentConsent", x => x.pkParentConsentId);
+                    table.CheckConstraint("CK_ParentConsent_ConsentGivenAt", "(consentGiven = 0 AND consentGivenAt IS NULL) OR (consentGiven = 1 AND consentGivenAt IS NOT NULL)");
                     table.ForeignKey(
                         name: "FK_ParentConsent_AspNetUsers_fkUserId",
                         column: x => x.fkUserId,
