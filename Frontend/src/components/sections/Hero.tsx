@@ -62,10 +62,28 @@ export default function Hero() {
           </p>
 
           <div className="flex items-center gap-4 flex-wrap">
-            <Button variant="primary" className="text-base px-7 py-3">
+            <Button
+              variant="primary"
+              className="text-base px-7 py-3"
+              onClick={() => {
+                document.getElementById('features')?.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start',
+                })
+              }}
+            >
               Get Started <ArrowRightIcon />
             </Button>
-            <Button variant="outline" className="text-base px-7 py-3">
+            <Button
+              variant="outline"
+              className="text-base px-7 py-3"
+              onClick={() => {
+                document.getElementById('features')?.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start',
+                })
+              }}
+            >
               How it works
             </Button>
           </div>
