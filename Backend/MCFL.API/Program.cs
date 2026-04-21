@@ -54,13 +54,27 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Run migrations + always-safe seeders in every environment
+// Run startup seeders in every environment; apply migrations only in Development
+var runMigrations = builder.Configuration.GetValue<bool>("StartupTasks:RunMigrations");
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-
     var db = services.GetRequiredService<AppDbContext>();
-    await db.Database.MigrateAsync();
+    var logger = services.GetRequiredService<ILogger<Program>>();
+
+    if (runMigrations)
+    {
+        try
+        {
+            await db.Database.MigrateAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to apply database migrations at startup.");
+            throw;
+        }
+    }
 
     var alwaysSeeders = services.GetServices<IAlwaysSeeder>();
     foreach (var seeder in alwaysSeeders)

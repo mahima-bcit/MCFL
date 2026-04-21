@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MCFL.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260421005634_InitialSchemaAndSeed")]
+    [Migration("20260421024908_InitialSchemaAndSeed")]
     partial class InitialSchemaAndSeed
     {
         /// <inheritdoc />

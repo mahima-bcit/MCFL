@@ -43,6 +43,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
             entity.Property(e => e.ParentConsentRequired).HasColumnName("parentConsentRequired");
             entity.Property(e => e.ParentConsentReceived).HasColumnName("parentConsentReceived");
             entity.Property(e => e.OnboardingCompleted).HasColumnName("onboardingCompleted");
+            entity.Property(e => e.MustChangePassword).HasColumnName("mustChangePassword");
         });
 
         modelBuilder.Entity<IdentityRole>(entity =>

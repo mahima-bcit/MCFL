@@ -39,10 +39,9 @@ namespace MCFL.API.Data.Seed
 
                 foreach (var scenario in scenarios.Take(2))
                 {
-                    var choice = await _context.ScenarioChoices
-                        .Where(x => x.ScenarioId == scenario.ScenarioId)
+                    var choice = scenario.ScenarioChoices
                         .OrderBy(x => x.SortOrder)
-                        .FirstOrDefaultAsync();
+                        .FirstOrDefault();
 
                     if (choice == null) continue;
 
