@@ -19,5 +19,8 @@ namespace MCFL.API.Models.Identity
 
         [Column("onboardingCompleted")]
         public bool OnboardingCompleted { get; set; } = false;
+
+        [Column("mustChangePassword")]
+        public bool MustChangePassword { get; set; } = false;
     }
 }

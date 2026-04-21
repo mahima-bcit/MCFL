@@ -113,7 +113,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
 
         modelBuilder.Entity<ScenarioChoice>()
             .HasOne(x => x.Scenario)
-            .WithMany()
+            .WithMany(x => x.ScenarioChoices)
             .HasForeignKey(x => x.ScenarioId)
             .OnDelete(DeleteBehavior.Cascade);
 
