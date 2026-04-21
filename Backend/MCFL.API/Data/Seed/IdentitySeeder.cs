@@ -7,13 +7,16 @@ namespace MCFL.API.Data.Seed
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<IdentitySeeder> _logger;
 
         public IdentitySeeder(
             UserManager<ApplicationUser> userManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ILogger<IdentitySeeder> logger)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _logger = logger;
         }
 
         public async Task SeedAsync()
@@ -26,31 +29,63 @@ namespace MCFL.API.Data.Seed
                 return;
             }
 
-            var existingAdmin = await _userManager.FindByEmailAsync(adminEmail);
+            var adminUser = await _userManager.FindByEmailAsync(adminEmail);
 
-            if (existingAdmin != null)
+            if (adminUser == null)
             {
-                return;
+                adminUser = new ApplicationUser
+                {
+                    UserName = adminEmail,
+                    Email = adminEmail,
+                    EmailConfirmed = true,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow,
+                    ParentConsentRequired = false,
+                    ParentConsentReceived = false,
+                    OnboardingCompleted = true,
+                    MustChangePassword = true
+                };
+
+                var createResult = await _userManager.CreateAsync(adminUser, adminPassword);
+
+                if (!createResult.Succeeded)
+                {
+                    var errors = string.Join("; ", createResult.Errors.Select(e => $"{e.Code}: {e.Description}"));
+                    _logger.LogError("Failed to create seed admin user {Email}. Errors: {Errors}", adminEmail, errors);
+                    throw new InvalidOperationException($"Failed to create seed admin user '{adminEmail}': {errors}");
+                }
+            }
+            else
+            {
+                adminUser.UserName = adminEmail;
+                adminUser.Email = adminEmail;
+                adminUser.EmailConfirmed = true;
+                adminUser.IsActive = true;
+                adminUser.ParentConsentRequired = false;
+                adminUser.ParentConsentReceived = false;
+                adminUser.OnboardingCompleted = true;
+                adminUser.MustChangePassword = true;
+
+                var updateResult = await _userManager.UpdateAsync(adminUser);
+
+                if (!updateResult.Succeeded)
+                {
+                    var errors = string.Join("; ", updateResult.Errors.Select(e => $"{e.Code}: {e.Description}"));
+                    _logger.LogError("Failed to update seed admin user {Email}. Errors: {Errors}", adminEmail, errors);
+                    throw new InvalidOperationException($"Failed to update seed admin user '{adminEmail}': {errors}");
+                }
             }
 
-            var adminUser = new ApplicationUser
+            if (!await _userManager.IsInRoleAsync(adminUser, "Admin"))
             {
-                UserName = adminEmail,
-                Email = adminEmail,
-                EmailConfirmed = true,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                ParentConsentRequired = false,
-                ParentConsentReceived = false,
-                OnboardingCompleted = true,
-                MustChangePassword = true
-            };
+                var roleResult = await _userManager.AddToRoleAsync(adminUser, "Admin");
 
-            var result = await _userManager.CreateAsync(adminUser, adminPassword);
-
-            if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(adminUser, "Admin");
+                if (!roleResult.Succeeded)
+                {
+                    var errors = string.Join("; ", roleResult.Errors.Select(e => $"{e.Code}: {e.Description}"));
+                    _logger.LogError("Failed to add seed admin user {Email} to Admin role. Errors: {Errors}", adminEmail, errors);
+                    throw new InvalidOperationException($"Failed to add seed admin user '{adminEmail}' to Admin role: {errors}");
+                }
             }
         }
     }

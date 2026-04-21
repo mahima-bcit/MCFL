@@ -12,8 +12,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Register EF Core DbContext (SQLite)
+var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(defaultConnection))
+{
+    throw new InvalidOperationException(
+        "Missing connection string 'ConnectionStrings:DefaultConnection'. " +
+        "Configure it in appsettings, user secrets, or environment variables.");
+}
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(defaultConnection));
 
 // Register Identity services
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -54,7 +61,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Run startup seeders in every environment; apply migrations only in Development
+// Run always-on startup seeders in every environment; run development seeders only in Development;
+// apply migrations when StartupTasks:RunMigrations is enabled.
 var runMigrations = builder.Configuration.GetValue<bool>("StartupTasks:RunMigrations");
 
 using (var scope = app.Services.CreateScope())
