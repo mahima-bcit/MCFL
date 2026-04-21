@@ -15,8 +15,8 @@ export default function Navbar() {
         </span>
       </div>
       <div className="flex gap-6 text-sm">
-        <a href="#" className="hover:text-gold transition-colors">Features</a>
-        <a href="#" className="hover:text-gold transition-colors">Pricing</a>
+        <a href="#features" className="hover:text-gold transition-colors">Features</a>
+        <a href="#how-it-works" className="hover:text-gold transition-colors">How It Works</a>
       </div>
       <Button>Get Started</Button>
     </nav>
