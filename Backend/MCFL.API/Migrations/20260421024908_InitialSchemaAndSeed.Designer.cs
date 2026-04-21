@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MCFL.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260420213131_InitialSchema")]
-    partial class InitialSchema
+    [Migration("20260421024908_InitialSchemaAndSeed")]
+    partial class InitialSchemaAndSeed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -112,6 +112,10 @@ namespace MCFL.API.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("MustChangePassword")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("mustChangePassword");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -958,7 +962,7 @@ namespace MCFL.API.Migrations
             modelBuilder.Entity("MCFL.API.Models.ScenarioChoice", b =>
                 {
                     b.HasOne("MCFL.API.Models.Scenario", "Scenario")
-                        .WithMany()
+                        .WithMany("ScenarioChoices")
                         .HasForeignKey("ScenarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1075,6 +1079,11 @@ namespace MCFL.API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MCFL.API.Models.Scenario", b =>
+                {
+                    b.Navigation("ScenarioChoices");
                 });
 #pragma warning restore 612, 618
         }

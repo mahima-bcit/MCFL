@@ -28,5 +28,7 @@ namespace MCFL.API.Models
 
         [Column("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        public ICollection<ScenarioChoice> ScenarioChoices { get; set; } = new List<ScenarioChoice>();
     }
 }
