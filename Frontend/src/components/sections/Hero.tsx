@@ -1,0 +1,136 @@
+import Button from '../ui/Button'
+import Badge from '../ui/Badge'
+import FeatureCard from '../ui/FeatureCard'
+
+// SVG Icons as components
+const SpinIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="3" />
+    <line x1="12" y1="2" x2="12" y2="5" />
+    <line x1="12" y1="19" x2="12" y2="22" />
+    <line x1="2" y1="12" x2="5" y2="12" />
+    <line x1="19" y1="12" x2="22" y2="12" />
+  </svg>
+)
+
+const AwardIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="6" />
+    <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11" />
+  </svg>
+)
+
+const TrendUpIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4A017" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+    <polyline points="16 7 22 7 22 13" />
+  </svg>
+)
+
+const UserIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+)
+
+const ArrowRightIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+)
+
+export default function Hero() {
+  return (
+    <section className="max-w-6xl mx-auto px-6 pt-20 pb-28">
+      <div className="grid md:grid-cols-2 gap-12 items-center">
+
+        {/* ── Left Column ── */}
+        <div className="animate-fade-up">
+          <Badge icon={<UserIcon />}>Build confidence with money</Badge>
+
+          <h1 className="font-display text-5xl font-bold text-nav leading-[1.1] mt-6 mb-5">
+            Learn money skills<br />
+            that actually stick
+          </h1>
+
+          <p className="text-nav/60 text-lg leading-relaxed mb-8 max-w-md">
+            A fun, judgment-free way to explore financial decisions and build the
+            confidence you need for real life. Made for teens and young adults in Canada.
+          </p>
+
+          <div className="flex items-center gap-4 flex-wrap">
+            <Button
+              variant="primary"
+              className="text-base px-7 py-3"
+              onClick={() => {
+                document.getElementById('features')?.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start',
+                })
+              }}
+            >
+              Get Started <ArrowRightIcon />
+            </Button>
+            <Button
+              variant="outline"
+              className="text-base px-7 py-3"
+              onClick={() => {
+                document.getElementById('features')?.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start',
+                })
+              }}
+            >
+              How it works
+            </Button>
+          </div>
+
+          {/* Social proof strip */}
+          <div className="flex items-center gap-3 mt-10">
+            <div className="flex -space-x-2">
+              {['#1D9E75', '#0F6E56', '#D4A017', '#1A3C2E'].map((c, i) => (
+                <div
+                  key={i}
+                  className="w-8 h-8 rounded-full border-2 border-mint"
+                  style={{ background: c }}
+                />
+              ))}
+            </div>
+            <p className="text-nav/50 text-sm">
+              <span className="text-nav font-semibold">2,400+</span> young Canadians building confidence
+            </p>
+          </div>
+        </div>
+
+        {/* ── Right Column: Feature Cards ── */}
+        <div
+          id="features"
+          className="flex flex-col gap-4"
+        >
+          <FeatureCard
+            icon={<SpinIcon />}
+            title="Spin & Learn"
+            description="Play real-world money scenarios through our interactive wheel game"
+            delay="100ms"
+          />
+          <FeatureCard
+            icon={<AwardIcon />}
+            title="Track Progress"
+            description="See your money confidence grow with every decision you make"
+            delay="200ms"
+          />
+          <FeatureCard
+            icon={<TrendUpIcon />}
+            title="Build Your Picture"
+            description="Create a simple money plan with Have, Need, Fun, and Save"
+            delay="300ms"
+          />
+        </div>
+
+      </div>
+    </section>
+  )
+}
