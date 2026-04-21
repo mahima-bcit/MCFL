@@ -32,7 +32,7 @@ export default function HowItWorks() {
 
         {/* Heading */}
         <div className="text-center mb-16 animate-fade-up">
-          <h2 className="font-display text-4xl font-bold text-nav mb-4">
+          <h2 id="how-it-works-heading" className="font-display text-4xl font-bold text-nav mb-4">
             How it works
           </h2>
           <p className="text-nav/55 text-lg max-w-md mx-auto">
@@ -69,7 +69,7 @@ export default function HowItWorks() {
         {/* Bottom CTA */}
         <div className="text-center mt-16">
           <a
-            href="#"
+            href="#how-it-works-heading"
             className="inline-flex items-center gap-2 text-primary font-medium text-sm hover:text-gold transition-colors duration-200"
           >
             Ready to start?
