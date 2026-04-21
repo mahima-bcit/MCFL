@@ -1,13 +1,10 @@
-import type { ReactNode } from 'react'
+import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
 type ButtonVariant = 'primary' | 'outline' | 'ghost'
 
-type ButtonProps = {
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode
   variant?: ButtonVariant
-  onClick?: () => void
-  className?: string
-  type?: 'button' | 'submit'
 }
 
 const styles: Record<ButtonVariant, string> = {
@@ -25,6 +22,7 @@ export default function Button({
   onClick,
   className = '',
   type = 'button',
+  ...rest
 }: ButtonProps) {
   return (
     <button
@@ -37,6 +35,7 @@ export default function Button({
         ${styles[variant]}
         ${className}
       `}
+      {...rest}
     >
       {children}
     </button>
