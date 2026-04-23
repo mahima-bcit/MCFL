@@ -1,4 +1,5 @@
 using MCFL.API.Models;
+using MCFL.API.Models.Entities;
 using MCFL.API.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -18,13 +19,15 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
     public DbSet<ParentConsent> ParentConsents { get; set; } = null!;
     public DbSet<ParentFeedback> ParentFeedbacks { get; set; } = null!;
     public DbSet<RegistrationAllowList> RegistrationAllowLists { get; set; } = null!;
-    public DbSet<SavingsGoal> SavingsGoals { get; set; } = null!;
+    public DbSet<LearningSavingsGoal> LearningSavingsGoals { get; set; } = null!;
     public DbSet<Scenario> Scenarios{ get; set; } = null!;
     public DbSet<ScenarioChoice> ScenarioChoices { get; set; } = null!;
     public DbSet<ScenarioPlay> ScenarioPlays { get; set; } = null!;
     public DbSet<UserFeedback> UserFeedbacks { get; set; } = null!;
     public DbSet<UserGameStat> UserGameStats { get; set; } = null!;
     public DbSet<UserProfile> UserProfiles { get; set; } = null!;
+    public DbSet<LearningTopic> LearningTopics { get; set; } = null!;
+    public DbSet<UserLearningPreference> UserLearningPreferences { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -69,6 +72,18 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
             .HasForeignKey<UserProfile>(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<UserLearningPreference>()
+            .HasOne(x => x.UserProfile)
+            .WithMany(x => x.UserLearningPreferences)
+            .HasForeignKey(x => x.UserProfileId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserLearningPreference>()
+            .HasOne(x => x.LearningTopic)
+            .WithMany(x => x.UserLearningPreferences)
+            .HasForeignKey(x => x.LearningTopicId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<ParentConsent>()
             .HasOne(x => x.User)
             .WithOne()
@@ -82,7 +97,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
             .OnDelete(DeleteBehavior.Cascade);
 
         // One-to-many tables
-        modelBuilder.Entity<SavingsGoal>()
+        modelBuilder.Entity<LearningSavingsGoal>()
             .HasOne(x => x.User)
             .WithMany()
             .HasForeignKey(x => x.UserId)
@@ -171,7 +186,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
                 "CK_ParentConsent_ConsentGivenAt",
                 "(consentGiven = 0 AND consentGivenAt IS NULL) OR (consentGiven = 1 AND consentGivenAt IS NOT NULL)"));
 
-        modelBuilder.Entity<SavingsGoal>()
+        modelBuilder.Entity<LearningSavingsGoal>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_SavingsGoal_Amounts",
                 "targetAmount >= 0 AND currentSavedAmount >= 0"));
