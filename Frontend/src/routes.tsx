@@ -1,13 +1,15 @@
-import Index from "./pages/Index.tsx";
-import Login from "./pages/Login.tsx";
+import RootLayout from "./components/layout/RootLayout";
+import Index from "./pages/Index";
+import Login from "./pages/Login";
+import ParentsFeedback from "./pages/ParentFeedback";
 
 export default [
   {
-    path: "/",
-    element: <Index />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
+    element: <RootLayout />,
+    children: [
+      { path: "/", element: <Index /> },
+      { path: "/login", element: <Login /> },
+      { path: "/parentFeedback", element: <ParentsFeedback /> },
+    ],
   },
 ];
