@@ -191,13 +191,18 @@ const ParentsFeedback: React.FC = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              aria-invalid={errors.email ? "true" : undefined}
+              aria-describedby={errors.email ? "email-error" : undefined}
               placeholder="your@email.com"
               className={`w-full px-4 py-3 rounded-xl border font-body text-nav placeholder:text-gray-400 bg-gray-50/50 focus:bg-white transition-colors outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
                 errors.email ? "border-error ring-2 ring-error/20" : "border-gray-200"
               }`}
             />
             {errors.email && (
-              <p className="mt-1.5 text-sm text-error font-body flex items-center gap-1.5">
+              <p
+                id="email-error"
+                className="mt-1.5 text-sm text-error font-body flex items-center gap-1.5"
+              >
                 <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     fillRule="evenodd"
