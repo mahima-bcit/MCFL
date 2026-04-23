@@ -5,11 +5,12 @@ import ParentsFeedback from "./pages/ParentFeedback";
 
 export default [
   {
+    path: "/",
     element: <RootLayout />,
     children: [
-      { path: "/", element: <Index /> },
-      { path: "/login", element: <Login /> },
-      { path: "/parentFeedback", element: <ParentsFeedback /> },
+      { index: true, element: <Index /> },
+      { path: "login", element: <Login /> },
+      { path: "parentFeedback", element: <ParentsFeedback /> },
     ],
   },
 ];
