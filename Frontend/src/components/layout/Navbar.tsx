@@ -11,7 +11,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 md:gap-3">
           <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-primary flex items-center justify-center">
-            <img src="/logo.png" alt="logo" />
+            <img src="/logo.png" alt="" />
           </div>
           <span className="text-white font-display font-semibold text-sm md:text-lg tracking-tight">
             Money Confidence<span className="hidden sm:inline"> for Life</span>
