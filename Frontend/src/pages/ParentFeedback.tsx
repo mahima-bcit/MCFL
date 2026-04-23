@@ -135,7 +135,7 @@ export default function ParentFeedback() {
                     type="button"
                     variant="primary"
                     onClick={handleSubmitAnotherResponse}
-                    className="justify-center"
+                    className="w-full sm:w-auto justify-center"
                   >
                     Submit another response
                   </Button>
@@ -143,7 +143,7 @@ export default function ParentFeedback() {
                     type="button"
                     variant="outline"
                     onClick={() => window.location.assign("/")}
-                    className="justify-center"
+                    className="w-full sm:w-auto justify-center"
                   >
                     Back to home
                   </Button>
@@ -214,7 +214,7 @@ export default function ParentFeedback() {
                         : "border-nav/20 focus:border-primary"
                     }`}
                   />
-                  <div className="mt-2 flex items-center justify-between gap-4">
+                  <div className="mt-2 flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                     {errors.moneyStory ? (
                       <p className="text-sm text-error">{errors.moneyStory}</p>
                     ) : (
@@ -248,7 +248,7 @@ export default function ParentFeedback() {
                         : "border-nav/20 focus:border-primary"
                     }`}
                   />
-                  <div className="mt-2 flex items-center justify-between gap-4">
+                  <div className="mt-2 flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                     {errors.whatChildShouldLearn ? (
                       <p className="text-sm text-error">{errors.whatChildShouldLearn}</p>
                     ) : (
@@ -268,10 +268,11 @@ export default function ParentFeedback() {
                 </div>
 
                 <Button
-                  type="submit"
-                  variant="primary"
-                  className="w-full text-base py-4 justify-center"
-                >
+                      type="submit"
+                      variant="primary"
+                      disabled={isSubmitting}
+                      className="w-full text-base py-4 justify-center"
+                    >
                   {isSubmitting ? "Submitting..." : "Submit Feedback"}
                 </Button>
               </form>
