@@ -66,8 +66,25 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 // JWT Authentication
 var jwtSection = configuration.GetSection("Jwt");
-var jwtKey = jwtSection.GetValue<string>("Key")
-    ?? throw new InvalidOperationException("Jwt:Key missing");
+
+var jwtKey = jwtSection.GetValue<string>("Key");
+var jwtIssuer = jwtSection.GetValue<string>("Issuer");
+var jwtAudience = jwtSection.GetValue<string>("Audience");
+
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    throw new InvalidOperationException("Jwt:Key is missing.");
+}
+
+if (string.IsNullOrWhiteSpace(jwtIssuer))
+{
+    throw new InvalidOperationException("Jwt:Issuer is missing.");
+}
+
+if (string.IsNullOrWhiteSpace(jwtAudience))
+{
+    throw new InvalidOperationException("Jwt:Audience is missing.");
+}
 
 var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
 
@@ -85,9 +102,9 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
         ValidateIssuer = true,
-        ValidIssuer = jwtSection["Issuer"],
+        ValidIssuer = jwtIssuer,
         ValidateAudience = true,
-        ValidAudience = jwtSection["Audience"],
+        ValidAudience = jwtAudience,
         ClockSkew = TimeSpan.Zero
     };
 });
@@ -95,6 +112,13 @@ builder.Services.AddAuthentication(options =>
 // Register application services
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddOptions<BrevoOptions>()
+    .Bind(configuration.GetSection("Brevo"))
+    .Validate(options => !string.IsNullOrWhiteSpace(options.ApiKey), "Brevo:ApiKey is required.")
+    .Validate(options => !string.IsNullOrWhiteSpace(options.SenderEmail), "Brevo:SenderEmail is required.")
+    .Validate(options => !string.IsNullOrWhiteSpace(options.SenderName), "Brevo:SenderName is required.")
+    .ValidateOnStart();
+builder.Services.AddHttpClient<IEmailSender, BrevoEmailSender>();
 
 // Register repositories
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();

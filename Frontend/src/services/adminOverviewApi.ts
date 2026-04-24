@@ -1,6 +1,5 @@
 import type { AdminOverview, OverviewRangeKey } from "../types/adminOverview";
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
+import { apiFetch } from "./apiClient";
 
 type GetAdminOverviewParams = {
   range: OverviewRangeKey;
@@ -21,11 +20,5 @@ export async function getAdminOverview({
     params.set("endDate", endDate);
   }
 
-  const response = await fetch(`${API_BASE}/admin/overview?${params.toString()}`);
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch admin overview");
-  }
-
-  return response.json();
+  return apiFetch<AdminOverview>(`/admin/overview?${params.toString()}`);
 }

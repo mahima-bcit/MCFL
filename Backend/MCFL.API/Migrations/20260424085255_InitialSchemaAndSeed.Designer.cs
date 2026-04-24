@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MCFL.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260424071347_InitialSchemaAndSeed")]
+    [Migration("20260424085255_InitialSchemaAndSeed")]
     partial class InitialSchemaAndSeed
     {
         /// <inheritdoc />
@@ -104,7 +104,8 @@ namespace MCFL.API.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FullName")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasColumnName("fullName");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER")

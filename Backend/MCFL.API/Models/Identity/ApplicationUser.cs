@@ -22,6 +22,8 @@ namespace MCFL.API.Models.Identity
 
         [Column("mustChangePassword")]
         public bool MustChangePassword { get; set; } = false;
+
+        [Column("fullName")]
         public string? FullName { get; set; }
     }
 }

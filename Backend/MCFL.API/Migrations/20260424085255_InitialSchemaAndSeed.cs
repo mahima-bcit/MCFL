@@ -36,7 +36,7 @@ namespace MCFL.API.Migrations
                     parentConsentReceived = table.Column<bool>(type: "INTEGER", nullable: false),
                     onboardingCompleted = table.Column<bool>(type: "INTEGER", nullable: false),
                     mustChangePassword = table.Column<bool>(type: "INTEGER", nullable: false),
-                    FullName = table.Column<string>(type: "TEXT", nullable: true),
+                    fullName = table.Column<string>(type: "TEXT", nullable: true),
                     userName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),

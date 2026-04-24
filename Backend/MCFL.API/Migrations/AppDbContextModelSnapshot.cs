@@ -101,7 +101,8 @@ namespace MCFL.API.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FullName")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasColumnName("fullName");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER")

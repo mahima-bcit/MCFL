@@ -41,6 +41,7 @@ public class AccountController : ControllerBase
         {
             UserName = model.Email,
             Email = model.Email,
+            FullName = string.IsNullOrWhiteSpace(model.FullName) ? null : model.FullName.Trim(),
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
@@ -48,8 +49,26 @@ public class AccountController : ControllerBase
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded) return BadRequest(result.Errors);
 
-        // assign default role (ensure the RoleSeeder creates "User")
-        await _userManager.AddToRoleAsync(user, "User");
+        const string defaultRole = "User";
+
+        var roleResult = await _userManager.AddToRoleAsync(user, defaultRole);
+
+        if (!roleResult.Succeeded)
+        {
+            var errors = string.Join("; ", roleResult.Errors.Select(e => $"{e.Code}: {e.Description}"));
+
+            _logger.LogError(
+                "Failed to assign default role {Role} to user {UserId}. Errors: {Errors}",
+                defaultRole,
+                user.Id,
+                errors);
+
+            await _userManager.DeleteAsync(user);
+
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new { error = "Registration failed while assigning the default role." });
+        }
 
         var token = await _tokenService.CreateTokenAsync(user);
         return Ok(new

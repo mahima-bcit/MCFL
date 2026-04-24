@@ -4,7 +4,7 @@ type ApiRequestOptions = RequestInit;
 
 export async function apiFetch<T>(
   path: string,
-  { headers, ...options }: ApiRequestOptions = {}
+  { headers, ...options }: ApiRequestOptions = {},
 ): Promise<T> {
   const finalHeaders = new Headers(headers);
 
@@ -16,6 +16,12 @@ export async function apiFetch<T>(
     finalHeaders.set("Content-Type", "application/json");
   }
 
+  const token = localStorage.getItem("token") ?? sessionStorage.getItem("token");
+
+  if (token && !finalHeaders.has("Authorization")) {
+    finalHeaders.set("Authorization", `Bearer ${token}`);
+  }
+
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
   const response = await fetch(`${API_BASE}${normalizedPath}`, {
@@ -25,6 +31,11 @@ export async function apiFetch<T>(
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+    }
+
     const message = await response.text();
     throw new Error(message || `Request failed with status ${response.status}`);
   }
