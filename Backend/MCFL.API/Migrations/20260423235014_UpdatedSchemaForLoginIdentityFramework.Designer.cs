@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MCFL.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260421024908_InitialSchemaAndSeed")]
-    partial class InitialSchemaAndSeed
+    [Migration("20260423235014_UpdatedSchemaForLoginIdentityFramework")]
+    partial class UpdatedSchemaForLoginIdentityFramework
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -81,8 +81,7 @@ namespace MCFL.API.Migrations
             modelBuilder.Entity("MCFL.API.Models.Identity.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("pkUserId");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("INTEGER");
@@ -97,8 +96,7 @@ namespace MCFL.API.Migrations
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("email");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
@@ -112,10 +110,6 @@ namespace MCFL.API.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("MustChangePassword")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("mustChangePassword");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -154,8 +148,7 @@ namespace MCFL.API.Migrations
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("userName");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -217,12 +210,7 @@ namespace MCFL.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("MoneyEntry", t =>
-                        {
-                            t.HasCheckConstraint("CK_MoneyEntry_CategoryChoice", "(entryType = 'CashIn' AND fkCashInCategoryId IS NOT NULL AND fkCashOutCategoryId IS NULL) OR (entryType = 'CashOut' AND fkCashOutCategoryId IS NOT NULL AND fkCashInCategoryId IS NULL)");
-
-                            t.HasCheckConstraint("CK_MoneyEntry_EntryType", "entryType IN ('CashIn', 'CashOut')");
-                        });
+                    b.ToTable("MoneyEntry");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.MoneyFeelingSubmission", b =>
@@ -301,6 +289,16 @@ namespace MCFL.API.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("pkParentConsentId");
 
+                    b.Property<DateTime?>("ConfirmationSentAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("confirmationSentAt");
+
+                    b.Property<string>("ConfirmationToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("ConsentGiven")
                         .HasColumnType("INTEGER")
                         .HasColumnName("consentGiven");
@@ -312,6 +310,9 @@ namespace MCFL.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("createdAt");
+
+                    b.Property<bool>("IsConfirmed")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ParentEmail")
                         .IsRequired()
@@ -325,6 +326,9 @@ namespace MCFL.API.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("parentName");
 
+                    b.Property<DateTime>("RequestedAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("TEXT")
@@ -335,10 +339,7 @@ namespace MCFL.API.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("ParentConsent", t =>
-                        {
-                            t.HasCheckConstraint("CK_ParentConsent_ConsentGivenAt", "(consentGiven = 0 AND consentGivenAt IS NULL) OR (consentGiven = 1 AND consentGivenAt IS NOT NULL)");
-                        });
+                    b.ToTable("ParentConsent");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.ParentFeedback", b =>
@@ -391,6 +392,9 @@ namespace MCFL.API.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("pkRegistrationAllowListId");
 
+                    b.Property<string>("AddedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("createdAt");
@@ -400,6 +404,9 @@ namespace MCFL.API.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("TEXT")
                         .HasColumnName("email");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("RegistrationAllowListId");
 
@@ -457,10 +464,7 @@ namespace MCFL.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("SavingsGoal", t =>
-                        {
-                            t.HasCheckConstraint("CK_SavingsGoal_Amounts", "targetAmount >= 0 AND currentSavedAmount >= 0");
-                        });
+                    b.ToTable("SavingsGoal");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.Scenario", b =>
@@ -613,10 +617,7 @@ namespace MCFL.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ScenarioPlay", t =>
-                        {
-                            t.HasCheckConstraint("CK_ScenarioPlay_GameMoney", "gameMoneyBefore >= 0 AND gameMoneyAfter >= 0");
-                        });
+                    b.ToTable("ScenarioPlay");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.UserFeedback", b =>
@@ -683,10 +684,7 @@ namespace MCFL.API.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserGameStat", t =>
-                        {
-                            t.HasCheckConstraint("CK_UserGameStat_CurrentGameMoney", "currentGameMoney >= 0");
-                        });
+                    b.ToTable("UserGameStat");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.UserProfile", b =>
@@ -750,8 +748,7 @@ namespace MCFL.API.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("pkRoleId");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -759,8 +756,7 @@ namespace MCFL.API.Migrations
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("roleName");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
@@ -846,12 +842,10 @@ namespace MCFL.API.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("fkUserId");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("RoleId")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("fkRoleId");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -883,13 +877,11 @@ namespace MCFL.API.Migrations
                 {
                     b.HasOne("MCFL.API.Models.CashInCategory", "CashInCategory")
                         .WithMany()
-                        .HasForeignKey("CashInCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CashInCategoryId");
 
                     b.HasOne("MCFL.API.Models.CashOutCategory", "CashOutCategory")
                         .WithMany()
-                        .HasForeignKey("CashOutCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CashOutCategoryId");
 
                     b.HasOne("MCFL.API.Models.Identity.ApplicationUser", "User")
                         .WithMany()
@@ -929,8 +921,8 @@ namespace MCFL.API.Migrations
             modelBuilder.Entity("MCFL.API.Models.ParentConsent", b =>
                 {
                     b.HasOne("MCFL.API.Models.Identity.ApplicationUser", "User")
-                        .WithOne()
-                        .HasForeignKey("MCFL.API.Models.ParentConsent", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -975,13 +967,13 @@ namespace MCFL.API.Migrations
                     b.HasOne("MCFL.API.Models.ScenarioChoice", "ScenarioChoice")
                         .WithMany()
                         .HasForeignKey("ScenarioChoiceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MCFL.API.Models.Scenario", "Scenario")
                         .WithMany()
                         .HasForeignKey("ScenarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MCFL.API.Models.Identity.ApplicationUser", "User")
@@ -1011,8 +1003,8 @@ namespace MCFL.API.Migrations
             modelBuilder.Entity("MCFL.API.Models.UserGameStat", b =>
                 {
                     b.HasOne("MCFL.API.Models.Identity.ApplicationUser", "User")
-                        .WithOne()
-                        .HasForeignKey("MCFL.API.Models.UserGameStat", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1022,8 +1014,8 @@ namespace MCFL.API.Migrations
             modelBuilder.Entity("MCFL.API.Models.UserProfile", b =>
                 {
                     b.HasOne("MCFL.API.Models.Identity.ApplicationUser", "User")
-                        .WithOne()
-                        .HasForeignKey("MCFL.API.Models.UserProfile", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MCFL.API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialSchemaAndSeed : Migration
+    public partial class UpdatedSchemaForLoginIdentityFramework : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,30 +15,29 @@ namespace MCFL.API.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    pkRoleId = table.Column<string>(type: "TEXT", nullable: false),
-                    roleName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetRoles", x => x.pkRoleId);
+                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    pkUserId = table.Column<string>(type: "TEXT", nullable: false),
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
                     isActive = table.Column<bool>(type: "INTEGER", nullable: false),
                     createdAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     parentConsentRequired = table.Column<bool>(type: "INTEGER", nullable: false),
                     parentConsentReceived = table.Column<bool>(type: "INTEGER", nullable: false),
                     onboardingCompleted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    mustChangePassword = table.Column<bool>(type: "INTEGER", nullable: false),
-                    userName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     EmailConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
                     PasswordHash = table.Column<string>(type: "TEXT", nullable: true),
@@ -53,7 +52,7 @@ namespace MCFL.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.pkUserId);
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -93,6 +92,8 @@ namespace MCFL.API.Migrations
                     pkRegistrationAllowListId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     email = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    AddedByUserId = table.Column<string>(type: "TEXT", nullable: true),
                     createdAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -134,7 +135,7 @@ namespace MCFL.API.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
-                        principalColumn: "pkRoleId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -155,7 +156,7 @@ namespace MCFL.API.Migrations
                         name: "FK_AspNetUserClaims_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -175,7 +176,7 @@ namespace MCFL.API.Migrations
                         name: "FK_AspNetUserLogins_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -183,23 +184,23 @@ namespace MCFL.API.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    fkUserId = table.Column<string>(type: "TEXT", nullable: false),
-                    fkRoleId = table.Column<string>(type: "TEXT", nullable: false)
+                    UserId = table.Column<string>(type: "TEXT", nullable: false),
+                    RoleId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.fkUserId, x.fkRoleId });
+                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
                     table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetRoles_fkRoleId",
-                        column: x => x.fkRoleId,
+                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
                         principalTable: "AspNetRoles",
-                        principalColumn: "pkRoleId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetUsers_fkUserId",
-                        column: x => x.fkUserId,
+                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -219,7 +220,7 @@ namespace MCFL.API.Migrations
                         name: "FK_AspNetUserTokens_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -240,7 +241,7 @@ namespace MCFL.API.Migrations
                         name: "FK_MoneyFeelingSubmission_AspNetUsers_fkUserId",
                         column: x => x.fkUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -263,7 +264,7 @@ namespace MCFL.API.Migrations
                         name: "FK_ParentAccessLink_AspNetUsers_fkUserId",
                         column: x => x.fkUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -277,18 +278,22 @@ namespace MCFL.API.Migrations
                     parentEmail = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
                     consentGiven = table.Column<bool>(type: "INTEGER", nullable: false),
                     consentGivenAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    confirmationSentAt = table.Column<DateTime>(type: "TEXT", nullable: true),
                     createdAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    fkUserId = table.Column<string>(type: "TEXT", nullable: false)
+                    fkUserId = table.Column<string>(type: "TEXT", nullable: false),
+                    IsConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
+                    ConfirmationToken = table.Column<string>(type: "TEXT", nullable: true),
+                    RequestedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ConfirmedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ParentConsent", x => x.pkParentConsentId);
-                    table.CheckConstraint("CK_ParentConsent_ConsentGivenAt", "(consentGiven = 0 AND consentGivenAt IS NULL) OR (consentGiven = 1 AND consentGivenAt IS NOT NULL)");
                     table.ForeignKey(
                         name: "FK_ParentConsent_AspNetUsers_fkUserId",
                         column: x => x.fkUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -310,12 +315,11 @@ namespace MCFL.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SavingsGoal", x => x.pkSavingsGoalId);
-                    table.CheckConstraint("CK_SavingsGoal_Amounts", "targetAmount >= 0 AND currentSavedAmount >= 0");
                     table.ForeignKey(
                         name: "FK_SavingsGoal_AspNetUsers_fkUserId",
                         column: x => x.fkUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -337,7 +341,7 @@ namespace MCFL.API.Migrations
                         name: "FK_UserFeedback_AspNetUsers_fkUserId",
                         column: x => x.fkUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -355,12 +359,11 @@ namespace MCFL.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserGameStat", x => x.pkUserGameStatId);
-                    table.CheckConstraint("CK_UserGameStat_CurrentGameMoney", "currentGameMoney >= 0");
                     table.ForeignKey(
                         name: "FK_UserGameStat_AspNetUsers_fkUserId",
                         column: x => x.fkUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -387,7 +390,7 @@ namespace MCFL.API.Migrations
                         name: "FK_UserProfile_AspNetUsers_fkUserId",
                         column: x => x.fkUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -408,26 +411,22 @@ namespace MCFL.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MoneyEntry", x => x.pkMoneyEntryId);
-                    table.CheckConstraint("CK_MoneyEntry_CategoryChoice", "(entryType = 'CashIn' AND fkCashInCategoryId IS NOT NULL AND fkCashOutCategoryId IS NULL) OR (entryType = 'CashOut' AND fkCashOutCategoryId IS NOT NULL AND fkCashInCategoryId IS NULL)");
-                    table.CheckConstraint("CK_MoneyEntry_EntryType", "entryType IN ('CashIn', 'CashOut')");
                     table.ForeignKey(
                         name: "FK_MoneyEntry_AspNetUsers_fkUserId",
                         column: x => x.fkUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_MoneyEntry_CashInCategory_fkCashInCategoryId",
                         column: x => x.fkCashInCategoryId,
                         principalTable: "CashInCategory",
-                        principalColumn: "pkCashInCategoryId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "pkCashInCategoryId");
                     table.ForeignKey(
                         name: "FK_MoneyEntry_CashOutCategory_fkCashOutCategoryId",
                         column: x => x.fkCashOutCategoryId,
                         principalTable: "CashOutCategory",
-                        principalColumn: "pkCashOutCategoryId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "pkCashOutCategoryId");
                 });
 
             migrationBuilder.CreateTable(
@@ -501,25 +500,24 @@ namespace MCFL.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ScenarioPlay", x => x.pkScenarioPlayId);
-                    table.CheckConstraint("CK_ScenarioPlay_GameMoney", "gameMoneyBefore >= 0 AND gameMoneyAfter >= 0");
                     table.ForeignKey(
                         name: "FK_ScenarioPlay_AspNetUsers_fkUserId",
                         column: x => x.fkUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ScenarioPlay_ScenarioChoice_fkScenarioChoiceId",
                         column: x => x.fkScenarioChoiceId,
                         principalTable: "ScenarioChoice",
                         principalColumn: "pkScenarioChoiceId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ScenarioPlay_Scenario_fkScenarioId",
                         column: x => x.fkScenarioId,
                         principalTable: "Scenario",
                         principalColumn: "pkScenarioId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -544,9 +542,9 @@ namespace MCFL.API.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserRoles_fkRoleId",
+                name: "IX_AspNetUserRoles_RoleId",
                 table: "AspNetUserRoles",
-                column: "fkRoleId");
+                column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
