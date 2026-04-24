@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MCFL.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260424061459_InitialSchemaAndSeed")]
+    [Migration("20260424071347_InitialSchemaAndSeed")]
     partial class InitialSchemaAndSeed
     {
         /// <inheritdoc />
@@ -387,16 +387,6 @@ namespace MCFL.API.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("pkParentConsentId");
 
-                    b.Property<DateTime?>("ConfirmationSentAt")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("confirmationSentAt");
-
-                    b.Property<string>("ConfirmationToken")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("ConfirmedAt")
-                        .HasColumnType("TEXT");
-
                     b.Property<bool>("ConsentGiven")
                         .HasColumnType("INTEGER")
                         .HasColumnName("consentGiven");
@@ -409,9 +399,6 @@ namespace MCFL.API.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("createdAt");
 
-                    b.Property<bool>("IsConfirmed")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("ParentEmail")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -423,9 +410,6 @@ namespace MCFL.API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT")
                         .HasColumnName("parentName");
-
-                    b.Property<DateTime>("RequestedAt")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -493,9 +477,6 @@ namespace MCFL.API.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("pkRegistrationAllowListId");
 
-                    b.Property<string>("AddedByUserId")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("createdAt");
@@ -505,9 +486,6 @@ namespace MCFL.API.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("TEXT")
                         .HasColumnName("email");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
 
                     b.HasKey("RegistrationAllowListId");
 

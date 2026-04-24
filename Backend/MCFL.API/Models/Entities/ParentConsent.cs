@@ -31,9 +31,6 @@ namespace MCFL.API.Models
         [Column("consentGivenAt")]
         public DateTime? ConsentGivenAt { get; set; }
 
-        [Column("confirmationSentAt")]
-        public DateTime? ConfirmationSentAt { get; set; }
-
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -43,10 +40,5 @@ namespace MCFL.API.Models
 
         [ForeignKey(nameof(UserId))]
         public ApplicationUser User { get; set; } = null!;
-
-        public bool IsConfirmed { get; set; }
-        public string? ConfirmationToken { get; set; }
-        public DateTime RequestedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? ConfirmedAt { get; set; }
     }
 }

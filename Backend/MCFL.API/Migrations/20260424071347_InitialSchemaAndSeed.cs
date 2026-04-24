@@ -109,8 +109,6 @@ namespace MCFL.API.Migrations
                     pkRegistrationAllowListId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     email = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
-                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    AddedByUserId = table.Column<string>(type: "TEXT", nullable: true),
                     createdAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -322,13 +320,8 @@ namespace MCFL.API.Migrations
                     parentEmail = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
                     consentGiven = table.Column<bool>(type: "INTEGER", nullable: false),
                     consentGivenAt = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    confirmationSentAt = table.Column<DateTime>(type: "TEXT", nullable: true),
                     createdAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    fkUserId = table.Column<string>(type: "TEXT", nullable: false),
-                    IsConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    ConfirmationToken = table.Column<string>(type: "TEXT", nullable: true),
-                    RequestedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ConfirmedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
+                    fkUserId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
