@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MCFL.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260423213619_InitialSchemaAndSeed")]
+    [Migration("20260424085255_InitialSchemaAndSeed")]
     partial class InitialSchemaAndSeed
     {
         /// <inheritdoc />
@@ -102,6 +102,10 @@ namespace MCFL.API.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("fullName");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER")

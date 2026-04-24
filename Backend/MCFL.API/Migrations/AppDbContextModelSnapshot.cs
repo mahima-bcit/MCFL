@@ -100,6 +100,10 @@ namespace MCFL.API.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("FullName")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("fullName");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER")
                         .HasColumnName("isActive");
