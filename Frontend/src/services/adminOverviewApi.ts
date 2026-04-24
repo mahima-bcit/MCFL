@@ -1,6 +1,6 @@
 import type { AdminOverview, OverviewRangeKey } from "../types/adminOverview";
 
-const API_BASE = "https://localhost:7211/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
 type GetAdminOverviewParams = {
   range: OverviewRangeKey;

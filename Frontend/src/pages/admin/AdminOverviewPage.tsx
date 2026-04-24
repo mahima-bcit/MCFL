@@ -23,21 +23,53 @@ const rangeOptions: { key: OverviewRangeKey; label: string }[] = [
   { key: "custom", label: "Custom" },
 ];
 
+function getLocalTodayIsoDate() {
+  const now = new Date();
+  const localToday = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  );
+
+  return localToday.toISOString().split("T")[0];
+}
+
 export default function AdminOverviewPage() {
   const [data, setData] = useState<AdminOverview | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [selectedRange, setSelectedRange] =
-    useState<OverviewRangeKey>("allTime");
+  const [fetchError, setFetchError] = useState("");
+  const [selectedRange, setSelectedRange] = useState<OverviewRangeKey>("allTime");
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
+  const [today] = useState(getLocalTodayIsoDate);
+
+  const isCustomRangeIncomplete =
+    selectedRange === "custom" && (!customStartDate || !customEndDate);
+
+  const isCustomRangeInvalid =
+    selectedRange === "custom" &&
+    customStartDate !== "" &&
+    customEndDate !== "" &&
+    customEndDate < customStartDate;
+
+  const customRangeError = isCustomRangeInvalid
+    ? "End date must be on or after start date."
+    : "";
+
   useEffect(() => {
+    if (
+      selectedRange === "custom" &&
+      (isCustomRangeIncomplete || isCustomRangeInvalid)
+    ) {
+      return;
+    }
+
+    let isCancelled = false;
+
     async function load() {
       try {
         setLoading(true);
-        setError("");
+        setFetchError("");
 
         const result = await getAdminOverview({
           range: selectedRange,
@@ -45,28 +77,37 @@ export default function AdminOverviewPage() {
           endDate: selectedRange === "custom" ? customEndDate : undefined,
         });
 
-        setData(result);
+        if (!isCancelled) {
+          setData(result);
+        }
       } catch {
-        setError("Failed to load overview.");
+        if (!isCancelled) {
+          setFetchError("Failed to load overview.");
+        }
       } finally {
-        setLoading(false);
+        if (!isCancelled) {
+          setLoading(false);
+        }
       }
-    }
-
-    if (selectedRange === "custom") {
-      if (customStartDate && customEndDate) {
-        load();
-      }
-      return;
     }
 
     load();
-  }, [selectedRange, customStartDate, customEndDate]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    selectedRange,
+    customStartDate,
+    customEndDate,
+    isCustomRangeIncomplete,
+    isCustomRangeInvalid,
+  ]);
 
   return (
     <AdminLayout>
       {loading && <p className="text-slate-600">Loading overview...</p>}
-      {error && <p className="text-red-600">{error}</p>}
+      {fetchError && <p className="text-red-600">{fetchError}</p>}
 
       {data && (
         <div className="space-y-2.5 md:space-y-6">
@@ -99,7 +140,7 @@ export default function AdminOverviewPage() {
                     <span>Export</span>
                   </button>
                 </div>
-
+                
                 {/* Mobile dropdown */}
                 {isMobileFilterOpen && (
                   <div className="mt-3 md:hidden">
@@ -146,19 +187,30 @@ export default function AdminOverviewPage() {
                 </div>
 
                 {selectedRange === "custom" && (
-                  <div className="mt-3 flex flex-col gap-2.5 sm:flex-row">
-                    <input
-                      type="date"
-                      value={customStartDate}
-                      onChange={(e) => setCustomStartDate(e.target.value)}
-                      className="rounded-xl border border-[#d9e3f3] bg-white px-3 py-2 text-sm text-slate-700"
-                    />
-                    <input
-                      type="date"
-                      value={customEndDate}
-                      onChange={(e) => setCustomEndDate(e.target.value)}
-                      className="rounded-xl border border-[#d9e3f3] bg-white px-3 py-2 text-sm text-slate-700"
-                    />
+                  <div className="mt-3">
+                    <div className="flex flex-col gap-2.5 sm:flex-row">
+                      <input
+                        type="date"
+                        value={customStartDate}
+                        max={customEndDate || today}
+                        onChange={(e) => setCustomStartDate(e.target.value)}
+                        className="rounded-xl border border-[#d9e3f3] bg-white px-3 py-2 text-sm text-slate-700"
+                      />
+                      <input
+                        type="date"
+                        value={customEndDate}
+                        min={customStartDate || undefined}
+                        max={today}
+                        onChange={(e) => setCustomEndDate(e.target.value)}
+                        className="rounded-xl border border-[#d9e3f3] bg-white px-3 py-2 text-sm text-slate-700"
+                      />
+                    </div>
+
+                    {customRangeError && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {customRangeError}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -173,7 +225,7 @@ export default function AdminOverviewPage() {
                   </span>
                 </p>
               </div>
-
+              
               {/* Desktop export button */}
               <button
                 type="button"

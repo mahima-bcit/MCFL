@@ -20,65 +20,6 @@ export default function UserDetailsPanel({ user }: Props) {
     <div className="space-y-5 rounded-[24px] bg-[#f5f8fc] p-4">
       <section>
         <div className="mb-3 flex items-center gap-2">
-          <BarChart3 size={18} className="text-[#2563eb]" />
-          <h3 className="text-[16px] font-semibold text-[#0f172a]">
-            Game Progress
-          </h3>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <AdminCard className="rounded-[16px] p-3 md:rounded-[18px] md:p-4">
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eef4ff]">
-              <BarChart3 size={18} className="text-[#2563eb]" />
-            </div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-              Scenarios Completed
-            </p>
-            <p className="mt-1.5 text-[15px] font-semibold text-[#0f172a] md:mt-2 md:text-[16px]">
-              {user.scenariosCompleted}
-            </p>
-          </AdminCard>
-
-          <AdminCard className="rounded-[16px] p-3 md:rounded-[18px] md:p-4">
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eafaf3]">
-              <Coins size={18} className="text-[#10b981]" />
-            </div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-              Game Money
-            </p>
-            <p className="mt-1.5 text-[15px] font-semibold text-[#0f172a] md:mt-2 md:text-[16px]">
-              ${user.gameMoney}
-            </p>
-          </AdminCard>
-
-          <AdminCard className="rounded-[16px] p-3 md:rounded-[18px] md:p-4">
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f3ecff]">
-              <Gauge size={18} className="text-[#7c3aed]" />
-            </div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-              Confidence
-            </p>
-            <p className="mt-1.5 text-[15px] font-semibold text-[#0f172a] md:mt-2 md:text-[16px]">
-              {user.confidence}%
-            </p>
-          </AdminCard>
-
-          <AdminCard className="rounded-[16px] p-3 md:rounded-[18px] md:p-4">
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#fff7ed]">
-              <CalendarDays size={18} className="text-[#f59e0b]" />
-            </div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-              Join Date
-            </p>
-            <p className="mt-1.5 text-[15px] font-semibold text-[#0f172a] md:mt-2 md:text-[16px]">
-              {user.joinDate}
-            </p>
-          </AdminCard>
-        </div>
-      </section>
-
-      <section>
-        <div className="mb-3 flex items-center gap-2">
           <Target size={18} className="text-[#2563eb]" />
           <h3 className="text-[16px] font-semibold text-[#0f172a]">
             Learning Savings Goal
@@ -127,6 +68,53 @@ export default function UserDetailsPanel({ user }: Props) {
             </div>
           </div>
         </AdminCard>
+      </section>
+      
+      <section>
+        <div className="mb-3 flex items-center gap-2">
+          <BarChart3 size={18} className="text-[#2563eb]" />
+          <h3 className="text-[16px] font-semibold text-[#0f172a]">
+            Game Progress
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <AdminCard className="rounded-[16px] p-3 md:rounded-[18px] md:p-4">
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eef4ff]">
+              <BarChart3 size={18} className="text-[#2563eb]" />
+            </div>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+              Scenarios Completed
+            </p>
+            <p className="mt-1.5 text-[15px] font-semibold text-[#0f172a] md:mt-2 md:text-[16px]">
+              {user.scenariosCompleted}
+            </p>
+          </AdminCard>
+
+          <AdminCard className="rounded-[16px] p-3 md:rounded-[18px] md:p-4">
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eafaf3]">
+              <Coins size={18} className="text-[#10b981]" />
+            </div>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+              Game Money
+            </p>
+            <p className="mt-1.5 text-[15px] font-semibold text-[#0f172a] md:mt-2 md:text-[16px]">
+              ${user.gameMoney}
+            </p>
+          </AdminCard>
+
+          <AdminCard className="rounded-[16px] p-3 md:rounded-[18px] md:p-4">
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f3ecff]">
+              <Gauge size={18} className="text-[#7c3aed]" />
+            </div>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+              Confidence
+            </p>
+            <p className="mt-1.5 text-[15px] font-semibold text-[#0f172a] md:mt-2 md:text-[16px]">
+              {user.confidence}%
+            </p>
+          </AdminCard>
+        </div>
       </section>
 
       <section>

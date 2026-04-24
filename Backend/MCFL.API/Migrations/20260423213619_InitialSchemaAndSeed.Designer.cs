@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MCFL.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260422232511_InitialSchemaAndSeed")]
+    [Migration("20260423213619_InitialSchemaAndSeed")]
     partial class InitialSchemaAndSeed
     {
         /// <inheritdoc />
@@ -76,64 +76,6 @@ namespace MCFL.API.Migrations
                         .IsUnique();
 
                     b.ToTable("CashOutCategory");
-                });
-
-            modelBuilder.Entity("MCFL.API.Models.Entities.LearningTopic", b =>
-                {
-                    b.Property<int>("LearningTopicId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("pkLearningTopicId");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("isActive");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("sortOrder");
-
-                    b.Property<string>("TopicName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("topicName");
-
-                    b.HasKey("LearningTopicId");
-
-                    b.HasIndex("TopicName")
-                        .IsUnique();
-
-                    b.ToTable("LearningTopic");
-                });
-
-            modelBuilder.Entity("MCFL.API.Models.Entities.UserLearningPreference", b =>
-                {
-                    b.Property<int>("UserLearningPreferenceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("pkUserLearningPreferenceId");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("createdAt");
-
-                    b.Property<int>("LearningTopicId")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("fkLearningTopicId");
-
-                    b.Property<int>("UserProfileId")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("fkUserProfileId");
-
-                    b.HasKey("UserLearningPreferenceId");
-
-                    b.HasIndex("LearningTopicId");
-
-                    b.HasIndex("UserProfileId", "LearningTopicId")
-                        .IsUnique();
-
-                    b.ToTable("UserLearningPreference");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.Identity.ApplicationUser", b =>
@@ -279,6 +221,35 @@ namespace MCFL.API.Migrations
                         {
                             t.HasCheckConstraint("CK_SavingsGoal_Amounts", "targetAmount >= 0 AND currentSavedAmount >= 0");
                         });
+                });
+
+            modelBuilder.Entity("MCFL.API.Models.LearningTopic", b =>
+                {
+                    b.Property<int>("LearningTopicId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("pkLearningTopicId");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("isActive");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("sortOrder");
+
+                    b.Property<string>("TopicName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("topicName");
+
+                    b.HasKey("LearningTopicId");
+
+                    b.HasIndex("TopicName")
+                        .IsUnique();
+
+                    b.ToTable("LearningTopic");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.MoneyEntry", b =>
@@ -747,6 +718,35 @@ namespace MCFL.API.Migrations
                         });
                 });
 
+            modelBuilder.Entity("MCFL.API.Models.UserLearningPreference", b =>
+                {
+                    b.Property<int>("UserLearningPreferenceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("pkUserLearningPreferenceId");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("createdAt");
+
+                    b.Property<int>("LearningTopicId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("fkLearningTopicId");
+
+                    b.Property<int>("UserProfileId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("fkUserProfileId");
+
+                    b.HasKey("UserLearningPreferenceId");
+
+                    b.HasIndex("LearningTopicId");
+
+                    b.HasIndex("UserProfileId", "LearningTopicId")
+                        .IsUnique();
+
+                    b.ToTable("UserLearningPreference");
+                });
+
             modelBuilder.Entity("MCFL.API.Models.UserProfile", b =>
                 {
                     b.Property<int>("UserProfileId")
@@ -958,25 +958,6 @@ namespace MCFL.API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("MCFL.API.Models.Entities.UserLearningPreference", b =>
-                {
-                    b.HasOne("MCFL.API.Models.Entities.LearningTopic", "LearningTopic")
-                        .WithMany("UserLearningPreferences")
-                        .HasForeignKey("LearningTopicId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("MCFL.API.Models.UserProfile", "UserProfile")
-                        .WithMany("UserLearningPreferences")
-                        .HasForeignKey("UserProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("LearningTopic");
-
-                    b.Navigation("UserProfile");
-                });
-
             modelBuilder.Entity("MCFL.API.Models.LearningSavingsGoal", b =>
                 {
                     b.HasOne("MCFL.API.Models.Identity.ApplicationUser", "User")
@@ -1117,6 +1098,25 @@ namespace MCFL.API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MCFL.API.Models.UserLearningPreference", b =>
+                {
+                    b.HasOne("MCFL.API.Models.LearningTopic", "LearningTopic")
+                        .WithMany("UserLearningPreferences")
+                        .HasForeignKey("LearningTopicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MCFL.API.Models.UserProfile", "UserProfile")
+                        .WithMany("UserLearningPreferences")
+                        .HasForeignKey("UserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LearningTopic");
+
+                    b.Navigation("UserProfile");
+                });
+
             modelBuilder.Entity("MCFL.API.Models.UserProfile", b =>
                 {
                     b.HasOne("MCFL.API.Models.Identity.ApplicationUser", "User")
@@ -1179,7 +1179,7 @@ namespace MCFL.API.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MCFL.API.Models.Entities.LearningTopic", b =>
+            modelBuilder.Entity("MCFL.API.Models.LearningTopic", b =>
                 {
                     b.Navigation("UserLearningPreferences");
                 });

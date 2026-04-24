@@ -1,23 +1,10 @@
 import type { AdminUserDetail, AdminUserListItem } from "../types/adminUsers";
+import { apiFetch } from "./apiClient";
 
-const API_BASE = "https://localhost:7211/api";
-
-export async function getAdminUsers(): Promise<AdminUserListItem[]> {
-  const response = await fetch(`${API_BASE}/admin/users`);
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch admin users");
-  }
-
-  return response.json();
+export function getAdminUsers(): Promise<AdminUserListItem[]> {
+  return apiFetch<AdminUserListItem[]>("/admin/users");
 }
 
-export async function getAdminUserById(id: string): Promise<AdminUserDetail> {
-  const response = await fetch(`${API_BASE}/admin/users/${id}`);
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch admin user details");
-  }
-
-  return response.json();
+export function getAdminUserById(id: string): Promise<AdminUserDetail> {
+  return apiFetch<AdminUserDetail>(`/admin/users/${id}`);
 }

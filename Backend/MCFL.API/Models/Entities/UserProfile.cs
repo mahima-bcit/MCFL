@@ -1,5 +1,4 @@
-﻿using MCFL.API.Models.Entities;
-using MCFL.API.Models.Identity;
+﻿using MCFL.API.Models.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

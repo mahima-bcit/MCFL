@@ -73,8 +73,21 @@ namespace MCFL.API.Services
                         throw new ArgumentException("Custom range requires startDate and endDate.");
                     }
 
-                    dateFrom = startDate.Value.Date;
-                    dateTo = endDate.Value.Date;
+                    var start = startDate.Value.Date;
+                    var end = endDate.Value.Date;
+
+                    if (end < start)
+                    {
+                        throw new ArgumentException("Custom range requires endDate to be greater than or equal to startDate.");
+                    }
+
+                    if (start > today || end > today)
+                    {
+                        throw new ArgumentException("Custom range cannot include future dates.");
+                    }
+
+                    dateFrom = start;
+                    dateTo = end;
                     break;
 
                 default:
@@ -105,16 +118,18 @@ namespace MCFL.API.Services
                 : 0;
 
             var createdDates = await _adminRepository.GetProfileCreatedDatesInRangeAsync(dateFrom, rangeEndExclusive);
+            var createdDateCounts = createdDates.GroupBy(d => d).ToDictionary(group => group.Key, group => group.Count());
             var totalDays = (dateTo - dateFrom).Days + 1;
 
             var userGrowthSeries = Enumerable.Range(0, totalDays)
                 .Select(offset =>
                 {
                     var day = dateFrom.AddDays(offset);
+                    createdDateCounts.TryGetValue(day, out var count);
                     return new UserGrowthPointDto
                     {
                         Label = day.ToString("MMM d"),
-                        Value = createdDates.Count(d => d == day)
+                        Value = count
                     };
                 })
                 .ToList();

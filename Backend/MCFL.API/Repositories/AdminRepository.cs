@@ -97,14 +97,46 @@ namespace MCFL.API.Repositories
 
         public async Task<List<AdminUserListProjection>> GetUserListAsync()
         {
-            return await (
+            var goalRows = await _context.LearningSavingsGoals
+                .AsNoTracking()
+                .Where(x => x.IsActive)
+                .Select(x => new
+                {
+                    x.UserId,
+                    Amount = x.CurrentSavedAmount ?? 0m
+                })
+                .ToListAsync();
+
+            var goalProgressLookup = goalRows
+                .GroupBy(x => x.UserId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Sum(x => x.Amount)
+                );
+
+            var scenarioCountsByUser =
+                from scenarioPlay in _context.ScenarioPlays.AsNoTracking()
+                group scenarioPlay by scenarioPlay.UserId into g
+                select new
+                {
+                    UserId = g.Key,
+                    ScenariosCompleted = g.Count()
+                };
+
+            var users = await (
                 from user in _context.Users.AsNoTracking()
-                join profile in _context.UserProfiles.AsNoTracking() on user.Id equals profile.UserId
-                join stat in _context.UserGameStats.AsNoTracking() on user.Id equals stat.UserId into stats
+                join profile in _context.UserProfiles.AsNoTracking()
+                    on user.Id equals profile.UserId
+                join stat in _context.UserGameStats.AsNoTracking()
+                    on user.Id equals stat.UserId into stats
                 from stat in stats.DefaultIfEmpty()
-                join parent in _context.ParentConsents.AsNoTracking() on user.Id equals parent.UserId into parents
+                join parent in _context.ParentConsents.AsNoTracking()
+                    on user.Id equals parent.UserId into parents
                 from parent in parents.DefaultIfEmpty()
-                select new AdminUserListProjection
+                join scenario in scenarioCountsByUser
+                    on user.Id equals scenario.UserId into scenarios
+                from scenario in scenarios.DefaultIfEmpty()
+                select new
                 {
                     UserId = user.Id,
                     FullName = profile.FullName,
@@ -115,15 +147,26 @@ namespace MCFL.API.Repositories
                     CreatedAt = profile.CreatedAt,
                     Confidence = stat != null ? stat.CurrentConfidenceScore : 0,
                     GameMoney = stat != null ? stat.CurrentGameMoney : 0m,
-                    GoalProgress = (decimal)(
-                        _context.LearningSavingsGoals
-                            .Where(g => g.UserId == user.Id && g.IsActive)
-                            .Select(g => (double?)(g.CurrentSavedAmount ?? 0m))
-                            .Sum() ?? 0
-                    ),
-                    ScenariosCompleted = _context.ScenarioPlays.Count(sp => sp.UserId == user.Id)
+                    ScenariosCompleted = scenario != null ? scenario.ScenariosCompleted : 0
                 })
                 .ToListAsync();
+
+            return users.Select(user => new AdminUserListProjection
+            {
+                UserId = user.UserId,
+                FullName = user.FullName,
+                Email = user.Email,
+                ParentGuardianName = user.ParentGuardianName,
+                ParentGuardianEmail = user.ParentGuardianEmail,
+                DateOfBirth = user.DateOfBirth,
+                CreatedAt = user.CreatedAt,
+                Confidence = user.Confidence,
+                GameMoney = user.GameMoney,
+                GoalProgress = goalProgressLookup.TryGetValue(user.UserId, out var goalProgress)
+                    ? goalProgress
+                    : 0m,
+                ScenariosCompleted = user.ScenariosCompleted
+            }).ToList();
         }
 
         public async Task<AdminUserDetailProjection?> GetUserDetailAsync(string userId)

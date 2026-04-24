@@ -1,4 +1,4 @@
-﻿using MCFL.API.Models.Entities;
+﻿using MCFL.API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace MCFL.API.Data.Seed

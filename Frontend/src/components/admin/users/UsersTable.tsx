@@ -26,6 +26,7 @@ export default function UsersTable({ users }: Props) {
   const [sheetUserId, setSheetUserId] = useState<string | null>(null);
   const [details, setDetails] = useState<Record<string, AdminUserDetail>>({});
   const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
+  const [detailErrors, setDetailErrors] = useState<Record<string, string>>({});
 
   function isDesktopViewport() {
     return typeof window !== "undefined"
@@ -34,22 +35,51 @@ export default function UsersTable({ users }: Props) {
   }
 
   async function ensureUserDetails(userId: string) {
-    if (details[userId]) return;
+    if (details[userId]) return true;
+    if (loadingUserId === userId) return false;
 
     setLoadingUserId(userId);
+
+    setDetailErrors((prev) => {
+      if (!prev[userId]) return prev;
+
+      const next = { ...prev };
+      delete next[userId];
+      return next;
+    });
+
     try {
       const result = await getAdminUserById(userId);
       setDetails((prev) => ({ ...prev, [userId]: result }));
+      return true;
+    } catch (error) {
+      setDetailErrors((prev) => ({
+        ...prev,
+        [userId]:
+          error instanceof Error
+            ? error.message
+            : "Failed to load user details.",
+      }));
+      return false;
     } finally {
-      setLoadingUserId(null);
+      setLoadingUserId((current) => (current === userId ? null : current));
     }
   }
 
   async function handleToggle(userId: string) {
-    await ensureUserDetails(userId);
+    if (isDesktopViewport() && expandedUserId === userId) {
+      setExpandedUserId(null);
+      return;
+    }
+
+    const loaded = await ensureUserDetails(userId);
+
+    if (!loaded) {
+      return;
+    }
 
     if (isDesktopViewport()) {
-      setExpandedUserId((prev) => (prev === userId ? null : userId));
+      setExpandedUserId(userId);
       return;
     }
 
@@ -186,6 +216,12 @@ export default function UsersTable({ users }: Props) {
                     </div>
                   </div>
                 </div>
+
+                {detailErrors[user.userId] && (
+                  <div className="border-t border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {detailErrors[user.userId]}
+                  </div>
+                )}
 
                 {isExpanded && details[user.userId] && (
                   <div className="hidden border-t border-[#dbe6f5] p-4 md:p-5 xl:block">

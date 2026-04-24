@@ -1,5 +1,4 @@
 using MCFL.API.Models;
-using MCFL.API.Models.Entities;
 using MCFL.API.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

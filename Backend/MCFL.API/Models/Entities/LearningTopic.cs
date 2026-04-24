@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MCFL.API.Models.Entities
+namespace MCFL.API.Models
 {
     [Table("LearningTopic")]
     [Index(nameof(TopicName), IsUnique = true)]
