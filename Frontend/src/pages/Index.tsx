@@ -1,11 +1,13 @@
-import Hero from "../components/sections/Hero.tsx";
-import HowItWorks from "../components/sections/HowItWorks.tsx";
+import Hero from "../components/sections/Hero";
+import HowItWorks from "../components/sections/HowItWorks";
 
 export default function Index() {
   return (
-    <main>
-      <Hero />
-      <HowItWorks />
-    </main>
+    <div className="min-h-screen bg-mint font-body">
+      <main>
+        <Hero />
+        <HowItWorks />
+      </main>
+    </div>
   );
 }
