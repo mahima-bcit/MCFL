@@ -1,6 +1,8 @@
 using MCFL.API.Data;
 using MCFL.API.Data.Seed;
 using MCFL.API.Models.Identity;
+using MCFL.API.Repositories;
+using MCFL.API.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +12,24 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+var frontendOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? [];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        if (frontendOrigins.Length > 0)
+        {
+            policy
+                .WithOrigins(frontendOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        }
+    });
+});
 
 // Register EF Core DbContext (SQLite)
 var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -30,6 +50,12 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
+// Register application services
+builder.Services.AddScoped<IAdminService, AdminService>();
+
+// Register repositories
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+
 // Register always-run seeders
 builder.Services.AddTransient<IAlwaysSeeder, RoleSeeder>();
 builder.Services.AddTransient<IAlwaysSeeder, IdentitySeeder>();
@@ -39,6 +65,7 @@ builder.Services.AddTransient<IAlwaysSeeder, ScenarioSeeder>();
 // Register future dev-only seeders here later
 builder.Services.AddTransient<IDevelopmentSeeder, DevelopmentUserSeeder>();
 builder.Services.AddTransient<IDevelopmentSeeder, DevelopmentAllowListSeeder>();
+builder.Services.AddTransient<IDevelopmentSeeder, DevelopmentLearningTopicSeeder>();
 builder.Services.AddTransient<IDevelopmentSeeder, DevelopmentProfileSeeder>();
 builder.Services.AddTransient<IDevelopmentSeeder, DevelopmentMoneySeeder>();
 builder.Services.AddTransient<IDevelopmentSeeder, DevelopmentParentSeeder>();
@@ -54,8 +81,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("Frontend");
+}
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -16,57 +16,57 @@ namespace MCFL.API.Data.Seed
         {
             var demoUsers = new[]
             {
-            new
-            {
-                Email = "mahima@mcfl.local",
-                Password = "Demo123!",
-                Role = "User",
-                IsActive = true,
-                ParentConsentRequired = true,
-                ParentConsentReceived = true,
-                OnboardingCompleted = true
-            },
-            new
-            {
-                Email = "susie@mcfl.local",
-                Password = "Demo123!",
-                Role = "User",
-                IsActive = true,
-                ParentConsentRequired = false,
-                ParentConsentReceived = false,
-                OnboardingCompleted = true
-            },
-            new
-            {
-                Email = "saman@mcfl.local",
-                Password = "Demo123!",
-                Role = "User",
-                IsActive = true,
-                ParentConsentRequired = true,
-                ParentConsentReceived = false,
-                OnboardingCompleted = false
-            },
-            new
-            {
-                Email = "harry@mcfl.local",
-                Password = "Demo123!",
-                Role = "User",
-                IsActive = false,
-                ParentConsentRequired = false,
-                ParentConsentReceived = false,
-                OnboardingCompleted = true
-            },
-            new
-            {
-                Email = "amrit@mcfl.local",
-                Password = "Demo123!",
-                Role = "User",
-                IsActive = false,
-                ParentConsentRequired = true,
-                ParentConsentReceived = true,
-                OnboardingCompleted = false
-            }
-        };
+                new
+                {
+                    Email = "mahima@mcfl.local",
+                    Password = "Demo123!",
+                    Role = "User",
+                    IsActive = true,
+                    ParentConsentRequired = true,
+                    ParentConsentReceived = true,
+                    OnboardingCompleted = true
+                },
+                new
+                {
+                    Email = "susie@mcfl.local",
+                    Password = "Demo123!",
+                    Role = "User",
+                    IsActive = true,
+                    ParentConsentRequired = false,
+                    ParentConsentReceived = false,
+                    OnboardingCompleted = true
+                },
+                new
+                {
+                    Email = "saman@mcfl.local",
+                    Password = "Demo123!",
+                    Role = "User",
+                    IsActive = true,
+                    ParentConsentRequired = true,
+                    ParentConsentReceived = false,
+                    OnboardingCompleted = false
+                },
+                new
+                {
+                    Email = "harry@mcfl.local",
+                    Password = "Demo123!",
+                    Role = "User",
+                    IsActive = false,
+                    ParentConsentRequired = true,
+                    ParentConsentReceived = true,
+                    OnboardingCompleted = true
+                },
+                new
+                {
+                    Email = "amrit@mcfl.local",
+                    Password = "Demo123!",
+                    Role = "User",
+                    IsActive = false,
+                    ParentConsentRequired = false,
+                    ParentConsentReceived = false,
+                    OnboardingCompleted = false
+                }
+            };
 
             foreach (var demoUser in demoUsers)
             {
