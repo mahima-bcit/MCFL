@@ -1,10 +1,12 @@
 ﻿using MCFL.API.DTOs.Admin.Overview;
 using MCFL.API.DTOs.Admin.Users;
 using MCFL.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MCFL.API.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/admin")]
     public class AdminController : ControllerBase
