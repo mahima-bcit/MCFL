@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MCFL.API.Models.Identity
@@ -22,5 +22,6 @@ namespace MCFL.API.Models.Identity
 
         [Column("mustChangePassword")]
         public bool MustChangePassword { get; set; } = false;
+        public string? FullName { get; set; }
     }
 }
