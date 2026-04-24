@@ -38,7 +38,7 @@ export default function Login() {
       if (data.role === "Admin") {
         navigate("/admin/overview");
       } else {
-        navigate("/");
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error(error);

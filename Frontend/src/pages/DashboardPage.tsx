@@ -1,6 +1,4 @@
 import { Link } from 'react-router-dom'
-import '../DashboardPage.css'
-
 
 type ActiveGoal = {
   goalTitle: string
@@ -14,14 +12,12 @@ const dashboardData: {
   gameMoney: number
   confidenceScore: number
   weeklyPlays: number
-  parentLinkToken?: string
   activeGoal?: ActiveGoal | null
 } = {
   nickName: 'Harry',
   gameMoney: 245,
   confidenceScore: 72,
   weeklyPlays: 3,
-  parentLinkToken: '',
   activeGoal: {
     goalTitle: 'Save for a laptop',
     targetAmount: 800,
@@ -38,7 +34,6 @@ export default function DashboardPage() {
   const confidenceScore = data.confidenceScore ?? 0
   const weeklyPlays = data.weeklyPlays ?? 0
   const activeGoal = data.activeGoal
-  const parentLinkToken = data.parentLinkToken ?? ''
 
   const goalProgress =
     activeGoal && Number(activeGoal.targetAmount) > 0
@@ -54,10 +49,6 @@ export default function DashboardPage() {
       : confidenceScore >= 50
         ? 'You are making steady progress with your money confidence.'
         : 'Keep going. Small money decisions build big confidence over time.'
-
-  const parentLink = parentLinkToken
-    ? `${window.location.origin}/parent/${parentLinkToken}`
-    : ''
 
   return (
     <div className="min-h-screen bg-[#edf7f3] text-[#163d32]">
