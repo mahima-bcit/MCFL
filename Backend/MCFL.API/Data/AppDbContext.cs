@@ -1,31 +1,30 @@
-using MCFL.API.Models;
-using MCFL.API.Models.Identity;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using MCFL.API.Models;
+using Microsoft.AspNetCore.Identity;
+using MCFL.API.Models.Identity;
 
 namespace MCFL.API.Data;
 
-public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, string>
+public class AppDbContext : IdentityDbContext<Models.Identity.ApplicationUser>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+    public DbSet<UserGameStat> UserGameStats { get; set; } = null!;
+    public DbSet<MoneyEntry> MoneyEntries { get; set; } = null!;
+    public DbSet<UserFeedback> UserFeedbacks { get; set; } = null!;
+    public DbSet<MoneyFeelingSubmission> MoneyFeelingSubmissions { get; set; } = null!;
     public DbSet<CashInCategory> CashInCategories { get; set; } = null!;
     public DbSet<CashOutCategory> CashOutCategories { get; set; } = null!;
-    public DbSet<MoneyEntry> MoneyEntries { get; set; } = null!;
-    public DbSet<MoneyFeelingSubmission> MoneyFeelingSubmissions { get; set; } = null!;
-    public DbSet<ParentAccessLink> ParentAccessLinks { get; set; } = null!;
-    public DbSet<ParentConsent> ParentConsents { get; set; } = null!;
-    public DbSet<ParentFeedback> ParentFeedbacks { get; set; } = null!;
-    public DbSet<RegistrationAllowList> RegistrationAllowLists { get; set; } = null!;
     public DbSet<SavingsGoal> SavingsGoals { get; set; } = null!;
-    public DbSet<Scenario> Scenarios{ get; set; } = null!;
-    public DbSet<ScenarioChoice> ScenarioChoices { get; set; } = null!;
-    public DbSet<ScenarioPlay> ScenarioPlays { get; set; } = null!;
-    public DbSet<UserFeedback> UserFeedbacks { get; set; } = null!;
-    public DbSet<UserGameStat> UserGameStats { get; set; } = null!;
     public DbSet<UserProfile> UserProfiles { get; set; } = null!;
-
+    public DbSet<RegistrationAllowList> RegistrationAllowLists { get; set; } = null!;
+    public DbSet<ParentConsent> ParentConsents { get; set; } = null!;
+    public DbSet<ParentAccessLink> ParentAccessLinks { get; set; } = null!;
+    public DbSet<ParentFeedback> ParentFeedbacks { get; set; } = null!;
+    public DbSet<Scenario> Scenarios { get; set; } = null!;
+    public DbSet<ScenarioPlay> ScenarioPlays { get; set; } = null!;
+    public DbSet<ScenarioChoice> ScenarioChoices { get; set; } = null!;
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
