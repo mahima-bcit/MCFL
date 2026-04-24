@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import ParentsFeedback from "./pages/ParentFeedback";
 import AdminOverviewPage from "./pages/admin/AdminOverviewPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import Signup from "./pages/Signup";
 
 export default [
   {
@@ -14,6 +15,7 @@ export default [
       { index: true, element: <Index /> },
       { path: "login", element: <Login /> },
       { path: "parentFeedback", element: <ParentsFeedback /> },
+      { path: "signup", element: <Signup /> },
     ],
   },
   {
