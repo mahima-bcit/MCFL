@@ -44,4 +44,15 @@
         public decimal LearningGoalTargetAmount { get; set; } = 300m;
         public DateOnly? LearningGoalTargetDate { get; set; }
     }
+
+    public class AdminScenarioSummaryProjection
+    {
+        public int ScenarioId { get; set; }
+        public string Title { get; set; } = "";
+        public string MostPopularChoice { get; set; } = "";
+        public int Completions { get; set; }
+        public double AvgConfidenceGain { get; set; }
+        public decimal AvgMoneyImpact { get; set; }
+        public double PercentageOfTotal { get; set; }
+    }
 }

@@ -243,5 +243,138 @@ namespace MCFL.API.Repositories
                 LearningGoalTargetDate = activeGoal?.TargetDate
             };
         }
+
+        public async Task<int> CountActiveScenariosAsync()
+        {
+            return await _context.Scenarios
+                .AsNoTracking()
+                .CountAsync(x => x.IsActive);
+        }
+
+        public async Task<int> CountScenarioCompletionsAsync()
+        {
+            return await _context.ScenarioPlays
+                .AsNoTracking()
+                .CountAsync();
+        }
+
+        public async Task<double> GetAverageScenarioConfidenceGainAsync()
+        {
+            var average = await _context.ScenarioPlays
+                .AsNoTracking()
+                .Select(x => (double?)x.ConfidenceImpactSnapshot)
+                .AverageAsync();
+
+            return average.HasValue ? Math.Round(average.Value, 1) : 0;
+        }
+
+        public async Task<decimal> GetAverageScenarioMoneyImpactAsync()
+        {
+            var average = await _context.ScenarioPlays
+                .AsNoTracking()
+                .Select(x => (double?)x.MoneyImpactSnapshot)
+                .AverageAsync();
+
+            return average.HasValue ? Math.Round((decimal)average.Value, 2) : 0m;
+        }
+
+        public async Task<List<AdminScenarioSummaryProjection>> GetScenarioSummariesAsync()
+        {
+            var scenarios = await _context.Scenarios
+                .AsNoTracking()
+                .Where(x => x.IsActive)
+                .Select(x => new
+                {
+                    x.ScenarioId,
+                    x.Title
+                })
+                .ToListAsync();
+
+            if (scenarios.Count == 0)
+            {
+                return new List<AdminScenarioSummaryProjection>();
+            }
+
+            var scenarioIds = scenarios.Select(x => x.ScenarioId).ToList();
+
+            var plays = await _context.ScenarioPlays
+                .AsNoTracking()
+                .Where(x => scenarioIds.Contains(x.ScenarioId))
+                .Select(x => new
+                {
+                    x.ScenarioId,
+                    x.ScenarioChoiceId,
+                    x.ConfidenceImpactSnapshot,
+                    x.MoneyImpactSnapshot
+                })
+                .ToListAsync();
+
+            var choices = await _context.ScenarioChoices
+                .AsNoTracking()
+                .Where(x => scenarioIds.Contains(x.ScenarioId))
+                .Select(x => new
+                {
+                    x.ScenarioChoiceId,
+                    x.ScenarioId,
+                    x.OptionText
+                })
+                .ToListAsync();
+
+            var totalCompletions = plays.Count;
+
+            var result = scenarios
+                .Select(scenario =>
+                {
+                    var scenarioPlays = plays
+                        .Where(x => x.ScenarioId == scenario.ScenarioId)
+                        .ToList();
+
+                    var completions = scenarioPlays.Count;
+
+                    var avgConfidenceGain = completions > 0
+                        ? Math.Round(scenarioPlays.Average(x => (double)x.ConfidenceImpactSnapshot), 1)
+                        : 0;
+
+                    var avgMoneyImpact = completions > 0
+                        ? Math.Round((decimal)scenarioPlays.Average(x => (double)x.MoneyImpactSnapshot), 2)
+                        : 0m;
+
+                    var mostPopularChoice = "No plays yet";
+
+                    if (completions > 0)
+                    {
+                        var mostPopularChoiceId = scenarioPlays
+                            .GroupBy(x => x.ScenarioChoiceId)
+                            .OrderByDescending(g => g.Count())
+                            .ThenBy(g => g.Key)
+                            .Select(g => g.Key)
+                            .First();
+
+                        mostPopularChoice = choices
+                            .FirstOrDefault(x => x.ScenarioChoiceId == mostPopularChoiceId)
+                            ?.OptionText ?? "No plays yet";
+                    }
+
+                    var percentageOfTotal = totalCompletions > 0
+                        ? Math.Round((double)completions / totalCompletions * 100, 1)
+                        : 0;
+
+                    return new AdminScenarioSummaryProjection
+                    {
+                        ScenarioId = scenario.ScenarioId,
+                        Title = scenario.Title,
+                        MostPopularChoice = mostPopularChoice,
+                        Completions = completions,
+                        AvgConfidenceGain = avgConfidenceGain,
+                        AvgMoneyImpact = avgMoneyImpact,
+                        PercentageOfTotal = percentageOfTotal
+                    };
+                })
+                .OrderByDescending(x => x.Completions)
+                .ThenBy(x => x.Title)
+                .ToList();
+
+            return result;
+        }
     }
 }

@@ -9,6 +9,7 @@ import MoneyPage from "./pages/MoneyPage.tsx";
 import FeedbackPage from "./pages/FeedbackPage.tsx";
 import AdminOverviewPage from "./pages/admin/AdminOverviewPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminScenariosPage from "./pages/admin/AdminScenariosPage";
 
 export default [
   {
@@ -30,6 +31,7 @@ export default [
       { index: true, element: <Navigate to="/admin/overview" replace /> },
       { path: "overview", element: <AdminOverviewPage /> },
       { path: "users", element: <AdminUsersPage /> },
+      { path: "scenarios", element: <AdminScenariosPage /> },
     ],
   },
 ];

@@ -14,5 +14,11 @@ namespace MCFL.API.Repositories
 
         Task<List<AdminUserListProjection>> GetUserListAsync();
         Task<AdminUserDetailProjection?> GetUserDetailAsync(string userId);
+
+        Task<int> CountActiveScenariosAsync();
+        Task<int> CountScenarioCompletionsAsync();
+        Task<double> GetAverageScenarioConfidenceGainAsync();
+        Task<decimal> GetAverageScenarioMoneyImpactAsync();
+        Task<List<AdminScenarioSummaryProjection>> GetScenarioSummariesAsync();
     }
 }

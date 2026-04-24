@@ -1,4 +1,5 @@
 ﻿using MCFL.API.DTOs.Admin.Overview;
+using MCFL.API.DTOs.Admin.Scenarios;
 using MCFL.API.DTOs.Admin.Users;
 using MCFL.API.Repositories;
 
@@ -237,6 +238,33 @@ namespace MCFL.API.Services
             }
 
             return age;
+        }
+
+        public async Task<AdminScenariosDto> GetScenariosAsync()
+        {
+            var totalScenarios = await _adminRepository.CountActiveScenariosAsync();
+            var totalCompletions = await _adminRepository.CountScenarioCompletionsAsync();
+            var avgConfidenceGain = await _adminRepository.GetAverageScenarioConfidenceGainAsync();
+            var avgMoneyImpact = await _adminRepository.GetAverageScenarioMoneyImpactAsync();
+            var summaries = await _adminRepository.GetScenarioSummariesAsync();
+
+            return new AdminScenariosDto
+            {
+                TotalScenarios = totalScenarios,
+                TotalCompletions = totalCompletions,
+                AvgConfidenceGain = avgConfidenceGain,
+                AvgMoneyImpact = avgMoneyImpact,
+                Scenarios = summaries.Select(x => new AdminScenarioSummaryDto
+                {
+                    ScenarioId = x.ScenarioId,
+                    Title = x.Title,
+                    MostPopularChoice = x.MostPopularChoice,
+                    Completions = x.Completions,
+                    AvgConfidenceGain = x.AvgConfidenceGain,
+                    AvgMoneyImpact = x.AvgMoneyImpact,
+                    PercentageOfTotal = x.PercentageOfTotal
+                }).ToList()
+            };
         }
     }
 }

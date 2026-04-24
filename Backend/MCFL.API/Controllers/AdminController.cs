@@ -1,4 +1,5 @@
 ﻿using MCFL.API.DTOs.Admin.Overview;
+using MCFL.API.DTOs.Admin.Scenarios;
 using MCFL.API.DTOs.Admin.Users;
 using MCFL.API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -52,6 +53,13 @@ namespace MCFL.API.Controllers
             }
 
             return Ok(user);
+        }
+
+        [HttpGet("scenarios")]
+        public async Task<ActionResult<AdminScenariosDto>> GetScenarios()
+        {
+            var scenarios = await _adminService.GetScenariosAsync();
+            return Ok(scenarios);
         }
     }
 }
