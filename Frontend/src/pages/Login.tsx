@@ -1,14 +1,48 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password, rememberMe });
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/account/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password, rememberMe }),
+        },
+      );
+
+      if (!response.ok) {
+        setError("Invalid email or password");
+        return;
+      }
+
+      const data = await response.json();
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.role);
+
+      if (data.role === "Admin") {
+        navigate("/admin/overview");
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error(error);
+      setError("Login failed. Please check if backend is running.");
+    }
   };
 
   return (
@@ -63,6 +97,12 @@ export default function Login() {
                   className="w-full px-4 py-3 rounded-lg border-2 border-nav/20 text-nav placeholder-nav/40 focus:outline-none focus:border-primary transition-colors"
                 />
               </div>
+
+              {error && (
+                <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                  {error}
+                </p>
+              )}
 
               {/* Remember Me & Forgot Password */}
               <div className="flex items-center justify-between">

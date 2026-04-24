@@ -52,7 +52,11 @@ public class AccountController : ControllerBase
         await _userManager.AddToRoleAsync(user, "User");
 
         var token = await _tokenService.CreateTokenAsync(user);
-        return Ok(new { token });
+        return Ok(new
+        {
+            token,
+            role = "User"
+        });
     }
 
     [HttpPost("login")]
@@ -64,10 +68,23 @@ public class AccountController : ControllerBase
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user == null) return Unauthorized(new { error = "Invalid credentials" });
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, lockoutOnFailure: false);
+        var result = await _signInManager.CheckPasswordSignInAsync(
+            user,
+            model.Password,
+            lockoutOnFailure: false
+        );
+
         if (!result.Succeeded) return Unauthorized(new { error = "Invalid credentials" });
 
         var token = await _tokenService.CreateTokenAsync(user, model.RememberMe);
-        return Ok(new { token });
+        var roles = await _userManager.GetRolesAsync(user);
+
+        var role = roles.Contains("Admin") ? "Admin" : "User";
+
+        return Ok(new
+        {
+            token,
+            role
+        });
     }
 }
