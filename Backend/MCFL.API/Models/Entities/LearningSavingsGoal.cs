@@ -5,13 +5,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MCFL.API.Models
 {
-    [Table("SavingsGoal")]
-    public class SavingsGoal
+    [Table("LearningSavingsGoal")]
+    public class LearningSavingsGoal
     {
         [Key]
-        [Column("pkSavingsGoalId")]
+        [Column("pkLearningSavingsGoalId")]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int SavingsGoalId { get; set; }
+        public int LearningSavingsGoalId { get; set; }
 
         [Required]
         [MaxLength(100)]

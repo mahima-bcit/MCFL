@@ -86,6 +86,21 @@ namespace MCFL.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "LearningTopic",
+                columns: table => new
+                {
+                    pkLearningTopicId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    topicName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    isActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    sortOrder = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LearningTopic", x => x.pkLearningTopicId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RegistrationAllowList",
                 columns: table => new
                 {
@@ -225,6 +240,33 @@ namespace MCFL.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "LearningSavingsGoal",
+                columns: table => new
+                {
+                    pkLearningSavingsGoalId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    goalTitle = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    targetAmount = table.Column<decimal>(type: "TEXT", precision: 10, scale: 2, nullable: false),
+                    currentSavedAmount = table.Column<decimal>(type: "TEXT", precision: 10, scale: 2, nullable: true),
+                    targetDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    isActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    createdAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    updatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    fkUserId = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LearningSavingsGoal", x => x.pkLearningSavingsGoalId);
+                    table.CheckConstraint("CK_SavingsGoal_Amounts", "targetAmount >= 0 AND currentSavedAmount >= 0");
+                    table.ForeignKey(
+                        name: "FK_LearningSavingsGoal_AspNetUsers_fkUserId",
+                        column: x => x.fkUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "pkUserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MoneyFeelingSubmission",
                 columns: table => new
                 {
@@ -298,6 +340,7 @@ namespace MCFL.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+<<<<<<<< HEAD:Backend/MCFL.API/Migrations/20260423235014_UpdatedSchemaForLoginIdentityFramework.cs
                 name: "SavingsGoal",
                 columns: table => new
                 {
@@ -324,6 +367,8 @@ namespace MCFL.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+========
+>>>>>>>> 7811550f4cfe12196bc2c05ee84982b2a7d73936:Backend/MCFL.API/Migrations/20260423213619_InitialSchemaAndSeed.cs
                 name: "UserFeedback",
                 columns: table => new
                 {
@@ -376,9 +421,13 @@ namespace MCFL.API.Migrations
                     fullName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     nickName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     dateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
-                    moneyHabitsAnswer = table.Column<string>(type: "TEXT", nullable: false),
-                    moneyLearningAnswer = table.Column<string>(type: "TEXT", nullable: false),
-                    whatUserWantsToLearnAnswer = table.Column<string>(type: "TEXT", nullable: false),
+                    hasBankAccount = table.Column<bool>(type: "INTEGER", nullable: false),
+                    earnsMoneyAnswer = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    hasSavingsAnswer = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    paysBillsAnswer = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    spendsOnWantsAnswer = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    learningComments = table.Column<string>(type: "TEXT", nullable: true),
+                    parentTeachingsAnswer = table.Column<string>(type: "TEXT", nullable: true),
                     createdAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     updatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     fkUserId = table.Column<string>(type: "TEXT", nullable: false)
@@ -480,6 +529,33 @@ namespace MCFL.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserLearningPreference",
+                columns: table => new
+                {
+                    pkUserLearningPreferenceId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    createdAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    fkUserProfileId = table.Column<int>(type: "INTEGER", nullable: false),
+                    fkLearningTopicId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserLearningPreference", x => x.pkUserLearningPreferenceId);
+                    table.ForeignKey(
+                        name: "FK_UserLearningPreference_LearningTopic_fkLearningTopicId",
+                        column: x => x.fkLearningTopicId,
+                        principalTable: "LearningTopic",
+                        principalColumn: "pkLearningTopicId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_UserLearningPreference_UserProfile_fkUserProfileId",
+                        column: x => x.fkUserProfileId,
+                        principalTable: "UserProfile",
+                        principalColumn: "pkUserProfileId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ScenarioPlay",
                 columns: table => new
                 {
@@ -570,6 +646,17 @@ namespace MCFL.API.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_LearningSavingsGoal_fkUserId",
+                table: "LearningSavingsGoal",
+                column: "fkUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LearningTopic_topicName",
+                table: "LearningTopic",
+                column: "topicName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MoneyEntry_fkCashInCategoryId",
                 table: "MoneyEntry",
                 column: "fkCashInCategoryId");
@@ -618,11 +705,6 @@ namespace MCFL.API.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_SavingsGoal_fkUserId",
-                table: "SavingsGoal",
-                column: "fkUserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ScenarioChoice_fkScenarioId",
                 table: "ScenarioChoice",
                 column: "fkScenarioId");
@@ -654,6 +736,17 @@ namespace MCFL.API.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserLearningPreference_fkLearningTopicId",
+                table: "UserLearningPreference",
+                column: "fkLearningTopicId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserLearningPreference_fkUserProfileId_fkLearningTopicId",
+                table: "UserLearningPreference",
+                columns: new[] { "fkUserProfileId", "fkLearningTopicId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserProfile_fkUserId",
                 table: "UserProfile",
                 column: "fkUserId",
@@ -679,6 +772,9 @@ namespace MCFL.API.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "LearningSavingsGoal");
+
+            migrationBuilder.DropTable(
                 name: "MoneyEntry");
 
             migrationBuilder.DropTable(
@@ -694,9 +790,6 @@ namespace MCFL.API.Migrations
                 name: "RegistrationAllowList");
 
             migrationBuilder.DropTable(
-                name: "SavingsGoal");
-
-            migrationBuilder.DropTable(
                 name: "ScenarioPlay");
 
             migrationBuilder.DropTable(
@@ -706,7 +799,7 @@ namespace MCFL.API.Migrations
                 name: "UserGameStat");
 
             migrationBuilder.DropTable(
-                name: "UserProfile");
+                name: "UserLearningPreference");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -724,10 +817,16 @@ namespace MCFL.API.Migrations
                 name: "ScenarioChoice");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "LearningTopic");
+
+            migrationBuilder.DropTable(
+                name: "UserProfile");
 
             migrationBuilder.DropTable(
                 name: "Scenario");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

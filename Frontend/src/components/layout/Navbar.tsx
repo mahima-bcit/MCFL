@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Button from '../ui/Button'
+import { Link } from 'react-router-dom'
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -9,14 +9,14 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
 
         {/* Logo */}
-        <div className="flex items-center gap-2 md:gap-3">
+        <Link to="/" className="flex items-center gap-2 md:gap-3">
           <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-primary flex items-center justify-center">
-            <img src="/logo.png" alt="logo" />
+            <img src="/logo.png" alt="" />
           </div>
           <span className="text-white font-display font-semibold text-sm md:text-lg tracking-tight">
             Money Confidence<span className="hidden sm:inline"> for Life</span>
           </span>
-        </div>
+        </Link>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-8">
@@ -25,7 +25,13 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Button variant="ghost" className="hidden md:inline-flex">Log In</Button>
+          {/* Desktop login link */}
+          <Link
+            to="/login"
+            className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white/70 hover:text-gold hover:bg-white/5 text-sm font-medium transition-all duration-200"
+          >
+            Log in
+          </Link>
 
           {/* Hamburger — mobile only */}
           <button
@@ -52,7 +58,13 @@ export default function Navbar() {
             Features
           </a>
           <div className="pt-2 border-t border-white/10 mt-1">
-            <Button variant="ghost" className="w-full justify-center">Log In</Button>
+            <Link
+              to="/login"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center justify-center w-full px-4 py-2.5 rounded-lg text-white/70 hover:text-gold hover:bg-white/5 text-sm font-medium transition-all duration-200"
+            >
+              Log in
+            </Link>
           </div>
         </nav>
       </div>

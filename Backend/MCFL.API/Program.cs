@@ -2,6 +2,7 @@ using System.Text;
 using MCFL.API.Data;
 using MCFL.API.Data.Seed;
 using MCFL.API.Models.Identity;
+using MCFL.API.Repositories;
 using MCFL.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -10,8 +11,6 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 var configuration = builder.Configuration;
 
 // Add services
@@ -19,14 +18,41 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Register EF Core DbContext (SQLite)
-var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+// CORS
+var frontendOrigins = configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? [];
+
+if (frontendOrigins is null || frontendOrigins.Length == 0)
+{
+    throw new InvalidOperationException("Cors:AllowedOrigins is missing or empty.");
+}
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        if (frontendOrigins.Length > 0)
+        {
+            policy
+                .WithOrigins(frontendOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        }
+    });
+});
+
+// Register EF Core DbContext SQLite
+var defaultConnection = configuration.GetConnectionString("DefaultConnection");
+
 if (string.IsNullOrWhiteSpace(defaultConnection))
 {
     throw new InvalidOperationException(
         "Missing connection string 'ConnectionStrings:DefaultConnection'. " +
         "Configure it in appsettings, user secrets, or environment variables.");
 }
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(defaultConnection));
 
@@ -38,9 +64,11 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-// Register always-run seeders
+// JWT Authentication
 var jwtSection = configuration.GetSection("Jwt");
-var jwtKey = jwtSection.GetValue<string>("Key") ?? throw new InvalidOperationException("Jwt:Key missing");
+var jwtKey = jwtSection.GetValue<string>("Key")
+    ?? throw new InvalidOperationException("Jwt:Key missing");
+
 var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(options =>
@@ -64,22 +92,23 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Token service
+// Register application services
+builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
-// CORS for React dev
-builder.Services.AddCors(opts =>
-    opts.AddPolicy("LocalDev", p => p.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
+// Register repositories
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 
-// Keep your existing seeders registrations
+// Register always-run seeders
 builder.Services.AddTransient<IAlwaysSeeder, RoleSeeder>();
 builder.Services.AddTransient<IAlwaysSeeder, IdentitySeeder>();
 builder.Services.AddTransient<IAlwaysSeeder, LookupSeeder>();
 builder.Services.AddTransient<IAlwaysSeeder, ScenarioSeeder>();
 
-// Register future dev-only seeders here later
+// Register development-only seeders
 builder.Services.AddTransient<IDevelopmentSeeder, DevelopmentUserSeeder>();
 builder.Services.AddTransient<IDevelopmentSeeder, DevelopmentAllowListSeeder>();
+builder.Services.AddTransient<IDevelopmentSeeder, DevelopmentLearningTopicSeeder>();
 builder.Services.AddTransient<IDevelopmentSeeder, DevelopmentProfileSeeder>();
 builder.Services.AddTransient<IDevelopmentSeeder, DevelopmentMoneySeeder>();
 builder.Services.AddTransient<IDevelopmentSeeder, DevelopmentParentSeeder>();
@@ -88,7 +117,7 @@ builder.Services.AddTransient<IDevelopmentSeeder, DevelopmentScenarioPlaySeeder>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -96,16 +125,18 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("LocalDev");
+
+app.UseCors("Frontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-// Run always-on startup seeders in every environment; run development seeders only in Development;
-// apply migrations when StartupTasks:RunMigrations is enabled.
-var runMigrations = builder.Configuration.GetValue<bool>("StartupTasks:RunMigrations");
+// Run always-on startup seeders in every environment;
+// Run development seeders only in Development;
+// Apply migrations when StartupTasks:RunMigrations is enabled.
+var runMigrations = configuration.GetValue<bool>("StartupTasks:RunMigrations");
 
 using (var scope = app.Services.CreateScope())
 {
@@ -127,6 +158,7 @@ using (var scope = app.Services.CreateScope())
     }
 
     var alwaysSeeders = services.GetServices<IAlwaysSeeder>();
+
     foreach (var seeder in alwaysSeeders)
     {
         await seeder.SeedAsync();
@@ -135,6 +167,7 @@ using (var scope = app.Services.CreateScope())
     if (app.Environment.IsDevelopment())
     {
         var devSeeders = services.GetServices<IDevelopmentSeeder>();
+
         foreach (var seeder in devSeeders)
         {
             await seeder.SeedAsync();
