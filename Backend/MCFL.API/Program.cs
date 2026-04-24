@@ -1,12 +1,20 @@
+using System.Text;
 using MCFL.API.Data;
 using MCFL.API.Data.Seed;
 using MCFL.API.Models.Identity;
+using MCFL.API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+var configuration = builder.Configuration;
+
+// Add services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -31,6 +39,39 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddDefaultTokenProviders();
 
 // Register always-run seeders
+var jwtSection = configuration.GetSection("Jwt");
+var jwtKey = jwtSection.GetValue<string>("Key") ?? throw new InvalidOperationException("Jwt:Key missing");
+var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = builder.Environment.IsProduction();
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSection["Issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwtSection["Audience"],
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+// Token service
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+// CORS for React dev
+builder.Services.AddCors(opts =>
+    opts.AddPolicy("LocalDev", p => p.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
+
+// Keep your existing seeders registrations
 builder.Services.AddTransient<IAlwaysSeeder, RoleSeeder>();
 builder.Services.AddTransient<IAlwaysSeeder, IdentitySeeder>();
 builder.Services.AddTransient<IAlwaysSeeder, LookupSeeder>();
@@ -55,6 +96,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("LocalDev");
 
 app.UseAuthentication();
 app.UseAuthorization();
