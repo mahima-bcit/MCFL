@@ -11,5 +11,11 @@ namespace MCFL.API.Services
         Task<AdminUserDetailDto?> GetUserByIdAsync(string userId);
 
         Task<AdminScenariosDto> GetScenariosAsync();
+
+        Task<List<AdminManageScenarioDto>> GetManageScenariosAsync();
+        Task<AdminManageScenarioDto> CreateScenarioAsync(AdminUpsertScenarioRequestDto request);
+        Task<AdminManageScenarioDto?> UpdateScenarioAsync(int scenarioId, AdminUpsertScenarioRequestDto request);
+        Task<bool> ActivateScenarioAsync(int scenarioId);
+        Task<bool> DeactivateScenarioAsync(int scenarioId);
     }
 }

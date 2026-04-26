@@ -15,3 +15,38 @@ export type AdminScenarios = {
   avgMoneyImpact: number;
   scenarios: AdminScenarioSummary[];
 };
+
+export type AdminManageScenarioChoice = {
+  scenarioChoiceId: number;
+  optionText: string;
+  resultText: string;
+  lessonText?: string;
+  moneyImpact: number;
+  confidenceImpact: number;
+  sortOrder: number;
+  isActive: boolean;
+};
+
+export type AdminManageScenario = {
+  scenarioId: number;
+  title: string;
+  description: string;
+  isActive: boolean;
+  updatedAt: string;
+  choices: AdminManageScenarioChoice[];
+};
+
+export type AdminUpsertScenarioChoiceRequest = {
+  scenarioChoiceId?: number;
+  optionText: string;
+  resultText: string;
+  lessonText?: string | null;
+  moneyImpact: number;
+  confidenceImpact: number;
+};
+
+export type AdminUpsertScenarioRequest = {
+  title: string;
+  description: string;
+  choices: AdminUpsertScenarioChoiceRequest[];
+};

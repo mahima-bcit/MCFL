@@ -12,6 +12,7 @@ import AdminCard from "../../components/admin/ui/AdminCard";
 import CompactScenarioStatCard from "../../components/admin/scenarios/CompactScenarioStatCard";
 import { getAdminScenarios } from "../../services/adminScenariosApi";
 import type { AdminScenarios } from "../../types/adminScenarios";
+import { Link } from "react-router-dom";
 
 function formatSignedPercent(value: number) {
   const rounded = Number(value.toFixed(1));
@@ -59,13 +60,13 @@ export default function AdminScenariosPage() {
       {data && (
         <div className="space-y-3 md:space-y-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <button
-              type="button"
+            <Link
+              to="/admin/scenarios/manage"
               className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2563eb] px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#1d4ed8] sm:w-auto"
             >
               <Settings2 size={16} />
               <span>Manage Scenarios</span>
-            </button>
+            </Link>
 
             <button
               type="button"

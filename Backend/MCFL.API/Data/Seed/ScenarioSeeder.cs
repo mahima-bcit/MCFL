@@ -28,7 +28,7 @@ namespace MCFL.API.Data.Seed
                         { 
                             OptionText = "Spend all of it on something fun right away.", 
                             ResultText = "You enjoyed your money immediately, but now you have nothing left.", 
-                            LessonText = "Spending can feel good in the moment, but using all your money at once can limit future choices.", 
+                            LessonText = (string?)"Spending can feel good in the moment, but using all your money at once can limit future choices.", 
                             MoneyImpact = -30.00m, 
                             ConfidenceImpact = 0, 
                             SortOrder = 1 
@@ -37,7 +37,7 @@ namespace MCFL.API.Data.Seed
                         { 
                             OptionText = "Save all of it for a future goal.", 
                             ResultText = "You kept the full amount for later and moved closer to your goal.", 
-                            LessonText = "Saving everything can be a strong choice when you have something important planned.", 
+                            LessonText = (string?)"Saving everything can be a strong choice when you have something important planned.", 
                             MoneyImpact = 30.00m, 
                             ConfidenceImpact = 2, 
                             SortOrder = 2 
@@ -46,7 +46,7 @@ namespace MCFL.API.Data.Seed
                         { 
                             OptionText = "Split it between saving and spending.", 
                             ResultText = "You enjoyed some money now and still kept part of it for later.", 
-                            LessonText = "A balanced choice can help you enjoy money today while still planning ahead.", 
+                            LessonText = (string?)null,
                             MoneyImpact = 15.00m, 
                             ConfidenceImpact = 3, 
                             SortOrder = 3 
@@ -63,7 +63,7 @@ namespace MCFL.API.Data.Seed
                         { 
                             OptionText = "Buy the most expensive headphones you like.", 
                             ResultText = "You got what you wanted, but it took a big bite out of your money.", 
-                            LessonText = "It helps to compare needs, wants, and budget before making a big purchase.", 
+                            LessonText = (string?)"It helps to compare needs, wants, and budget before making a big purchase.", 
                             MoneyImpact = -40.00m, 
                             ConfidenceImpact = -1, 
                             SortOrder = 1 
@@ -72,7 +72,7 @@ namespace MCFL.API.Data.Seed
                         { 
                             OptionText = "Buy a reasonably priced pair and keep saving.", 
                             ResultText = "You solved the problem and protected some of your savings.", 
-                            LessonText = "Looking for a practical option can help you meet a need without losing track of your goals.", 
+                            LessonText = (string?)"Looking for a practical option can help you meet a need without losing track of your goals.", 
                             MoneyImpact = -15.00m, 
                             ConfidenceImpact = 3, 
                             SortOrder = 2 
@@ -81,7 +81,7 @@ namespace MCFL.API.Data.Seed
                         { 
                             OptionText = "Wait a little longer and research better options first.", 
                             ResultText = "You delayed the purchase and gave yourself more time to decide carefully.", 
-                            LessonText = "Taking time before spending can help you make more confident money decisions.", 
+                            LessonText = (string?)"Taking time before spending can help you make more confident money decisions.", 
                             MoneyImpact = 5.00m, 
                             ConfidenceImpact = 2, 
                             SortOrder = 3 
@@ -98,7 +98,7 @@ namespace MCFL.API.Data.Seed
                         { 
                             OptionText = "Go out and spend whatever it costs.", 
                             ResultText = "You joined the plan, but now your budget is under pressure.", 
-                            LessonText = "Social spending adds up quickly when there is no plan before you go.", 
+                            LessonText = (string?)"Social spending adds up quickly when there is no plan before you go.", 
                             MoneyImpact = -25.00m, 
                             ConfidenceImpact = 0, 
                             SortOrder = 1 
@@ -107,7 +107,7 @@ namespace MCFL.API.Data.Seed
                         { 
                             OptionText = "Suggest a lower-cost option everyone can enjoy.", 
                             ResultText = "You still spent time with friends while keeping your budget under control.", 
-                            LessonText = "You do not always need to spend a lot to have a good time.", 
+                            LessonText = (string?)"You do not always need to spend a lot to have a good time.", 
                             MoneyImpact = -10.00m, 
                             ConfidenceImpact = 4, 
                             SortOrder = 2 
@@ -116,7 +116,7 @@ namespace MCFL.API.Data.Seed
                         { 
                             OptionText = "Skip this weekend and keep your money for something more important.", 
                             ResultText = "You protected your money, though you missed out on this one event.", 
-                            LessonText = "Sometimes saying no is part of staying aligned with your priorities.", 
+                            LessonText = (string?)null,
                             MoneyImpact = 10.00m, 
                             ConfidenceImpact = 2, 
                             SortOrder = 3 

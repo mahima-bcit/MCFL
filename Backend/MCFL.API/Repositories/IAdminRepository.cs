@@ -1,4 +1,5 @@
-﻿using MCFL.API.Repositories.Projections;
+﻿using MCFL.API.DTOs.Admin.Scenarios;
+using MCFL.API.Repositories.Projections;
 
 namespace MCFL.API.Repositories
 {
@@ -20,5 +21,11 @@ namespace MCFL.API.Repositories
         Task<double> GetAverageScenarioConfidenceGainAsync();
         Task<decimal> GetAverageScenarioMoneyImpactAsync();
         Task<List<AdminScenarioSummaryProjection>> GetScenarioSummariesAsync();
+
+        Task<List<AdminManageScenarioProjection>> GetManageScenariosAsync();
+        Task<AdminManageScenarioProjection> CreateScenarioAsync(AdminUpsertScenarioRequestDto request);
+        Task<AdminManageScenarioProjection?> UpdateScenarioAsync(int scenarioId, AdminUpsertScenarioRequestDto request);
+        Task<bool> ActivateScenarioAsync(int scenarioId);
+        Task<bool> DeactivateScenarioAsync(int scenarioId);
     }
 }

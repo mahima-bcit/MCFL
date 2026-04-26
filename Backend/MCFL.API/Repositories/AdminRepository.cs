@@ -1,4 +1,6 @@
 ﻿using MCFL.API.Data;
+using MCFL.API.DTOs.Admin.Scenarios;
+using MCFL.API.Models;
 using MCFL.API.Repositories.Projections;
 using Microsoft.EntityFrameworkCore;
 
@@ -375,6 +377,213 @@ namespace MCFL.API.Repositories
                 .ToList();
 
             return result;
+        }
+
+        public async Task<List<AdminManageScenarioProjection>> GetManageScenariosAsync()
+        {
+            var scenarios = await _context.Scenarios
+                .AsNoTracking()
+                .Include(x => x.ScenarioChoices)
+                .OrderByDescending(x => x.IsActive)
+                .ThenByDescending(x => x.UpdatedAt)
+                .ThenBy(x => x.Title)
+                .ToListAsync();
+
+            return scenarios.Select(MapManageScenarioProjection).ToList();
+        }
+
+        public async Task<AdminManageScenarioProjection> CreateScenarioAsync(AdminUpsertScenarioRequestDto request)
+        {
+            var now = DateTime.UtcNow;
+
+            var scenario = new Scenario
+            {
+                Title = request.Title,
+                Description = request.Description,
+                IsActive = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            _context.Scenarios.Add(scenario);
+            await _context.SaveChangesAsync();
+
+            var choices = request.Choices
+                .Select((choice, index) => new ScenarioChoice
+                {
+                    OptionText = choice.OptionText,
+                    ResultText = choice.ResultText,
+                    LessonText = choice.LessonText,
+                    MoneyImpact = choice.MoneyImpact,
+                    ConfidenceImpact = choice.ConfidenceImpact,
+                    SortOrder = index + 1,
+                    IsActive = true,
+                    ScenarioId = scenario.ScenarioId
+                })
+                .ToList();
+
+            _context.ScenarioChoices.AddRange(choices);
+            await _context.SaveChangesAsync();
+
+            var savedScenario = await _context.Scenarios
+                .AsNoTracking()
+                .Include(x => x.ScenarioChoices)
+                .FirstAsync(x => x.ScenarioId == scenario.ScenarioId);
+
+            return MapManageScenarioProjection(savedScenario);
+        }
+
+        public async Task<AdminManageScenarioProjection?> UpdateScenarioAsync(
+            int scenarioId,
+            AdminUpsertScenarioRequestDto request)
+        {
+            var scenario = await _context.Scenarios
+                .Include(x => x.ScenarioChoices)
+                .FirstOrDefaultAsync(x => x.ScenarioId == scenarioId && x.IsActive);
+
+            if (scenario == null)
+            {
+                return null;
+            }
+
+            var now = DateTime.UtcNow;
+
+            scenario.Title = request.Title;
+            scenario.Description = request.Description;
+            scenario.UpdatedAt = now;
+
+            var requestedExistingIds = request.Choices
+                .Where(x => x.ScenarioChoiceId.HasValue)
+                .Select(x => x.ScenarioChoiceId!.Value)
+                .ToHashSet();
+
+            foreach (var existingChoice in scenario.ScenarioChoices)
+            {
+                if (existingChoice.ScenarioChoiceId != 0 &&
+                    !requestedExistingIds.Contains(existingChoice.ScenarioChoiceId))
+                {
+                    existingChoice.IsActive = false;
+                }
+            }
+
+            for (var i = 0; i < request.Choices.Count; i++)
+            {
+                var choiceRequest = request.Choices[i];
+
+                ScenarioChoice choice;
+
+                if (choiceRequest.ScenarioChoiceId.HasValue)
+                {
+                    choice = scenario.ScenarioChoices
+                        .FirstOrDefault(x => x.ScenarioChoiceId == choiceRequest.ScenarioChoiceId.Value)
+                        ?? new ScenarioChoice
+                        {
+                            ScenarioId = scenario.ScenarioId
+                        };
+
+                    if (choice.ScenarioChoiceId == 0)
+                    {
+                        scenario.ScenarioChoices.Add(choice);
+                    }
+                }
+                else
+                {
+                    choice = new ScenarioChoice
+                    {
+                        ScenarioId = scenario.ScenarioId
+                    };
+
+                    scenario.ScenarioChoices.Add(choice);
+                }
+
+                choice.OptionText = choiceRequest.OptionText;
+                choice.ResultText = choiceRequest.ResultText;
+                choice.LessonText = choiceRequest.LessonText;
+                choice.MoneyImpact = choiceRequest.MoneyImpact;
+                choice.ConfidenceImpact = choiceRequest.ConfidenceImpact;
+                choice.SortOrder = i + 1;
+                choice.IsActive = true;
+            }
+
+            await _context.SaveChangesAsync();
+
+            var savedScenario = await _context.Scenarios
+                .AsNoTracking()
+                .Include(x => x.ScenarioChoices)
+                .FirstAsync(x => x.ScenarioId == scenario.ScenarioId);
+
+            return MapManageScenarioProjection(savedScenario);
+        }
+
+        public async Task<bool> ActivateScenarioAsync(int scenarioId)
+        {
+            var scenario = await _context.Scenarios
+                .Include(x => x.ScenarioChoices)
+                .FirstOrDefaultAsync(x => x.ScenarioId == scenarioId);
+
+            if (scenario == null)
+            {
+                return false;
+            }
+
+            scenario.IsActive = true;
+            scenario.UpdatedAt = DateTime.UtcNow;
+
+            foreach (var choice in scenario.ScenarioChoices)
+            {
+                choice.IsActive = true;
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> DeactivateScenarioAsync(int scenarioId)
+        {
+            var scenario = await _context.Scenarios
+                .Include(x => x.ScenarioChoices)
+                .FirstOrDefaultAsync(x => x.ScenarioId == scenarioId && x.IsActive);
+
+            if (scenario == null)
+            {
+                return false;
+            }
+
+            scenario.IsActive = false;
+            scenario.UpdatedAt = DateTime.UtcNow;
+
+            foreach (var choice in scenario.ScenarioChoices)
+            {
+                choice.IsActive = false;
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        private static AdminManageScenarioProjection MapManageScenarioProjection(Scenario scenario)
+        {
+            return new AdminManageScenarioProjection
+            {
+                ScenarioId = scenario.ScenarioId,
+                Title = scenario.Title,
+                Description = scenario.Description,
+                IsActive = scenario.IsActive,
+                UpdatedAt = scenario.UpdatedAt,
+                Choices = scenario.ScenarioChoices
+                .OrderBy(x => x.SortOrder)
+                .Select(x => new AdminManageScenarioChoiceProjection
+                {
+                    ScenarioChoiceId = x.ScenarioChoiceId,
+                    OptionText = x.OptionText,
+                    ResultText = x.ResultText,
+                    LessonText = x.LessonText,
+                    MoneyImpact = x.MoneyImpact,
+                    ConfidenceImpact = x.ConfidenceImpact,
+                    SortOrder = x.SortOrder,
+                    IsActive = x.IsActive
+                })
+                .ToList()
+            };
         }
     }
 }

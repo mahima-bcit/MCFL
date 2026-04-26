@@ -10,6 +10,7 @@ import FeedbackPage from "./pages/FeedbackPage.tsx";
 import AdminOverviewPage from "./pages/admin/AdminOverviewPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminScenariosPage from "./pages/admin/AdminScenariosPage";
+import AdminManageScenariosPage from "./pages/admin/AdminManageScenariosPage";
 
 export default [
   {
@@ -32,6 +33,7 @@ export default [
       { path: "overview", element: <AdminOverviewPage /> },
       { path: "users", element: <AdminUsersPage /> },
       { path: "scenarios", element: <AdminScenariosPage /> },
+      { path: "scenarios/manage", element: <AdminManageScenariosPage /> },
     ],
   },
 ];
