@@ -1,5 +1,7 @@
-﻿using MCFL.API.DTOs.Admin.Overview;
+﻿using MCFL.API.DTOs.Admin.AccessControl;
+using MCFL.API.DTOs.Admin.Overview;
 using MCFL.API.DTOs.Admin.Users;
+using MCFL.API.Models;
 using MCFL.API.Repositories;
 
 namespace MCFL.API.Services
@@ -224,6 +226,64 @@ namespace MCFL.API.Services
                 LearningGoalTargetAmount = data.LearningGoalTargetAmount,
                 LearningGoalTargetDate = data.LearningGoalTargetDate?.ToString("yyyy-MM-dd") ?? ""
             };
+        }
+
+        public async Task<List<AdminAllowedRegistrationEmailDto>> GetAllowedRegistrationEmailsAsync()
+        {
+            var allowedEmails = await _adminRepository.GetAllowedRegistrationEmailsAsync();
+
+            return allowedEmails.Select(MapAllowedRegistrationEmail).ToList();
+        }
+
+        public async Task<AdminAllowedRegistrationEmailDto> AddAllowedRegistrationEmailAsync(
+            AddAllowedRegistrationEmailRequest request)
+        {
+            var normalizedEmail = NormalizeEmail(request.Email);
+
+            if (await _adminRepository.AllowedRegistrationEmailExistsAsync(normalizedEmail))
+            {
+                throw new InvalidOperationException("This email is already allowed for registration.");
+            }
+
+            var allowedEmail = new RegistrationAllowList
+            {
+                Email = normalizedEmail,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var created = await _adminRepository.AddAllowedRegistrationEmailAsync(allowedEmail);
+
+            return MapAllowedRegistrationEmail(created);
+        }
+
+        public async Task<bool> DeleteAllowedRegistrationEmailAsync(int id)
+        {
+            var allowedEmail = await _adminRepository.GetAllowedRegistrationEmailByIdAsync(id);
+
+            if (allowedEmail == null)
+            {
+                return false;
+            }
+
+            await _adminRepository.DeleteAllowedRegistrationEmailAsync(allowedEmail);
+
+            return true;
+        }
+
+        private static AdminAllowedRegistrationEmailDto MapAllowedRegistrationEmail(
+            RegistrationAllowList allowedEmail)
+        {
+            return new AdminAllowedRegistrationEmailDto
+            {
+                Id = allowedEmail.RegistrationAllowListId,
+                Email = allowedEmail.Email,
+                CreatedAt = allowedEmail.CreatedAt.ToString("yyyy-MM-dd")
+            };
+        }
+
+        private static string NormalizeEmail(string email)
+        {
+            return email.Trim().ToLowerInvariant();
         }
 
         private static int CalculateAge(DateOnly dateOfBirth)

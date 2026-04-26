@@ -1,4 +1,5 @@
 ﻿using MCFL.API.Data;
+using MCFL.API.Models;
 using MCFL.API.Repositories.Projections;
 using Microsoft.EntityFrameworkCore;
 
@@ -242,6 +243,44 @@ namespace MCFL.API.Repositories
                 LearningGoalTargetAmount = activeGoal?.TargetAmount ?? 300m,
                 LearningGoalTargetDate = activeGoal?.TargetDate
             };
+        }
+
+        public async Task<List<RegistrationAllowList>> GetAllowedRegistrationEmailsAsync()
+        {
+            return await _context.RegistrationAllowLists
+                .AsNoTracking()
+                .OrderByDescending(x => x.CreatedAt)
+                .ThenByDescending(x => x.RegistrationAllowListId)
+                .ToListAsync();
+        }
+
+        public async Task<RegistrationAllowList?> GetAllowedRegistrationEmailByIdAsync(int id)
+        {
+            return await _context.RegistrationAllowLists
+                .FirstOrDefaultAsync(x => x.RegistrationAllowListId == id);
+        }
+
+        public async Task<bool> AllowedRegistrationEmailExistsAsync(string email)
+        {
+            var normalizedEmail = email.Trim().ToLowerInvariant();
+
+            return await _context.RegistrationAllowLists
+                .AsNoTracking()
+                .AnyAsync(x => x.Email.ToLower() == normalizedEmail);
+        }
+
+        public async Task<RegistrationAllowList> AddAllowedRegistrationEmailAsync(RegistrationAllowList allowedEmail)
+        {
+            _context.RegistrationAllowLists.Add(allowedEmail);
+            await _context.SaveChangesAsync();
+
+            return allowedEmail;
+        }
+
+        public async Task DeleteAllowedRegistrationEmailAsync(RegistrationAllowList allowedEmail)
+        {
+            _context.RegistrationAllowLists.Remove(allowedEmail);
+            await _context.SaveChangesAsync();
         }
     }
 }

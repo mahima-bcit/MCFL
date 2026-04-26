@@ -1,4 +1,5 @@
-﻿using MCFL.API.Repositories.Projections;
+﻿using MCFL.API.Models;
+using MCFL.API.Repositories.Projections;
 
 namespace MCFL.API.Repositories
 {
@@ -14,5 +15,11 @@ namespace MCFL.API.Repositories
 
         Task<List<AdminUserListProjection>> GetUserListAsync();
         Task<AdminUserDetailProjection?> GetUserDetailAsync(string userId);
+
+        Task<List<RegistrationAllowList>> GetAllowedRegistrationEmailsAsync();
+        Task<RegistrationAllowList?> GetAllowedRegistrationEmailByIdAsync(int id);
+        Task<bool> AllowedRegistrationEmailExistsAsync(string email);
+        Task<RegistrationAllowList> AddAllowedRegistrationEmailAsync(RegistrationAllowList allowedEmail);
+        Task DeleteAllowedRegistrationEmailAsync(RegistrationAllowList allowedEmail);
     }
 }

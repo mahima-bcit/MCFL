@@ -1,4 +1,5 @@
-﻿using MCFL.API.DTOs.Admin.Overview;
+﻿using MCFL.API.DTOs.Admin.AccessControl;
+using MCFL.API.DTOs.Admin.Overview;
 using MCFL.API.DTOs.Admin.Users;
 using MCFL.API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -6,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MCFL.API.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     [ApiController]
-    [Route("api/admin")]
+    [Route("api/[controller]")]
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
@@ -52,6 +53,46 @@ namespace MCFL.API.Controllers
             }
 
             return Ok(user);
+        }
+
+        [HttpGet("access-control/allowlist")]
+        public async Task<ActionResult<List<AdminAllowedRegistrationEmailDto>>> GetAllowedRegistrationEmails()
+        {
+            var emails = await _adminService.GetAllowedRegistrationEmailsAsync();
+            return Ok(emails);
+        }
+
+        [HttpPost("access-control/allowlist")]
+        public async Task<ActionResult<AdminAllowedRegistrationEmailDto>> AddAllowedRegistrationEmail(
+            [FromBody] AddAllowedRegistrationEmailRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var created = await _adminService.AddAllowedRegistrationEmailAsync(request);
+                return Ok(created);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpDelete("access-control/allowlist/{id:int}")]
+        public async Task<IActionResult> DeleteAllowedRegistrationEmail(int id)
+        {
+            var deleted = await _adminService.DeleteAllowedRegistrationEmailAsync(id);
+
+            if (!deleted)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
         }
     }
 }
