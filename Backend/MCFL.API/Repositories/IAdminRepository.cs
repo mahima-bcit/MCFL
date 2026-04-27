@@ -1,4 +1,5 @@
-﻿using MCFL.API.Models;
+﻿using MCFL.API.DTOs.Admin.Scenarios;
+using MCFL.API.Models;
 using MCFL.API.Repositories.Projections;
 
 namespace MCFL.API.Repositories
@@ -21,5 +22,17 @@ namespace MCFL.API.Repositories
         Task<bool> AllowedRegistrationEmailExistsAsync(string email);
         Task<RegistrationAllowList> AddAllowedRegistrationEmailAsync(RegistrationAllowList allowedEmail);
         Task DeleteAllowedRegistrationEmailAsync(RegistrationAllowList allowedEmail);
+
+        Task<int> CountActiveScenariosAsync();
+        Task<int> CountScenarioCompletionsAsync();
+        Task<double> GetAverageScenarioConfidenceGainAsync();
+        Task<decimal> GetAverageScenarioMoneyImpactAsync();
+        Task<List<AdminScenarioSummaryProjection>> GetScenarioSummariesAsync();
+
+        Task<List<AdminManageScenarioProjection>> GetManageScenariosAsync();
+        Task<AdminManageScenarioProjection> CreateScenarioAsync(AdminUpsertScenarioRequestDto request);
+        Task<AdminManageScenarioProjection?> UpdateScenarioAsync(int scenarioId, AdminUpsertScenarioRequestDto request);
+        Task<bool> ActivateScenarioAsync(int scenarioId);
+        Task<bool> DeactivateScenarioAsync(int scenarioId);
     }
 }

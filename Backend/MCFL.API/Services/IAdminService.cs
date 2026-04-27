@@ -1,5 +1,6 @@
 ﻿using MCFL.API.DTOs.Admin.AccessControl;
 using MCFL.API.DTOs.Admin.Overview;
+using MCFL.API.DTOs.Admin.Scenarios;
 using MCFL.API.DTOs.Admin.Users;
 
 namespace MCFL.API.Services
@@ -13,5 +14,13 @@ namespace MCFL.API.Services
         Task<List<AdminAllowedRegistrationEmailDto>> GetAllowedRegistrationEmailsAsync();
         Task<AdminAllowedRegistrationEmailDto> AddAllowedRegistrationEmailAsync(AddAllowedRegistrationEmailRequest request);
         Task<bool> DeleteAllowedRegistrationEmailAsync(int id);
+
+        Task<AdminScenariosDto> GetScenariosAsync();
+
+        Task<List<AdminManageScenarioDto>> GetManageScenariosAsync();
+        Task<AdminManageScenarioDto> CreateScenarioAsync(AdminUpsertScenarioRequestDto request);
+        Task<AdminManageScenarioDto?> UpdateScenarioAsync(int scenarioId, AdminUpsertScenarioRequestDto request);
+        Task<bool> ActivateScenarioAsync(int scenarioId);
+        Task<bool> DeactivateScenarioAsync(int scenarioId);
     }
 }
