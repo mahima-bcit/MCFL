@@ -9,6 +9,7 @@ import GamePage from "./pages/GamePage";
 import MoneyPage from "./pages/MoneyPage";
 import FeedbackPage from "./pages/FeedbackPage";
 import MoneyPicture from "./pages/MoneyPicture";
+import ProfileSetupFlow from "./pages/ProfileSetupFlow";
 
 import AdminOverviewPage from "./pages/admin/AdminOverviewPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
@@ -19,6 +20,10 @@ import AdminManageScenariosPage from "./pages/admin/AdminManageScenariosPage";
 import AdminAccessControlPage from "./pages/admin/AdminAccessControlPage";
 
 export default [
+  {
+    path: "/profile-setup",
+    element: <ProfileSetupFlow />,
+  },
   {
     path: "/",
     element: <RootLayout />,
