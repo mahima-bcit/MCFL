@@ -1,4 +1,5 @@
-﻿using MCFL.API.DTOs.Admin.Overview;
+﻿using MCFL.API.DTOs.Admin.Feedbacks;
+using MCFL.API.DTOs.Admin.Overview;
 using MCFL.API.DTOs.Admin.Users;
 using MCFL.API.Repositories;
 
@@ -237,6 +238,35 @@ namespace MCFL.API.Services
             }
 
             return age;
+        }
+
+        public async Task<List<AdminUserFeedbackDto>> GetUserFeedbackAsync(
+    string? feedbackType,
+    string? email,
+    DateTime? startDate,
+    DateTime? endDate)
+        {
+            var rows = await _adminRepository.GetUserFeedbackAsync(
+                feedbackType,
+                email,
+                startDate,
+                endDate);
+
+            return rows.Select(x => new AdminUserFeedbackDto
+            {
+                UserFeedbackId = x.UserFeedbackId,
+                UserId = x.UserId,
+                FullName = x.FullName,
+                Email = x.Email,
+                FeedbackType = x.FeedbackType,
+                Comment = x.Comment,
+                SubmittedDate = x.SubmittedAt.ToString("yyyy-MM-dd")
+            }).ToList();
+        }
+
+        public async Task<List<string>> GetUserFeedbackTypesAsync()
+        {
+            return await _adminRepository.GetUserFeedbackTypesAsync();
         }
     }
 }

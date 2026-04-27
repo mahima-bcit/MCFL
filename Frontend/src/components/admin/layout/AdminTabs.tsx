@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users } from "lucide-react";
+import { LayoutDashboard, MessageSquareText, Users } from "lucide-react";
 
 type Props = {
   orientation?: "horizontal" | "vertical";
@@ -9,6 +9,7 @@ type Props = {
 const tabs = [
   { label: "Overview", to: "/admin/overview", icon: LayoutDashboard },
   { label: "Users", to: "/admin/users", icon: Users },
+  { label: "User Feedback", to: "/admin/user-feedback", icon: MessageSquareText },
 ];
 
 export default function AdminTabs({
@@ -18,7 +19,9 @@ export default function AdminTabs({
   const isVertical = orientation === "vertical";
 
   return (
-    <nav className={isVertical ? "flex flex-col gap-2" : "flex flex-wrap gap-2"}>
+    <nav
+      className={isVertical ? "flex flex-col gap-2" : "flex flex-wrap gap-2"}
+    >
       {tabs.map((tab) => {
         const Icon = tab.icon;
 

@@ -14,5 +14,9 @@ namespace MCFL.API.Repositories
 
         Task<List<AdminUserListProjection>> GetUserListAsync();
         Task<AdminUserDetailProjection?> GetUserDetailAsync(string userId);
+
+        Task<List<AdminUserFeedbackProjection>> GetUserFeedbackAsync(string? feedbackType, string? email, DateTime? startDate, DateTime? endDate);
+
+        Task<List<string>> GetUserFeedbackTypesAsync();
     }
 }

@@ -44,4 +44,15 @@
         public decimal LearningGoalTargetAmount { get; set; } = 300m;
         public DateOnly? LearningGoalTargetDate { get; set; }
     }
+
+    public class AdminUserFeedbackProjection
+    {
+        public int UserFeedbackId { get; set; }
+        public string UserId { get; set; } = "";
+        public string FullName { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string FeedbackType { get; set; } = "";
+        public string Comment { get; set; } = "";
+        public DateTime SubmittedAt { get; set; }
+    }
 }
