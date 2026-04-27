@@ -30,9 +30,8 @@ namespace MCFL.API.Models
         [Column("confidenceAfter")]
         public int ConfidenceAfter { get; set; }
 
-        [Required]
         [Column("lessonTextSnapshot", TypeName = "TEXT")]
-        public string LessonTextSnapshot { get; set; } = null!;
+        public string? LessonTextSnapshot { get; set; }
 
         [Precision(10, 2)]
         [Column("moneyImpactSnapshot")]

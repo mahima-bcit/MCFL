@@ -27,8 +27,8 @@ namespace MCFL.API.Data.Seed
             var cashInAllowance = await _context.CashInCategories
                 .FirstOrDefaultAsync(x => x.CategoryName == "Allowance/Parents");
 
-            var cashOutHave = await _context.CashOutCategories
-                .FirstOrDefaultAsync(x => x.CategoryName == "Have");
+            var cashOutWant = await _context.CashOutCategories
+                .FirstOrDefaultAsync(x => x.CategoryName == "Want");
 
             var cashOutNeed = await _context.CashOutCategories
                 .FirstOrDefaultAsync(x => x.CategoryName == "Need");
@@ -42,7 +42,7 @@ namespace MCFL.API.Data.Seed
             if (cashInPaycheck == null ||
                 cashInGift == null ||
                 cashInAllowance == null ||
-                cashOutHave == null ||
+                cashOutWant == null ||
                 cashOutNeed == null ||
                 cashOutFun == null ||
                 cashOutSave == null)
@@ -109,7 +109,7 @@ namespace MCFL.API.Data.Seed
                             CreatedAt = DateTime.UtcNow.AddDays(-5),
                             UserId = user.Id,
                             CashInCategoryId = null,
-                            CashOutCategoryId = cashOutHave.CashOutCategoryId
+                            CashOutCategoryId = cashOutWant.CashOutCategoryId
                         },
                         new MoneyEntry
                         {

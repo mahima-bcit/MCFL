@@ -19,10 +19,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
     public DbSet<ParentFeedback> ParentFeedbacks { get; set; } = null!;
     public DbSet<RegistrationAllowList> RegistrationAllowLists { get; set; } = null!;
     public DbSet<LearningSavingsGoal> LearningSavingsGoals { get; set; } = null!;
-    public DbSet<Scenario> Scenarios{ get; set; } = null!;
+    public DbSet<Scenario> Scenarios { get; set; } = null!;
     public DbSet<ScenarioChoice> ScenarioChoices { get; set; } = null!;
     public DbSet<ScenarioPlay> ScenarioPlays { get; set; } = null!;
     public DbSet<UserFeedback> UserFeedbacks { get; set; } = null!;
+    public DbSet<UserFeedbackType> UserFeedbackTypes { get; set; } = null!;
     public DbSet<UserGameStat> UserGameStats { get; set; } = null!;
     public DbSet<UserProfile> UserProfiles { get; set; } = null!;
     public DbSet<LearningTopic> LearningTopics { get; set; } = null!;
@@ -107,6 +108,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
             .WithMany()
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserFeedback>()
+            .HasOne(x => x.UserFeedbackType)
+            .WithMany(x => x.UserFeedbacks)
+            .HasForeignKey(x => x.UserFeedbackTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<MoneyFeelingSubmission>()
             .HasOne(x => x.User)

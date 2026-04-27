@@ -134,6 +134,21 @@ namespace MCFL.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserFeedbackType",
+                columns: table => new
+                {
+                    pkUserFeedbackTypeId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    isActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    sortOrder = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserFeedbackType", x => x.pkUserFeedbackTypeId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -336,28 +351,6 @@ namespace MCFL.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserFeedback",
-                columns: table => new
-                {
-                    pkUserFeedbackId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    feedbackType = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
-                    comment = table.Column<string>(type: "TEXT", nullable: false),
-                    submittedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    fkUserId = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserFeedback", x => x.pkUserFeedbackId);
-                    table.ForeignKey(
-                        name: "FK_UserFeedback_AspNetUsers_fkUserId",
-                        column: x => x.fkUserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "pkUserId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "UserGameStat",
                 columns: table => new
                 {
@@ -458,7 +451,7 @@ namespace MCFL.API.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     optionText = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
                     resultText = table.Column<string>(type: "TEXT", nullable: false),
-                    lessonText = table.Column<string>(type: "TEXT", nullable: false),
+                    lessonText = table.Column<string>(type: "TEXT", nullable: true),
                     moneyImpact = table.Column<decimal>(type: "TEXT", precision: 10, scale: 2, nullable: false),
                     confidenceImpact = table.Column<int>(type: "INTEGER", nullable: false),
                     sortOrder = table.Column<int>(type: "INTEGER", nullable: false),
@@ -474,6 +467,34 @@ namespace MCFL.API.Migrations
                         principalTable: "Scenario",
                         principalColumn: "pkScenarioId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserFeedback",
+                columns: table => new
+                {
+                    pkUserFeedbackId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    comment = table.Column<string>(type: "TEXT", nullable: false),
+                    submittedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    fkUserId = table.Column<string>(type: "TEXT", nullable: false),
+                    fkUserFeedbackTypeId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserFeedback", x => x.pkUserFeedbackId);
+                    table.ForeignKey(
+                        name: "FK_UserFeedback_AspNetUsers_fkUserId",
+                        column: x => x.fkUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "pkUserId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserFeedback_UserFeedbackType_fkUserFeedbackTypeId",
+                        column: x => x.fkUserFeedbackTypeId,
+                        principalTable: "UserFeedbackType",
+                        principalColumn: "pkUserFeedbackTypeId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -538,7 +559,7 @@ namespace MCFL.API.Migrations
                     gameMoneyAfter = table.Column<decimal>(type: "TEXT", precision: 10, scale: 2, nullable: false),
                     confidenceBefore = table.Column<int>(type: "INTEGER", nullable: false),
                     confidenceAfter = table.Column<int>(type: "INTEGER", nullable: false),
-                    lessonTextSnapshot = table.Column<string>(type: "TEXT", nullable: false),
+                    lessonTextSnapshot = table.Column<string>(type: "TEXT", nullable: true),
                     moneyImpactSnapshot = table.Column<decimal>(type: "TEXT", precision: 10, scale: 2, nullable: false),
                     confidenceImpactSnapshot = table.Column<int>(type: "INTEGER", nullable: false),
                     fkUserId = table.Column<string>(type: "TEXT", nullable: false),
@@ -698,9 +719,20 @@ namespace MCFL.API.Migrations
                 column: "fkUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserFeedback_fkUserFeedbackTypeId",
+                table: "UserFeedback",
+                column: "fkUserFeedbackTypeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserFeedback_fkUserId",
                 table: "UserFeedback",
                 column: "fkUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFeedbackType_name",
+                table: "UserFeedbackType",
+                column: "name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserGameStat_fkUserId",
@@ -788,6 +820,9 @@ namespace MCFL.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "ScenarioChoice");
+
+            migrationBuilder.DropTable(
+                name: "UserFeedbackType");
 
             migrationBuilder.DropTable(
                 name: "LearningTopic");
