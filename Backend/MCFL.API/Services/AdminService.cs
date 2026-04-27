@@ -2,6 +2,7 @@
 using MCFL.API.DTOs.Admin.Overview;
 using MCFL.API.DTOs.Admin.Scenarios;
 using MCFL.API.DTOs.Admin.Users;
+using MCFL.API.DTOs.Feedbacks;
 using MCFL.API.Models;
 using MCFL.API.Repositories;
 using MCFL.API.Repositories.Projections;
@@ -230,6 +231,24 @@ namespace MCFL.API.Services
                 LearningGoalTargetAmount = data.LearningGoalTargetAmount,
                 LearningGoalTargetDate = data.LearningGoalTargetDate?.ToString("yyyy-MM-dd") ?? ""
             };
+        }
+
+        public async Task<List<AdminParentFeedbackDto>> GetParentFeedbacksAsync(string? childName)
+        {
+            var rows = await _adminRepository.GetParentFeedbacksAsync(childName);
+
+            return rows.Select(x => new AdminParentFeedbackDto
+            {
+                ParentFeedbackId = x.ParentFeedbackId,
+                ChildName = x.ChildName,
+                ParentName = string.IsNullOrWhiteSpace(x.ParentName)
+                    ? "Not provided"
+                    : x.ParentName,
+                ParentEmail = x.ParentEmail,
+                MoneyStory = x.MoneyStory,
+                WhatChildShouldLearn = x.WhatChildShouldLearn,
+                SubmittedAt = x.SubmittedAt.ToString("yyyy-MM-dd")
+            }).ToList();
         }
 
         public async Task<List<AdminAllowedRegistrationEmailDto>> GetAllowedRegistrationEmailsAsync()

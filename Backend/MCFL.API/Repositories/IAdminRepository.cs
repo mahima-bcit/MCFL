@@ -16,6 +16,7 @@ namespace MCFL.API.Repositories
 
         Task<List<AdminUserListProjection>> GetUserListAsync();
         Task<AdminUserDetailProjection?> GetUserDetailAsync(string userId);
+        Task<List<AdminParentFeedbackProjection>> GetParentFeedbacksAsync(string? childName);
 
         Task<List<RegistrationAllowList>> GetAllowedRegistrationEmailsAsync();
         Task<RegistrationAllowList?> GetAllowedRegistrationEmailByIdAsync(int id);

@@ -45,6 +45,17 @@
         public DateOnly? LearningGoalTargetDate { get; set; }
     }
 
+    public class AdminParentFeedbackProjection
+    {
+        public int ParentFeedbackId { get; set; }
+        public string ChildName { get; set; } = "";
+        public string ParentName { get; set; } = "";
+        public string ParentEmail { get; set; } = "";
+        public string MoneyStory { get; set; } = "";
+        public string WhatChildShouldLearn { get; set; } = "";
+        public DateTime SubmittedAt { get; set; }
+    }
+
     public class AdminScenarioSummaryProjection
     {
         public int ScenarioId { get; set; }
