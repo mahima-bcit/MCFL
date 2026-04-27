@@ -6,7 +6,6 @@ import type { DashboardData } from "../types/dashboard";
 
 type ActiveTab = "dashboard" | "gameZone";
 
-
 const sampleDashboardData: DashboardData = {
   featuredTitle: "Try a 2-minute scenario",
   featuredDescription:
@@ -42,7 +41,7 @@ const sampleDashboardData: DashboardData = {
 };
 
 function mergeDashboardData(
-  apiData: Partial<DashboardData> | null | undefined
+  apiData: Partial<DashboardData> | null | undefined,
 ): DashboardData {
   return {
     ...sampleDashboardData,
@@ -81,31 +80,34 @@ export default function DashboardPage() {
   const [logoBroken, setLogoBroken] = useState(false);
   const [dashboardData, setDashboardData] =
     useState<DashboardData>(sampleDashboardData);
-  const [isUsingSampleData, setIsUsingSampleData] = useState(true);
 
   const LOGO_SRC = "/MCFL.png?v=3";
 
-  
-
-  
-
   useEffect(() => {
-    loadDashboardData();
+    let isCancelled = false;
+
+    getDashboardSummary()
+      .then((apiData) => {
+        if (isCancelled) {
+          return;
+        }
+
+        const safeData = mergeDashboardData(apiData);
+        setDashboardData(safeData);
+      })
+      .catch((error) => {
+        if (isCancelled) {
+          return;
+        }
+
+        console.error("Dashboard data did not load from backend.", error);
+        setDashboardData(sampleDashboardData);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
   }, []);
-
-  async function loadDashboardData() {
-  try {
-    const apiData = await getDashboardSummary();
-    const safeData = mergeDashboardData(apiData);
-
-    setDashboardData(safeData);
-    setIsUsingSampleData(false);
-  } catch (error) {
-    console.error("Dashboard data did not load from backend.", error);
-    setDashboardData(sampleDashboardData);
-    setIsUsingSampleData(true);
-  }
-}
 
   function openDashboardTab() {
     setActiveTab("dashboard");
@@ -128,7 +130,7 @@ export default function DashboardPage() {
     dashboardData.gameMoneyPicture.need,
     dashboardData.gameMoneyPicture.fun,
     dashboardData.gameMoneyPicture.save,
-    1
+    1,
   );
 
   const pictureItems = [
@@ -157,13 +159,13 @@ export default function DashboardPage() {
   const goalPercent = Math.min(
     100,
     Math.round(
-      (dashboardData.goalCurrent / Math.max(dashboardData.goalTarget, 1)) * 100
-    )
+      (dashboardData.goalCurrent / Math.max(dashboardData.goalTarget, 1)) * 100,
+    ),
   );
 
   const confidencePercent = Math.min(
     100,
-    Math.max(0, dashboardData.confidence)
+    Math.max(0, dashboardData.confidence),
   );
 
   return (
@@ -201,18 +203,14 @@ export default function DashboardPage() {
           </button>
 
           <div
-            className={`dashboard-header-right ${
-              mobileMenuOpen ? "open" : ""
-            }`}
+            className={`dashboard-header-right ${mobileMenuOpen ? "open" : ""}`}
           >
             <nav className="dashboard-nav">
               <button
                 type="button"
                 onClick={openDashboardTab}
                 className={`dashboard-nav-item ${
-                  activeTab === "dashboard"
-                    ? "dashboard-nav-item-active"
-                    : ""
+                  activeTab === "dashboard" ? "dashboard-nav-item-active" : ""
                 }`}
               >
                 Dashboard
@@ -222,16 +220,14 @@ export default function DashboardPage() {
                 type="button"
                 onClick={openGameZoneTab}
                 className={`dashboard-nav-item ${
-                  activeTab === "gameZone"
-                    ? "dashboard-nav-item-active"
-                    : ""
+                  activeTab === "gameZone" ? "dashboard-nav-item-active" : ""
                 }`}
               >
                 Game Zone
               </button>
 
               <Link
-                to="/real-money"
+                to="/money"
                 className="dashboard-nav-link"
                 onClick={closeMobileMenu}
               >
@@ -239,7 +235,7 @@ export default function DashboardPage() {
               </Link>
 
               <Link
-                to="/share-feedback"
+                to="/feedback"
                 className="dashboard-nav-link"
                 onClick={closeMobileMenu}
               >
@@ -260,8 +256,6 @@ export default function DashboardPage() {
 
       <main className="dashboard-shell">
         <div className="dashboard-content">
-          
-
           {activeTab === "dashboard" ? (
             <>
               <section className="scenario-banner">
@@ -387,9 +381,7 @@ export default function DashboardPage() {
                     <div className="detail-card-header">
                       <div>
                         <h3>Real Money Snapshot</h3>
-                        <p>
-                          A quick look at your current real money progress.
-                        </p>
+                        <p>A quick look at your current real money progress.</p>
                       </div>
                     </div>
 
@@ -398,7 +390,7 @@ export default function DashboardPage() {
                         <span>Available Balance</span>
                         <strong>
                           {formatMoney(
-                            dashboardData.realMoneySnapshot.availableBalance
+                            dashboardData.realMoneySnapshot.availableBalance,
                           )}
                         </strong>
                       </div>
@@ -407,7 +399,7 @@ export default function DashboardPage() {
                         <span>Monthly Income</span>
                         <strong>
                           {formatMoney(
-                            dashboardData.realMoneySnapshot.monthlyIncome
+                            dashboardData.realMoneySnapshot.monthlyIncome,
                           )}
                         </strong>
                       </div>
@@ -416,7 +408,7 @@ export default function DashboardPage() {
                         <span>Monthly Expenses</span>
                         <strong>
                           {formatMoney(
-                            dashboardData.realMoneySnapshot.monthlyExpenses
+                            dashboardData.realMoneySnapshot.monthlyExpenses,
                           )}
                         </strong>
                       </div>
@@ -425,13 +417,13 @@ export default function DashboardPage() {
                         <span>Monthly Net</span>
                         <strong>
                           {formatPositiveMoney(
-                            dashboardData.realMoneySnapshot.monthlyNet
+                            dashboardData.realMoneySnapshot.monthlyNet,
                           )}
                         </strong>
                       </div>
                     </div>
 
-                    <Link to="/real-money" className="inline-link-button">
+                    <Link to="/money" className="inline-link-button">
                       Go to Real Money
                     </Link>
                   </article>
@@ -452,7 +444,7 @@ export default function DashboardPage() {
                       {dashboardData.parentFeedback.link}
                     </div>
 
-                    <Link to="/share-feedback" className="inline-link-button">
+                    <Link to="/feedback" className="inline-link-button">
                       Go to Share Feedback
                     </Link>
                   </article>
@@ -530,7 +522,7 @@ export default function DashboardPage() {
                         {pictureItems.map((item) => {
                           const barHeightPercent = Math.max(
                             20,
-                            Math.round((item.value / maxPictureValue) * 100)
+                            Math.round((item.value / maxPictureValue) * 100),
                           );
 
                           return (
@@ -642,11 +634,11 @@ export default function DashboardPage() {
               Game Zone
             </button>
 
-            <Link to="/real-money" className="footer-link">
+            <Link to="/money" className="footer-link">
               Real Money
             </Link>
 
-            <Link to="/share-feedback" className="footer-link">
+            <Link to="/feedback" className="footer-link">
               Share Feedback
             </Link>
           </div>
