@@ -544,7 +544,6 @@ namespace MCFL.API.Migrations
                         .HasColumnName("isActive");
 
                     b.Property<string>("LessonText")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("lessonText");
 
@@ -609,7 +608,6 @@ namespace MCFL.API.Migrations
                         .HasColumnName("gameMoneyBefore");
 
                     b.Property<string>("LessonTextSnapshot")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("lessonTextSnapshot");
 
@@ -661,15 +659,13 @@ namespace MCFL.API.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("comment");
 
-                    b.Property<string>("FeedbackType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("feedbackType");
-
                     b.Property<DateTime>("SubmittedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("submittedAt");
+
+                    b.Property<int>("UserFeedbackTypeId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("fkUserFeedbackTypeId");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -678,9 +674,40 @@ namespace MCFL.API.Migrations
 
                     b.HasKey("UserFeedbackId");
 
+                    b.HasIndex("UserFeedbackTypeId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("UserFeedback");
+                });
+
+            modelBuilder.Entity("MCFL.API.Models.UserFeedbackType", b =>
+                {
+                    b.Property<int>("UserFeedbackTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("pkUserFeedbackTypeId");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("isActive");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("name");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("sortOrder");
+
+                    b.HasKey("UserFeedbackTypeId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("UserFeedbackType");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.UserGameStat", b =>
@@ -1079,6 +1106,12 @@ namespace MCFL.API.Migrations
 
             modelBuilder.Entity("MCFL.API.Models.UserFeedback", b =>
                 {
+                    b.HasOne("MCFL.API.Models.UserFeedbackType", "UserFeedbackType")
+                        .WithMany("UserFeedbacks")
+                        .HasForeignKey("UserFeedbackTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("MCFL.API.Models.Identity.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -1086,6 +1119,8 @@ namespace MCFL.API.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+
+                    b.Navigation("UserFeedbackType");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.UserGameStat", b =>
@@ -1188,6 +1223,11 @@ namespace MCFL.API.Migrations
             modelBuilder.Entity("MCFL.API.Models.Scenario", b =>
                 {
                     b.Navigation("ScenarioChoices");
+                });
+
+            modelBuilder.Entity("MCFL.API.Models.UserFeedbackType", b =>
+                {
+                    b.Navigation("UserFeedbacks");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.UserProfile", b =>
