@@ -58,8 +58,10 @@ export default function AdminParentFeedbackPage() {
     setFilters(updatedFilters);
   }
 
-  function handleApplyFilters() {
-    loadFeedback(filters);
+  function handleApplyFilters(
+    activeFilters: AdminParentFeedbackFilters = filters,
+  ) {
+    loadFeedback(activeFilters);
   }
 
   function handleClearFilters() {
