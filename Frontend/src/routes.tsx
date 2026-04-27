@@ -27,15 +27,17 @@ export default [
             { index: true, element: <Index /> },
             { path: "login", element: <Login /> },
             { path: "parentFeedback", element: <ParentsFeedback /> },
-            { path: "dashboard", element: <DashboardPage /> },
-            { path: "game", element: <GamePage /> },
-            { path: "money", element: <MoneyPage /> },
-            { path: "feedback", element: <FeedbackPage /> },
-            { path: "moneyPicture", element: <MoneyPicture /> },
-            { path: "game-money", element: <GameMoneyPage /> },
-            { path: "real-money", element: <RealMoneyPage /> },
         ],
     },
+
+    { path: "/dashboard", element: <DashboardPage /> },
+    { path: "/game", element: <GamePage /> },
+    { path: "/money", element: <MoneyPage /> },
+    { path: "/feedback", element: <FeedbackPage /> },
+    { path: "/moneyPicture", element: <MoneyPicture /> },
+    { path: "/game-money", element: <GameMoneyPage /> },
+    { path: "/real-money", element: <RealMoneyPage /> },
+
     {
         path: "/admin",
         children: [
