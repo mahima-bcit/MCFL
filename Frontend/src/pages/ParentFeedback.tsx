@@ -1,7 +1,9 @@
 import React, { useState, type FormEvent } from "react";
+import { apiFetch } from "../services/apiClient";
 
 interface FormData {
   email: string;
+  parentName: string;
   childName: string;
   moneyStory: string;
   hopesForLearning: string;
@@ -9,14 +11,18 @@ interface FormData {
 
 interface FormErrors {
   email?: string;
+  parentName?: string;
   childName?: string;
   moneyStory?: string;
   hopesForLearning?: string;
 }
 
 const ParentsFeedback: React.FC = () => {
+  const token = new URLSearchParams(window.location.search).get("token") ?? "test-token";
+
   const [formData, setFormData] = useState<FormData>({
     email: "",
+    parentName: "",
     childName: "",
     moneyStory: "",
     hopesForLearning: "",
@@ -25,6 +31,8 @@ const ParentsFeedback: React.FC = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
@@ -33,6 +41,10 @@ const ParentsFeedback: React.FC = () => {
       newErrors.email = "Email is required.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Please enter a valid email address.";
+    }
+
+    if (!formData.parentName.trim()) {
+      newErrors.parentName = "Parent's name is required.";
     }
 
     if (!formData.childName.trim()) {
@@ -70,10 +82,25 @@ const ParentsFeedback: React.FC = () => {
     if (!validate()) return;
 
     setIsSubmitting(true);
-    // Simulate API call — replace with your actual submission logic
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
-    setSubmitSuccess(true);
+    setSubmitError(null);
+
+    try {
+      await apiFetch("/api/ParentFeedback", {
+        method: "POST",
+        body: JSON.stringify({
+          parentEmail: formData.email,
+          parentName: formData.parentName,
+          moneyStory: formData.moneyStory,
+          whatChildShouldLearn: formData.hopesForLearning,
+          token,
+        }),
+      });
+      setSubmitSuccess(true);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Submission failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitSuccess) {
@@ -108,6 +135,7 @@ const ParentsFeedback: React.FC = () => {
               setSubmitSuccess(false);
               setFormData({
                 email: "",
+                parentName: "",
                 childName: "",
                 moneyStory: "",
                 hopesForLearning: "",
@@ -191,18 +219,13 @@ const ParentsFeedback: React.FC = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              aria-invalid={errors.email ? "true" : undefined}
-              aria-describedby={errors.email ? "email-error" : undefined}
               placeholder="your@email.com"
               className={`w-full px-4 py-3 rounded-xl border font-body text-nav placeholder:text-gray-400 bg-gray-50/50 focus:bg-white transition-colors outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
                 errors.email ? "border-error ring-2 ring-error/20" : "border-gray-200"
               }`}
             />
             {errors.email && (
-              <p
-                id="email-error"
-                className="mt-1.5 text-sm text-error font-body flex items-center gap-1.5"
-              >
+              <p className="mt-1.5 text-sm text-error font-body flex items-center gap-1.5">
                 <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     fillRule="evenodd"
@@ -215,14 +238,45 @@ const ParentsFeedback: React.FC = () => {
             )}
           </fieldset>
 
-          {/* --- Child's Name --- */}
+          {/* --- Parent's Name --- */}
           <fieldset>
             <legend className="text-sm font-mono tracking-wide uppercase text-nav/70 mb-1.5">
-              About Your Child
+              About You &amp; Your Child
             </legend>
             <label
-              htmlFor="childName"
+              htmlFor="parentName"
               className="block text-sm font-body font-medium text-nav mb-1.5"
+            >
+              Your Name <span className="text-error">*</span>
+            </label>
+            <input
+              type="text"
+              id="parentName"
+              name="parentName"
+              value={formData.parentName}
+              onChange={handleChange}
+              placeholder="Jordan Smith"
+              className={`w-full px-4 py-3 rounded-xl border font-body text-nav placeholder:text-gray-400 bg-gray-50/50 focus:bg-white transition-colors outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
+                errors.parentName
+                  ? "border-error ring-2 ring-error/20"
+                  : "border-gray-200"
+              }`}
+            />
+            {errors.parentName && (
+              <p className="mt-1.5 text-sm text-error font-body flex items-center gap-1.5">
+                <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {errors.parentName}
+              </p>
+            )}
+            <label
+              htmlFor="childName"
+              className="block text-sm font-body font-medium text-nav mb-1.5 mt-4"
             >
               Child's Name <span className="text-error">*</span>
             </label>
@@ -347,6 +401,18 @@ const ParentsFeedback: React.FC = () => {
 
           {/* --- Submit --- */}
           <div className="pt-2">
+            {submitError && (
+              <p className="mb-4 text-sm text-error font-body flex items-center gap-1.5">
+                <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {submitError}
+              </p>
+            )}
             <button
               type="submit"
               disabled={isSubmitting}

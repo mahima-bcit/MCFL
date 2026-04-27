@@ -44,4 +44,59 @@
         public decimal LearningGoalTargetAmount { get; set; } = 300m;
         public DateOnly? LearningGoalTargetDate { get; set; }
     }
+
+    public class AdminUserFeedbackProjection
+    {
+        public int UserFeedbackId { get; set; }
+        public string UserId { get; set; } = "";
+        public string FullName { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string FeedbackType { get; set; } = "";
+        public string Comment { get; set; } = "";
+        public DateTime SubmittedAt { get; set; }
+    }
+
+    public class AdminParentFeedbackProjection
+    {
+        public int ParentFeedbackId { get; set; }
+        public string ChildName { get; set; } = "";
+        public string ParentName { get; set; } = "";
+        public string ParentEmail { get; set; } = "";
+        public string MoneyStory { get; set; } = "";
+        public string WhatChildShouldLearn { get; set; } = "";
+        public DateTime SubmittedAt { get; set; }
+    }
+
+    public class AdminScenarioSummaryProjection
+    {
+        public int ScenarioId { get; set; }
+        public string Title { get; set; } = "";
+        public string MostPopularChoice { get; set; } = "";
+        public int Completions { get; set; }
+        public double AvgConfidenceGain { get; set; }
+        public decimal AvgMoneyImpact { get; set; }
+        public double PercentageOfTotal { get; set; }
+    }
+
+    public class AdminManageScenarioProjection
+    {
+        public int ScenarioId { get; set; }
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
+        public bool IsActive { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public List<AdminManageScenarioChoiceProjection> Choices { get; set; } = new();
+    }
+
+    public class AdminManageScenarioChoiceProjection
+    {
+        public int ScenarioChoiceId { get; set; }
+        public string OptionText { get; set; } = "";
+        public string ResultText { get; set; } = "";
+        public string? LessonText { get; set; }
+        public decimal MoneyImpact { get; set; }
+        public int ConfidenceImpact { get; set; }
+        public int SortOrder { get; set; }
+        public bool IsActive { get; set; }
+    }
 }

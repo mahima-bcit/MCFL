@@ -10,7 +10,9 @@ namespace MCFL.API.Data.Seed
         private readonly AppDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public DevelopmentUserFeedbackSeeder(AppDbContext context, UserManager<ApplicationUser> userManager)
+        public DevelopmentUserFeedbackSeeder(
+            AppDbContext context,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -18,31 +20,96 @@ namespace MCFL.API.Data.Seed
 
         public async Task SeedAsync()
         {
-            var emails = new[] { "mahima@mcfl.local", "susie@mcfl.local", "saman@mcfl.local" };
+            var feedbackTypes = await _context.UserFeedbackTypes
+                .AsNoTracking()
+                .ToDictionaryAsync(
+                    x => x.Name,
+                    x => x.UserFeedbackTypeId,
+                    StringComparer.OrdinalIgnoreCase);
 
-            foreach (var email in emails)
+            if (!feedbackTypes.ContainsKey("General") ||
+                !feedbackTypes.ContainsKey("Bug Report") ||
+                !feedbackTypes.ContainsKey("Feature Idea") ||
+                !feedbackTypes.ContainsKey("Scenario") ||
+                !feedbackTypes.ContainsKey("Others"))
             {
-                var user = await _userManager.FindByEmailAsync(email);
-                if (user == null) continue;
+                return;
+            }
 
-                var hasFeedback = await _context.UserFeedbacks.AnyAsync(x => x.UserId == user.Id);
-                if (hasFeedback) continue;
+            var feedbackSeedData = new[]
+            {
+                new
+                {
+                    Email = "mahima@mcfl.local",
+                    FeedbackTypeName = "Scenario",
+                    Comment = "I want clearer labels on the money categories page.",
+                    SubmittedAt = DateTime.UtcNow.AddDays(-1)
+                },
+                new
+                {
+                    Email = "mahima@mcfl.local",
+                    FeedbackTypeName = "General",
+                    Comment = "The scenarios are helpful and easy to understand.",
+                    SubmittedAt = DateTime.UtcNow.AddDays(-4)
+                },
+                new
+                {
+                    Email = "susie@mcfl.local",
+                    FeedbackTypeName = "Bug Report",
+                    Comment = "I want clearer labels on the money categories page.",
+                    SubmittedAt = DateTime.UtcNow.AddDays(-1)
+                },
+                new
+                {
+                    Email = "susie@mcfl.local",
+                    FeedbackTypeName = "Feature Idea",
+                    Comment = "I would like more scenario options about saving for school and handling unexpected expenses.",
+                    SubmittedAt = DateTime.UtcNow.AddDays(-3)
+                },
+                new
+                {
+                    Email = "saman@mcfl.local",
+                    FeedbackTypeName = "Bug Report",
+                    Comment = "I want clearer labels on the money categories page.",
+                    SubmittedAt = DateTime.UtcNow.AddDays(-1)
+                },
+                new
+                {
+                    Email = "saman@mcfl.local",
+                    FeedbackTypeName = "Others",
+                    Comment = "The dashboard is easy to understand and the progress indicators are helpful.",
+                    SubmittedAt = DateTime.UtcNow.AddDays(-2)
+                }
+            };
 
-                _context.UserFeedbacks.AddRange(
-                    new UserFeedback
-                    {
-                        FeedbackType = "Suggestion",
-                        Comment = "The scenarios are helpful and easy to understand.",
-                        SubmittedAt = DateTime.UtcNow.AddDays(-4),
-                        UserId = user.Id
-                    },
-                    new UserFeedback
-                    {
-                        FeedbackType = "Bug",
-                        Comment = "I want clearer labels on the money categories page.",
-                        SubmittedAt = DateTime.UtcNow.AddDays(-1),
-                        UserId = user.Id
-                    });
+            foreach (var item in feedbackSeedData)
+            {
+                var user = await _userManager.FindByEmailAsync(item.Email);
+
+                if (user == null)
+                {
+                    continue;
+                }
+
+                var feedbackTypeId = feedbackTypes[item.FeedbackTypeName];
+
+                var alreadyExists = await _context.UserFeedbacks.AnyAsync(x =>
+                    x.UserId == user.Id &&
+                    x.Comment == item.Comment &&
+                    x.UserFeedbackTypeId == feedbackTypeId);
+
+                if (alreadyExists)
+                {
+                    continue;
+                }
+
+                _context.UserFeedbacks.Add(new UserFeedback
+                {
+                    Comment = item.Comment,
+                    SubmittedAt = item.SubmittedAt,
+                    UserId = user.Id,
+                    UserFeedbackTypeId = feedbackTypeId
+                });
             }
 
             await _context.SaveChangesAsync();

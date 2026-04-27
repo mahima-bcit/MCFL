@@ -16,7 +16,8 @@ export async function apiFetch<T>(
     finalHeaders.set("Content-Type", "application/json");
   }
 
-  const token = localStorage.getItem("token") ?? sessionStorage.getItem("token");
+  const token =
+    localStorage.getItem("token") ?? sessionStorage.getItem("token");
 
   if (token && !finalHeaders.has("Authorization")) {
     finalHeaders.set("Authorization", `Bearer ${token}`);
@@ -44,5 +45,11 @@ export async function apiFetch<T>(
     return undefined as T;
   }
 
-  return (await response.json()) as T;
+  const text = await response.text();
+
+  if (!text) {
+    return undefined as T;
+  }
+
+  return JSON.parse(text) as T;
 }
