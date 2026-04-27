@@ -18,12 +18,30 @@ export default [
       { index: true, element: <Index /> },
       { path: "login", element: <Login /> },
       { path: "parentFeedback", element: <ParentsFeedback /> },
-      { path: "dashboard", element: <DashboardPage /> },
+      
       { path: "game", element: <GamePage /> },
       { path: "money", element: <MoneyPage /> },
       { path: "feedback", element: <FeedbackPage /> },
     ],
   },
+
+  {
+    path: "/dashboard",
+    element: <DashboardPage />,
+  },
+  {
+    path: "/game",
+    element: <GamePage />,
+  },
+  {
+    path: "/money",
+    element: <MoneyPage />,
+  },
+  {
+    path: "/feedback",
+    element: <FeedbackPage />,
+  },
+
   {
     path: "/admin",
     children: [
