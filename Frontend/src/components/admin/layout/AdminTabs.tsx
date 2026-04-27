@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
     LayoutDashboard,
     MessageSquare,
+    MessageSquareText,
     ShieldCheck,
     Target,
     Users,
@@ -15,6 +16,7 @@ type Props = {
 const tabs = [
     { label: "Overview", to: "/admin/overview", icon: LayoutDashboard },
     { label: "Users", to: "/admin/users", icon: Users },
+    { label: "User Feedback", to: "/admin/user-feedback", icon: MessageSquareText },
     { label: "Parent Feedback", to: "/admin/parent-feedback", icon: MessageSquare },
     { label: "Scenarios", to: "/admin/scenarios", icon: Target },
     { label: "Access Control", to: "/admin/access-control", icon: ShieldCheck },

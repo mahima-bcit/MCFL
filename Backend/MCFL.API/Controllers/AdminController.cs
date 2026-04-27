@@ -1,4 +1,5 @@
 ﻿using MCFL.API.DTOs.Admin.AccessControl;
+using MCFL.API.DTOs.Admin.Feedbacks;
 using MCFL.API.DTOs.Admin.Overview;
 using MCFL.API.DTOs.Admin.Scenarios;
 using MCFL.API.DTOs.Admin.Users;
@@ -56,6 +57,48 @@ namespace MCFL.API.Controllers
             }
 
             return Ok(user);
+        }
+
+        [HttpGet("user-feedback")]
+        public async Task<ActionResult<List<AdminUserFeedbackDto>>> GetUserFeedback(
+            [FromQuery] string? feedbackType,
+            [FromQuery] string? email,
+            [FromQuery] DateTime? startDate,
+            [FromQuery] DateTime? endDate)
+        {
+            var today = DateTime.Today;
+
+            if (startDate.HasValue && startDate.Value.Date > today)
+            {
+                return BadRequest("From date cannot be after today's date.");
+            }
+
+            if (endDate.HasValue && endDate.Value.Date > today)
+            {
+                return BadRequest("To date cannot be after today's date.");
+            }
+
+            if (startDate.HasValue &&
+                endDate.HasValue &&
+                startDate.Value.Date > endDate.Value.Date)
+            {
+                return BadRequest("From date cannot be after To date.");
+            }
+
+            var feedback = await _adminService.GetUserFeedbackAsync(
+                feedbackType,
+                email,
+                startDate,
+                endDate);
+
+            return Ok(feedback);
+        }
+
+        [HttpGet("user-feedback/types")]
+        public async Task<ActionResult<List<string>>> GetUserFeedbackTypes()
+        {
+            var types = await _adminService.GetUserFeedbackTypesAsync();
+            return Ok(types);
         }
 
         [HttpGet("parent-feedbacks")]

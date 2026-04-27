@@ -246,6 +246,86 @@ namespace MCFL.API.Repositories
             };
         }
 
+        public async Task<List<AdminUserFeedbackProjection>> GetUserFeedbackAsync(
+            string? feedbackType,
+            string? email,
+            DateTime? startDate,
+            DateTime? endDate)
+        {
+            var query =
+                from feedback in _context.UserFeedbacks.AsNoTracking()
+                join feedbackTypeRow in _context.UserFeedbackTypes.AsNoTracking()
+                    on feedback.UserFeedbackTypeId equals feedbackTypeRow.UserFeedbackTypeId
+                join user in _context.Users.AsNoTracking()
+                    on feedback.UserId equals user.Id
+                join profile in _context.UserProfiles.AsNoTracking()
+                    on user.Id equals profile.UserId into profileGroup
+                from profile in profileGroup.DefaultIfEmpty()
+                select new
+                {
+                    Feedback = feedback,
+                    FeedbackType = feedbackTypeRow,
+                    User = user,
+                    Profile = profile
+                };
+
+            if (!string.IsNullOrWhiteSpace(feedbackType))
+            {
+                var trimmedType = feedbackType.Trim();
+
+                query = query.Where(x => x.FeedbackType.Name == trimmedType);
+            }
+
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                var emailSearch = $"%{email.Trim()}%";
+
+                query = query.Where(x =>
+                    x.User.Email != null &&
+                    EF.Functions.Like(x.User.Email, emailSearch));
+            }
+
+            if (startDate.HasValue)
+            {
+                var fromDate = startDate.Value.Date;
+
+                query = query.Where(x => x.Feedback.SubmittedAt >= fromDate);
+            }
+
+            if (endDate.HasValue)
+            {
+                var toDateExclusive = endDate.Value.Date.AddDays(1);
+
+                query = query.Where(x => x.Feedback.SubmittedAt < toDateExclusive);
+            }
+
+            return await query
+                .OrderByDescending(x => x.Feedback.SubmittedAt)
+                .Select(x => new AdminUserFeedbackProjection
+                {
+                    UserFeedbackId = x.Feedback.UserFeedbackId,
+                    UserId = x.User.Id,
+                    FullName = x.Profile != null
+                        ? x.Profile.FullName
+                        : x.User.UserName ?? "Unknown user",
+                    Email = x.User.Email ?? "",
+                    FeedbackType = x.FeedbackType.Name,
+                    Comment = x.Feedback.Comment,
+                    SubmittedAt = x.Feedback.SubmittedAt
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<string>> GetUserFeedbackTypesAsync()
+        {
+            return await _context.UserFeedbackTypes
+                .AsNoTracking()
+                .Where(x => x.IsActive)
+                .OrderBy(x => x.SortOrder)
+                .Select(x => x.Name)
+                .ToListAsync();
+        }
+
         public async Task<List<AdminParentFeedbackProjection>> GetParentFeedbacksAsync(string? childName)
         {
             var trimmedChildName = childName?.Trim();

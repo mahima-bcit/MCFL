@@ -10,6 +10,7 @@ import FeedbackPage from "./pages/FeedbackPage";
 import MoneyPicture from "./pages/MoneyPicture";
 import AdminOverviewPage from "./pages/admin/AdminOverviewPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminUserFeedbackPage from "./pages/admin/AdminUserFeedbackPage";
 import AdminParentFeedbackPage from "./pages/admin/AdminParentFeedbackPage";
 import AdminScenariosPage from "./pages/admin/AdminScenariosPage";
 import AdminManageScenariosPage from "./pages/admin/AdminManageScenariosPage";
@@ -36,6 +37,7 @@ export default [
             { index: true, element: <Navigate to="/admin/overview" replace /> },
             { path: "overview", element: <AdminOverviewPage /> },
             { path: "users", element: <AdminUsersPage /> },
+            { path: "user-feedback", element: <AdminUserFeedbackPage /> },
             { path: "parent-feedback", element: <AdminParentFeedbackPage /> },
             { path: "scenarios", element: <AdminScenariosPage /> },
             { path: "scenarios/manage", element: <AdminManageScenariosPage /> },

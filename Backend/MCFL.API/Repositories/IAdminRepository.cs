@@ -16,6 +16,15 @@ namespace MCFL.API.Repositories
 
         Task<List<AdminUserListProjection>> GetUserListAsync();
         Task<AdminUserDetailProjection?> GetUserDetailAsync(string userId);
+
+        Task<List<AdminUserFeedbackProjection>> GetUserFeedbackAsync(
+            string? feedbackType,
+            string? email,
+            DateTime? startDate,
+            DateTime? endDate);
+
+        Task<List<string>> GetUserFeedbackTypesAsync();
+
         Task<List<AdminParentFeedbackProjection>> GetParentFeedbacksAsync(string? childName);
 
         Task<List<RegistrationAllowList>> GetAllowedRegistrationEmailsAsync();
@@ -32,7 +41,9 @@ namespace MCFL.API.Repositories
 
         Task<List<AdminManageScenarioProjection>> GetManageScenariosAsync();
         Task<AdminManageScenarioProjection> CreateScenarioAsync(AdminUpsertScenarioRequestDto request);
-        Task<AdminManageScenarioProjection?> UpdateScenarioAsync(int scenarioId, AdminUpsertScenarioRequestDto request);
+        Task<AdminManageScenarioProjection?> UpdateScenarioAsync(
+            int scenarioId,
+            AdminUpsertScenarioRequestDto request);
         Task<bool> ActivateScenarioAsync(int scenarioId);
         Task<bool> DeactivateScenarioAsync(int scenarioId);
     }
