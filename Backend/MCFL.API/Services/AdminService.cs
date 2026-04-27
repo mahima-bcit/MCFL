@@ -1,6 +1,8 @@
-﻿using MCFL.API.DTOs.Admin.Overview;
+﻿using MCFL.API.DTOs.Admin.AccessControl;
+using MCFL.API.DTOs.Admin.Overview;
 using MCFL.API.DTOs.Admin.Scenarios;
 using MCFL.API.DTOs.Admin.Users;
+using MCFL.API.Models;
 using MCFL.API.Repositories;
 using MCFL.API.Repositories.Projections;
 
@@ -128,6 +130,7 @@ namespace MCFL.API.Services
                 {
                     var day = dateFrom.AddDays(offset);
                     createdDateCounts.TryGetValue(day, out var count);
+
                     return new UserGrowthPointDto
                     {
                         Label = day.ToString("MMM d"),
@@ -173,6 +176,7 @@ namespace MCFL.API.Services
         public async Task<AdminUserDetailDto?> GetUserByIdAsync(string userId)
         {
             var data = await _adminRepository.GetUserDetailAsync(userId);
+
             if (data == null)
             {
                 return null;
@@ -228,17 +232,46 @@ namespace MCFL.API.Services
             };
         }
 
-        private static int CalculateAge(DateOnly dateOfBirth)
+        public async Task<List<AdminAllowedRegistrationEmailDto>> GetAllowedRegistrationEmailsAsync()
         {
-            var today = DateOnly.FromDateTime(DateTime.Today);
-            var age = today.Year - dateOfBirth.Year;
+            var allowedEmails = await _adminRepository.GetAllowedRegistrationEmailsAsync();
 
-            if (dateOfBirth > today.AddYears(-age))
+            return allowedEmails.Select(MapAllowedRegistrationEmail).ToList();
+        }
+
+        public async Task<AdminAllowedRegistrationEmailDto> AddAllowedRegistrationEmailAsync(
+            AddAllowedRegistrationEmailRequest request)
+        {
+            var normalizedEmail = NormalizeEmail(request.Email);
+
+            if (await _adminRepository.AllowedRegistrationEmailExistsAsync(normalizedEmail))
             {
-                age--;
+                throw new InvalidOperationException("This email is already allowed for registration.");
             }
 
-            return age;
+            var allowedEmail = new RegistrationAllowList
+            {
+                Email = normalizedEmail,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var created = await _adminRepository.AddAllowedRegistrationEmailAsync(allowedEmail);
+
+            return MapAllowedRegistrationEmail(created);
+        }
+
+        public async Task<bool> DeleteAllowedRegistrationEmailAsync(int id)
+        {
+            var allowedEmail = await _adminRepository.GetAllowedRegistrationEmailByIdAsync(id);
+
+            if (allowedEmail == null)
+            {
+                return false;
+            }
+
+            await _adminRepository.DeleteAllowedRegistrationEmailAsync(allowedEmail);
+
+            return true;
         }
 
         public async Task<AdminScenariosDto> GetScenariosAsync()
@@ -271,6 +304,7 @@ namespace MCFL.API.Services
         public async Task<List<AdminManageScenarioDto>> GetManageScenariosAsync()
         {
             var scenarios = await _adminRepository.GetManageScenariosAsync();
+
             return scenarios.Select(MapManageScenario).ToList();
         }
 
@@ -280,6 +314,7 @@ namespace MCFL.API.Services
             ValidateScenarioRequest(normalized);
 
             var created = await _adminRepository.CreateScenarioAsync(normalized);
+
             return MapManageScenario(created);
         }
 
@@ -291,6 +326,7 @@ namespace MCFL.API.Services
             ValidateScenarioRequest(normalized);
 
             var updated = await _adminRepository.UpdateScenarioAsync(scenarioId, normalized);
+
             return updated == null ? null : MapManageScenario(updated);
         }
 
@@ -302,6 +338,17 @@ namespace MCFL.API.Services
         public async Task<bool> DeactivateScenarioAsync(int scenarioId)
         {
             return await _adminRepository.DeactivateScenarioAsync(scenarioId);
+        }
+
+        private static AdminAllowedRegistrationEmailDto MapAllowedRegistrationEmail(
+            RegistrationAllowList allowedEmail)
+        {
+            return new AdminAllowedRegistrationEmailDto
+            {
+                Id = allowedEmail.RegistrationAllowListId,
+                Email = allowedEmail.Email,
+                CreatedAt = allowedEmail.CreatedAt.ToString("yyyy-MM-dd")
+            };
         }
 
         private static AdminManageScenarioDto MapManageScenario(AdminManageScenarioProjection scenario)
@@ -380,6 +427,24 @@ namespace MCFL.API.Services
                     throw new ArgumentException($"Choice {choiceNumber} result text is required.");
                 }
             }
+        }
+
+        private static string NormalizeEmail(string email)
+        {
+            return email.Trim().ToLowerInvariant();
+        }
+
+        private static int CalculateAge(DateOnly dateOfBirth)
+        {
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var age = today.Year - dateOfBirth.Year;
+
+            if (dateOfBirth > today.AddYears(-age))
+            {
+                age--;
+            }
+
+            return age;
         }
     }
 }

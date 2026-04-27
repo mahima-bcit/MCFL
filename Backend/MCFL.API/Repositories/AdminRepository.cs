@@ -246,6 +246,44 @@ namespace MCFL.API.Repositories
             };
         }
 
+        public async Task<List<RegistrationAllowList>> GetAllowedRegistrationEmailsAsync()
+        {
+            return await _context.RegistrationAllowLists
+                .AsNoTracking()
+                .OrderByDescending(x => x.CreatedAt)
+                .ThenByDescending(x => x.RegistrationAllowListId)
+                .ToListAsync();
+        }
+
+        public async Task<RegistrationAllowList?> GetAllowedRegistrationEmailByIdAsync(int id)
+        {
+            return await _context.RegistrationAllowLists
+                .FirstOrDefaultAsync(x => x.RegistrationAllowListId == id);
+        }
+
+        public async Task<bool> AllowedRegistrationEmailExistsAsync(string email)
+        {
+            var normalizedEmail = email.Trim().ToLowerInvariant();
+
+            return await _context.RegistrationAllowLists
+                .AsNoTracking()
+                .AnyAsync(x => x.Email.ToLower() == normalizedEmail);
+        }
+
+        public async Task<RegistrationAllowList> AddAllowedRegistrationEmailAsync(RegistrationAllowList allowedEmail)
+        {
+            _context.RegistrationAllowLists.Add(allowedEmail);
+            await _context.SaveChangesAsync();
+
+            return allowedEmail;
+        }
+
+        public async Task DeleteAllowedRegistrationEmailAsync(RegistrationAllowList allowedEmail)
+        {
+            _context.RegistrationAllowLists.Remove(allowedEmail);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<int> CountActiveScenariosAsync()
         {
             return await _context.Scenarios
@@ -535,8 +573,10 @@ namespace MCFL.API.Repositories
             }
 
             await _context.SaveChangesAsync();
+
             return true;
         }
+
         public async Task<bool> DeactivateScenarioAsync(int scenarioId)
         {
             var scenario = await _context.Scenarios
@@ -557,6 +597,7 @@ namespace MCFL.API.Repositories
             }
 
             await _context.SaveChangesAsync();
+
             return true;
         }
 
@@ -570,19 +611,19 @@ namespace MCFL.API.Repositories
                 IsActive = scenario.IsActive,
                 UpdatedAt = scenario.UpdatedAt,
                 Choices = scenario.ScenarioChoices
-                .OrderBy(x => x.SortOrder)
-                .Select(x => new AdminManageScenarioChoiceProjection
-                {
-                    ScenarioChoiceId = x.ScenarioChoiceId,
-                    OptionText = x.OptionText,
-                    ResultText = x.ResultText,
-                    LessonText = x.LessonText,
-                    MoneyImpact = x.MoneyImpact,
-                    ConfidenceImpact = x.ConfidenceImpact,
-                    SortOrder = x.SortOrder,
-                    IsActive = x.IsActive
-                })
-                .ToList()
+                    .OrderBy(x => x.SortOrder)
+                    .Select(x => new AdminManageScenarioChoiceProjection
+                    {
+                        ScenarioChoiceId = x.ScenarioChoiceId,
+                        OptionText = x.OptionText,
+                        ResultText = x.ResultText,
+                        LessonText = x.LessonText,
+                        MoneyImpact = x.MoneyImpact,
+                        ConfidenceImpact = x.ConfidenceImpact,
+                        SortOrder = x.SortOrder,
+                        IsActive = x.IsActive
+                    })
+                    .ToList()
             };
         }
     }

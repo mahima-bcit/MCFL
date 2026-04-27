@@ -12,6 +12,7 @@ import AdminOverviewPage from "./pages/admin/AdminOverviewPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminScenariosPage from "./pages/admin/AdminScenariosPage";
 import AdminManageScenariosPage from "./pages/admin/AdminManageScenariosPage";
+import AdminAccessControlPage from "./pages/admin/AdminAccessControlPage";
 
 export default [
     {
@@ -36,6 +37,7 @@ export default [
             { path: "users", element: <AdminUsersPage /> },
             { path: "scenarios", element: <AdminScenariosPage /> },
             { path: "scenarios/manage", element: <AdminManageScenariosPage /> },
+            { path: "access-control", element: <AdminAccessControlPage /> },
         ],
     },
 ];
