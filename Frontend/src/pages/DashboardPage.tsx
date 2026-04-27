@@ -1,271 +1,657 @@
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import "../DashboardPage.css";
+import { getDashboardSummary } from "../services/dashboardApi";
+import type { DashboardData } from "../types/dashboard";
 
-type ActiveGoal = {
-  goalTitle: string
-  targetAmount: number
-  currentSavedAmount: number
-  targetDate?: string | null
+type ActiveTab = "dashboard" | "gameZone";
+
+
+const sampleDashboardData: DashboardData = {
+  featuredTitle: "Try a 2-minute scenario",
+  featuredDescription:
+    "Practice a quick money decision and build confidence one small step at a time.",
+  gameBalance: 500,
+  confidence: 50,
+  goalCurrent: 120,
+  goalTarget: 300,
+  goalDueLabel: "June 2026",
+  monthlyNet: 85,
+  gameMoneyPicture: {
+    want: 250,
+    need: 100,
+    fun: 75,
+    save: 75,
+  },
+  realMoneySnapshot: {
+    availableBalance: 845,
+    monthlyIncome: 650,
+    monthlyExpenses: 565,
+    monthlyNet: 85,
+  },
+  parentFeedback: {
+    name: "Alex Rivera",
+    link: "http://localhost:5173/parentFeedback?username=Alex%20Rivera",
+  },
+  recentScenario: {
+    title: "Surprise Birthday Gift",
+    description: "You decided to spend $40 on a thoughtful gift.",
+    moneyImpact: -40,
+    confidenceBoost: 5,
+  },
+};
+
+function mergeDashboardData(
+  apiData: Partial<DashboardData> | null | undefined
+): DashboardData {
+  return {
+    ...sampleDashboardData,
+    ...apiData,
+    gameMoneyPicture: {
+      ...sampleDashboardData.gameMoneyPicture,
+      ...(apiData?.gameMoneyPicture || {}),
+    },
+    realMoneySnapshot: {
+      ...sampleDashboardData.realMoneySnapshot,
+      ...(apiData?.realMoneySnapshot || {}),
+    },
+    parentFeedback: {
+      ...sampleDashboardData.parentFeedback,
+      ...(apiData?.parentFeedback || {}),
+    },
+    recentScenario: {
+      ...sampleDashboardData.recentScenario,
+      ...(apiData?.recentScenario || {}),
+    },
+  };
 }
 
-const dashboardData: {
-  nickName: string
-  gameMoney: number
-  confidenceScore: number
-  weeklyPlays: number
-  activeGoal?: ActiveGoal | null
-} = {
-  nickName: 'Harry',
-  gameMoney: 245,
-  confidenceScore: 72,
-  weeklyPlays: 3,
-  activeGoal: {
-    goalTitle: 'Save for a laptop',
-    targetAmount: 800,
-    currentSavedAmount: 260,
-    targetDate: '2026-06-30'
-  }
+function formatMoney(value: number) {
+  const sign = value < 0 ? "-" : "";
+  return `${sign}$${Math.abs(value)}`;
+}
+
+function formatPositiveMoney(value: number) {
+  return value >= 0 ? `+$${value}` : `-$${Math.abs(value)}`;
 }
 
 export default function DashboardPage() {
-  const data = dashboardData
+  const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [logoBroken, setLogoBroken] = useState(false);
+  const [dashboardData, setDashboardData] =
+    useState<DashboardData>(sampleDashboardData);
+  const [isUsingSampleData, setIsUsingSampleData] = useState(true);
 
-  const nickname = data.nickName || 'Friend'
-  const gameMoney = data.gameMoney ?? 0
-  const confidenceScore = data.confidenceScore ?? 0
-  const weeklyPlays = data.weeklyPlays ?? 0
-  const activeGoal = data.activeGoal
+  const LOGO_SRC = "/MCFL.png?v=3";
 
-  const goalProgress =
-    activeGoal && Number(activeGoal.targetAmount) > 0
-      ? Math.min(
-          100,
-          (Number(activeGoal.currentSavedAmount) / Number(activeGoal.targetAmount)) * 100
-        )
-      : 0
+  
 
-  const confidenceMessage =
-    confidenceScore >= 80
-      ? 'You are doing a great job building strong money habits.'
-      : confidenceScore >= 50
-        ? 'You are making steady progress with your money confidence.'
-        : 'Keep going. Small money decisions build big confidence over time.'
+  
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  async function loadDashboardData() {
+  try {
+    const apiData = await getDashboardSummary();
+    const safeData = mergeDashboardData(apiData);
+
+    setDashboardData(safeData);
+    setIsUsingSampleData(false);
+  } catch (error) {
+    console.error("Dashboard data did not load from backend.", error);
+    setDashboardData(sampleDashboardData);
+    setIsUsingSampleData(true);
+  }
+}
+
+  function openDashboardTab() {
+    setActiveTab("dashboard");
+    setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function openGameZoneTab() {
+    setActiveTab("gameZone");
+    setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function closeMobileMenu() {
+    setMobileMenuOpen(false);
+  }
+
+  const maxPictureValue = Math.max(
+    dashboardData.gameMoneyPicture.want,
+    dashboardData.gameMoneyPicture.need,
+    dashboardData.gameMoneyPicture.fun,
+    dashboardData.gameMoneyPicture.save,
+    1
+  );
+
+  const pictureItems = [
+    {
+      label: "Want",
+      value: dashboardData.gameMoneyPicture.want,
+      className: "mini-chart-want",
+    },
+    {
+      label: "Need",
+      value: dashboardData.gameMoneyPicture.need,
+      className: "mini-chart-need",
+    },
+    {
+      label: "Fun",
+      value: dashboardData.gameMoneyPicture.fun,
+      className: "mini-chart-fun",
+    },
+    {
+      label: "Save",
+      value: dashboardData.gameMoneyPicture.save,
+      className: "mini-chart-save",
+    },
+  ];
+
+  const goalPercent = Math.min(
+    100,
+    Math.round(
+      (dashboardData.goalCurrent / Math.max(dashboardData.goalTarget, 1)) * 100
+    )
+  );
+
+  const confidencePercent = Math.min(
+    100,
+    Math.max(0, dashboardData.confidence)
+  );
 
   return (
-    <div className="min-h-screen bg-[#edf7f3] text-[#163d32]">
-      
-
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-        <section className="grid grid-cols-1 gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-[28px] border border-[#d9e8e1] bg-white p-6 shadow-[0_14px_36px_rgba(18,63,50,0.08)] sm:p-8">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#cde8dc] bg-[#dff4ea] px-4 py-2 text-sm font-bold text-[#2b8e70]">
-              <span>👋</span>
-              <span>Registered user dashboard</span>
+    <div className="dashboard-page">
+      <header className="dashboard-header">
+        <div className="dashboard-header-inner">
+          <Link to="/" className="dashboard-brand" onClick={closeMobileMenu}>
+            <div className="dashboard-brand-logo">
+              {!logoBroken ? (
+                <img
+                  src={LOGO_SRC}
+                  alt="Money Confidence for Life"
+                  className="dashboard-brand-logo-image"
+                  onError={() => setLogoBroken(true)}
+                />
+              ) : (
+                <span className="dashboard-brand-logo-fallback">MC</span>
+              )}
             </div>
 
-            <h1 className="mb-4 font-serif text-4xl font-bold leading-tight tracking-[-0.03em] text-[#163d32] sm:text-5xl lg:text-6xl">
-              Welcome back,
-              <br />
-              {nickname}
-            </h1>
+            <div className="dashboard-brand-text">
+              <h1>Money Confidence for Life</h1>
+              <p>Build confidence with money</p>
+            </div>
+          </Link>
 
-            <p className="mb-6 max-w-2xl text-base leading-7 text-[#71877f] sm:text-lg sm:leading-8">
-              Keep learning through simple money decisions, track your growth, and build confidence one step at a time.
-            </p>
+          <button
+            type="button"
+            className="mobile-menu-button"
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen((oldValue) => !oldValue)}
+          >
+            {mobileMenuOpen ? "×" : "☰"}
+          </button>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link
-                to="/game"
-                className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-full bg-[#22a879] px-7 text-base font-bold text-white shadow-[0_10px_22px_rgba(34,168,121,0.2)] transition hover:bg-[#1f9d71] sm:text-lg"
+          <div
+            className={`dashboard-header-right ${
+              mobileMenuOpen ? "open" : ""
+            }`}
+          >
+            <nav className="dashboard-nav">
+              <button
+                type="button"
+                onClick={openDashboardTab}
+                className={`dashboard-nav-item ${
+                  activeTab === "dashboard"
+                    ? "dashboard-nav-item-active"
+                    : ""
+                }`}
               >
-                Start scenario <span>→</span>
+                Dashboard
+              </button>
+
+              <button
+                type="button"
+                onClick={openGameZoneTab}
+                className={`dashboard-nav-item ${
+                  activeTab === "gameZone"
+                    ? "dashboard-nav-item-active"
+                    : ""
+                }`}
+              >
+                Game Zone
+              </button>
+
+              <Link
+                to="/real-money"
+                className="dashboard-nav-link"
+                onClick={closeMobileMenu}
+              >
+                Real Money
               </Link>
 
               <Link
-                to="/money"
-                className="inline-flex min-h-[54px] items-center justify-center rounded-full border-2 border-[#163d32] bg-white px-7 text-base font-bold text-[#163d32] transition hover:bg-[#f8fbf9] sm:text-lg"
+                to="/share-feedback"
+                className="dashboard-nav-link"
+                onClick={closeMobileMenu}
               >
-                Track money
+                Share Feedback
               </Link>
-            </div>
+            </nav>
 
-            <div className="mt-6 grid grid-cols-1 gap-3 rounded-[22px] border border-[#d9e8e1] bg-[#f8fbfa] p-5 shadow-[0_14px_36px_rgba(18,63,50,0.08)] sm:grid-cols-3">
-              <div>
-                <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-[#7b8f87]">Current score</p>
-                <p className="font-serif text-2xl font-bold text-[#163d32]">{confidenceScore}</p>
-              </div>
-              <div>
-                <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-[#7b8f87]">Weekly plays</p>
-                <p className="font-serif text-2xl font-bold text-[#163d32]">{weeklyPlays}</p>
-              </div>
-              <div>
-                <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-[#7b8f87]">Game money</p>
-                <p className="font-serif text-2xl font-bold text-[#163d32]">${gameMoney.toFixed(2)}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-[28px] border border-[#d9e8e1] bg-white p-6 shadow-[0_14px_36px_rgba(18,63,50,0.08)] sm:p-8">
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-[#7b8f87]">This week</p>
-            <h2 className="mb-3 font-serif text-2xl font-bold tracking-[-0.03em] text-[#163d32] sm:text-3xl">
-              Progress snapshot
-            </h2>
-            <p className="text-base leading-7 text-[#71877f]">{confidenceMessage}</p>
-
-            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="rounded-[22px] border border-[#d9e8e1] bg-[#f8fbfa] p-5 shadow-[0_14px_36px_rgba(18,63,50,0.08)]">
-                <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-[#7b8f87]">Confidence</p>
-                <div className="font-serif text-4xl font-bold tracking-[-0.03em] text-[#163d32]">
-                  {confidenceScore}
-                </div>
-              </div>
-
-              <div className="rounded-[22px] border border-[#d9e8e1] bg-[#f8fbfa] p-5 shadow-[0_14px_36px_rgba(18,63,50,0.08)]">
-                <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-[#7b8f87]">Scenarios</p>
-                <div className="font-serif text-4xl font-bold tracking-[-0.03em] text-[#163d32]">
-                  {weeklyPlays}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
-          <div className="rounded-3xl border border-[#d9e8e1] bg-white p-7 shadow-[0_14px_36px_rgba(18,63,50,0.08)]">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#d4ebe1] bg-[#eef8f4] text-2xl text-[#22a879]">
-              🎯
-            </div>
-            <h3 className="mb-3 font-serif text-2xl font-bold tracking-[-0.03em] text-[#163d32]">
-              Spin &amp; Learn
-            </h3>
-            <p className="mb-5 text-base leading-7 text-[#71877f]">
-              Explore short real-world money scenarios and practice judgment-free learning.
-            </p>
             <Link
-              to="/game"
-              className="inline-flex min-h-[54px] items-center justify-center rounded-full bg-[#22a879] px-7 text-base font-bold text-white shadow-[0_10px_22px_rgba(34,168,121,0.2)] transition hover:bg-[#1f9d71]"
+              to="/login"
+              className="dashboard-logout-button"
+              onClick={closeMobileMenu}
             >
-              Play now
+              Logout
             </Link>
           </div>
+        </div>
+      </header>
 
-          <div className="rounded-3xl border border-[#d9e8e1] bg-white p-7 shadow-[0_14px_36px_rgba(18,63,50,0.08)]">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#d4ebe1] bg-[#eef8f4] text-2xl text-[#22a879]">
-              📊
-            </div>
-            <h3 className="mb-3 font-serif text-2xl font-bold tracking-[-0.03em] text-[#163d32]">
-              Track Real Money
-            </h3>
-            <p className="mb-5 text-base leading-7 text-[#71877f]">
-              Log cash in and cash out to better understand your money picture.
-            </p>
-            <Link
-              to="/money"
-              className="inline-flex min-h-[54px] items-center justify-center rounded-full bg-[#22a879] px-7 text-base font-bold text-white shadow-[0_10px_22px_rgba(34,168,121,0.2)] transition hover:bg-[#1f9d71]"
-            >
-              Open money
-            </Link>
-          </div>
+      <main className="dashboard-shell">
+        <div className="dashboard-content">
+          
 
-          <div className="rounded-3xl border border-[#d9e8e1] bg-white p-7 shadow-[0_14px_36px_rgba(18,63,50,0.08)]">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#d4ebe1] bg-[#eef8f4] text-2xl text-[#22a879]">
-              📝
-            </div>
-            <h3 className="mb-3 font-serif text-2xl font-bold tracking-[-0.03em] text-[#163d32]">
-              Share Feedback
-            </h3>
-            <p className="mb-5 text-base leading-7 text-[#71877f]">
-              Tell us what is useful, what feels confusing, and what you want next.
-            </p>
-            <Link
-              to="/feedback"
-              className="inline-flex min-h-[54px] items-center justify-center rounded-full bg-[#22a879] px-7 text-base font-bold text-white shadow-[0_10px_22px_rgba(34,168,121,0.2)] transition hover:bg-[#1f9d71]"
-            >
-              Give feedback
-            </Link>
-          </div>
-        </section>
-
-        <section className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-[28px] border border-[#d9e8e1] bg-white p-6 shadow-[0_14px_36px_rgba(18,63,50,0.08)] sm:p-8">
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-[#7b8f87]">Confidence journey</p>
-            <h2 className="mb-3 font-serif text-4xl font-bold tracking-[-0.03em] text-[#163d32] sm:text-5xl">
-              ${gameMoney.toFixed(2)}
-            </h2>
-            <p className="mb-5 text-base leading-7 text-[#71877f]">
-              Your current game money total reflects the choices you have made in scenarios so far.
-            </p>
-
-            <div className="mb-5 flex items-center gap-3">
-              <div className="flex items-center">
-                <span className="ml-0 h-7 w-7 rounded-full border-4 border-[#edf7f3] bg-[#20ad84]" />
-                <span className="-ml-2 h-7 w-7 rounded-full border-4 border-[#edf7f3] bg-[#0f7e68]" />
-                <span className="-ml-2 h-7 w-7 rounded-full border-4 border-[#edf7f3] bg-[#d5a51d]" />
-                <span className="-ml-2 h-7 w-7 rounded-full border-4 border-[#edf7f3] bg-[#18493d]" />
-              </div>
-              <span className="text-sm leading-6 text-[#71877f] sm:text-base">
-                You completed <strong className="text-[#163d32]">{weeklyPlays}</strong> scenarios this week
-              </span>
-            </div>
-
-            <div className="rounded-[22px] border border-[#d9e8e1] bg-[#f8fbfa] p-5 shadow-[0_14px_36px_rgba(18,63,50,0.08)]">
-              <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-[#7b8f87]">Next step</p>
-              <p className="text-base leading-7 text-[#71877f]">
-                Try one more scenario today and compare how your decisions affect your confidence score.
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded-[28px] border border-[#d9e8e1] bg-white p-6 shadow-[0_14px_36px_rgba(18,63,50,0.08)] sm:p-8">
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-[#7b8f87]">Active goal</p>
-
-            {activeGoal ? (
-              <>
-                <h3 className="mb-2 font-serif text-2xl font-bold tracking-[-0.03em] text-[#163d32]">
-                  {activeGoal.goalTitle}
-                </h3>
-                <p className="mb-4 text-base leading-7 text-[#71877f]">
-                  Saved ${Number(activeGoal.currentSavedAmount).toFixed(2)} of ${Number(activeGoal.targetAmount).toFixed(2)}
-                </p>
-
-                <div className="mb-4 h-3.5 w-full overflow-hidden rounded-full bg-[#e8f2ee]">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#22a879] to-[#1f9d71]"
-                    style={{ width: `${goalProgress}%` }}
-                  />
+          {activeTab === "dashboard" ? (
+            <>
+              <section className="scenario-banner">
+                <div className="scenario-banner-copy">
+                  <span className="scenario-badge">Featured</span>
+                  <h2>{dashboardData.featuredTitle}</h2>
+                  <p>{dashboardData.featuredDescription}</p>
                 </div>
 
-                <p className="mb-5 text-base leading-7 text-[#71877f]">
-                  {activeGoal.targetDate ? `Target date: ${activeGoal.targetDate}` : 'No target date set yet.'}
-                </p>
+                <div className="scenario-banner-actions">
+                  <button
+                    type="button"
+                    className="scenario-banner-button"
+                    onClick={openGameZoneTab}
+                  >
+                    Start Scenario
+                  </button>
+                </div>
+              </section>
 
-                <div className="rounded-[22px] border border-[#d9e8e1] bg-[#f8fbfa] p-5 shadow-[0_14px_36px_rgba(18,63,50,0.08)]">
-                  <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-[#7b8f87]">Goal progress</p>
-                  <p className="text-base leading-7 text-[#71877f]">
-                    You have completed <strong className="text-[#163d32]">{goalProgress.toFixed(0)}%</strong> of this goal.
+              <section className="section-block">
+                <div className="section-heading">
+                  <h2>Game Money Overview</h2>
+                  <p>
+                    See your in-game balance, confidence, and money picture.
                   </p>
                 </div>
-              </>
-            ) : (
-              <>
-                <h3 className="mb-2 font-serif text-2xl font-bold tracking-[-0.03em] text-[#163d32]">
-                  No active goal yet
-                </h3>
-                <p className="mb-5 text-base leading-7 text-[#71877f]">
-                  Start tracking your spending and build a savings target that fits your life.
-                </p>
-                <Link
-                  to="/money"
-                  className="inline-flex min-h-[54px] items-center justify-center rounded-full bg-[#22a879] px-7 text-base font-bold text-white shadow-[0_10px_22px_rgba(34,168,121,0.2)] transition hover:bg-[#1f9d71]"
-                >
-                  Create goal
-                </Link>
-              </>
-            )}
-          </div>
-        </section>
 
-        
+                <div className="stats-grid three-grid">
+                  <article className="stat-card">
+                    <div className="stat-body">
+                      <span className="stat-label">Game Balance</span>
+                      <span className="stat-value">
+                        {formatMoney(dashboardData.gameBalance)}
+                      </span>
+                      <p className="stat-note">
+                        In-game money across all categories
+                      </p>
+                    </div>
+                  </article>
+
+                  <article className="stat-card">
+                    <div className="stat-body">
+                      <span className="stat-label">Confidence</span>
+                      <span className="stat-value">{confidencePercent}%</span>
+
+                      <div className="progress-bar">
+                        <div
+                          className="progress-bar-fill"
+                          style={{ width: `${confidencePercent}%` }}
+                        />
+                      </div>
+
+                      <p className="stat-note">
+                        Keep building confidence step by step.
+                      </p>
+                    </div>
+                  </article>
+
+                  <button
+                    type="button"
+                    className="stat-card picture-link-card"
+                    onClick={openGameZoneTab}
+                  >
+                    <div className="stat-body">
+                      <span className="stat-label">Game Money Picture</span>
+                      <p className="picture-summary-text">
+                        View your Want, Need, Fun, Save breakdown
+                      </p>
+                      <span className="picture-link-text">
+                        Open Game Zone →
+                      </span>
+                    </div>
+                  </button>
+                </div>
+              </section>
+
+              <section className="section-block">
+                <div className="section-heading">
+                  <h2>Real Money Overview</h2>
+                  <p>
+                    See your saving progress, real money summary, and feedback
+                    link.
+                  </p>
+                </div>
+
+                <div className="stats-grid two-grid">
+                  <article className="stat-card">
+                    <div className="stat-body">
+                      <span className="stat-label">Your Goal</span>
+                      <span className="stat-value">
+                        {formatMoney(dashboardData.goalCurrent)} /{" "}
+                        {formatMoney(dashboardData.goalTarget)}
+                      </span>
+                      <p className="stat-note">
+                        Target by {dashboardData.goalDueLabel}
+                      </p>
+
+                      <div className="progress-bar">
+                        <div
+                          className="progress-bar-fill"
+                          style={{ width: `${goalPercent}%` }}
+                        />
+                      </div>
+                    </div>
+                  </article>
+
+                  <article className="stat-card">
+                    <div className="stat-body">
+                      <span className="stat-label">Monthly Net</span>
+                      <span className="stat-value positive-text">
+                        {formatPositiveMoney(dashboardData.monthlyNet)}
+                      </span>
+                      <p className="stat-note">
+                        Income minus expenses this month
+                      </p>
+                    </div>
+                  </article>
+                </div>
+
+                <div className="detail-grid">
+                  <article className="detail-card">
+                    <div className="detail-card-header">
+                      <div>
+                        <h3>Real Money Snapshot</h3>
+                        <p>
+                          A quick look at your current real money progress.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="snapshot-list">
+                      <div className="snapshot-row">
+                        <span>Available Balance</span>
+                        <strong>
+                          {formatMoney(
+                            dashboardData.realMoneySnapshot.availableBalance
+                          )}
+                        </strong>
+                      </div>
+
+                      <div className="snapshot-row">
+                        <span>Monthly Income</span>
+                        <strong>
+                          {formatMoney(
+                            dashboardData.realMoneySnapshot.monthlyIncome
+                          )}
+                        </strong>
+                      </div>
+
+                      <div className="snapshot-row">
+                        <span>Monthly Expenses</span>
+                        <strong>
+                          {formatMoney(
+                            dashboardData.realMoneySnapshot.monthlyExpenses
+                          )}
+                        </strong>
+                      </div>
+
+                      <div className="snapshot-row">
+                        <span>Monthly Net</span>
+                        <strong>
+                          {formatPositiveMoney(
+                            dashboardData.realMoneySnapshot.monthlyNet
+                          )}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <Link to="/real-money" className="inline-link-button">
+                      Go to Real Money
+                    </Link>
+                  </article>
+
+                  <article className="detail-card">
+                    <div className="detail-card-header">
+                      <div>
+                        <h3>Parent Feedback Link</h3>
+                        <p>
+                          Share this link with a parent or guardian. It opens
+                          the feedback page directly and includes the user name:{" "}
+                          <strong>{dashboardData.parentFeedback.name}</strong>.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="feedback-link-box">
+                      {dashboardData.parentFeedback.link}
+                    </div>
+
+                    <Link to="/share-feedback" className="inline-link-button">
+                      Go to Share Feedback
+                    </Link>
+                  </article>
+                </div>
+              </section>
+            </>
+          ) : (
+            <>
+              <section className="game-zone-header">
+                <div className="game-zone-header-text">
+                  <h2>Game Zone</h2>
+                  <p>
+                    Practice making money decisions in quick, low-stakes
+                    scenarios.
+                  </p>
+                </div>
+              </section>
+
+              <section className="scenario-banner game-zone-banner">
+                <div className="scenario-banner-copy">
+                  <span className="scenario-badge">Featured</span>
+                  <h2>{dashboardData.featuredTitle}</h2>
+                  <p>{dashboardData.featuredDescription}</p>
+                </div>
+
+                <div className="scenario-banner-actions">
+                  <button type="button" className="scenario-banner-button">
+                    Start Scenario
+                  </button>
+                </div>
+              </section>
+
+              <section className="section-block">
+                <div className="game-zone-overview-layout">
+                  <div className="game-zone-small-stack">
+                    <article className="stat-card game-zone-small-card">
+                      <div className="stat-body">
+                        <span className="stat-label">Game Balance</span>
+                        <span className="stat-value">
+                          {formatMoney(dashboardData.gameBalance)}
+                        </span>
+                        <p className="stat-note">
+                          In-game money across all categories
+                        </p>
+                      </div>
+                    </article>
+
+                    <article className="stat-card game-zone-small-card">
+                      <div className="stat-body">
+                        <span className="stat-label">Confidence</span>
+                        <span className="stat-value">{confidencePercent}%</span>
+
+                        <div className="progress-bar">
+                          <div
+                            className="progress-bar-fill"
+                            style={{ width: `${confidencePercent}%` }}
+                          />
+                        </div>
+
+                        <p className="stat-note">
+                          Keep playing to build your confidence!
+                        </p>
+                      </div>
+                    </article>
+                  </div>
+
+                  <article className="stat-card game-money-picture-large chart-card">
+                    <div className="stat-body">
+                      <span className="stat-label">Game Money Picture</span>
+                      <p className="picture-summary-text">
+                        View your Want, Need, Fun, Save breakdown
+                      </p>
+
+                      <div className="mini-chart">
+                        {pictureItems.map((item) => {
+                          const barHeightPercent = Math.max(
+                            20,
+                            Math.round((item.value / maxPictureValue) * 100)
+                          );
+
+                          return (
+                            <div className="mini-chart-item" key={item.label}>
+                              <span className="mini-chart-amount">
+                                {formatMoney(item.value)}
+                              </span>
+
+                              <div
+                                className={`mini-chart-bar ${item.className}`}
+                                style={{ height: `${barHeightPercent}%` }}
+                              />
+
+                              <span className="mini-chart-label">
+                                {item.label}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <p className="chart-footnote">
+                        Reflects your latest scenario decision
+                      </p>
+                    </div>
+                  </article>
+                </div>
+              </section>
+
+              <section className="recent-scenario-card">
+                <div className="recent-scenario-copy">
+                  <span className="recent-scenario-kicker">
+                    Recent Scenario
+                  </span>
+                  <h3>{dashboardData.recentScenario.title}</h3>
+                  <p>{dashboardData.recentScenario.description}</p>
+
+                  <div className="recent-scenario-tags">
+                    <span className="tag tag-danger">
+                      Money Impact{" "}
+                      {formatMoney(dashboardData.recentScenario.moneyImpact)}
+                    </span>
+
+                    <span className="tag tag-success">
+                      Confidence Boost +
+                      {dashboardData.recentScenario.confidenceBoost}%
+                    </span>
+                  </div>
+                </div>
+
+                <button type="button" className="recent-scenario-button">
+                  View Details
+                </button>
+              </section>
+
+              <section className="tip-row">
+                <div className="tip-row-left">
+                  <p>
+                    Tip: Every decision you make helps you build money
+                    confidence for real life.
+                  </p>
+                </div>
+
+                <button type="button" className="tip-link-button">
+                  How it works
+                </button>
+              </section>
+            </>
+          )}
+        </div>
       </main>
+
+      <footer className="dashboard-footer">
+        <div className="dashboard-footer-inner">
+          <div className="footer-brand">
+            <div className="dashboard-brand-logo footer-logo-box">
+              {!logoBroken ? (
+                <img
+                  src={LOGO_SRC}
+                  alt="Money Confidence for Life"
+                  className="footer-brand-logo"
+                  onError={() => setLogoBroken(true)}
+                />
+              ) : (
+                <span className="dashboard-brand-logo-fallback">MC</span>
+              )}
+            </div>
+
+            <div className="footer-brand-text">
+              <h3>Money Confidence for Life</h3>
+              <p>Build confidence with money</p>
+            </div>
+          </div>
+
+          <div className="dashboard-footer-right">
+            <button
+              type="button"
+              onClick={openDashboardTab}
+              className="footer-link-button"
+            >
+              Dashboard
+            </button>
+
+            <button
+              type="button"
+              onClick={openGameZoneTab}
+              className="footer-link-button"
+            >
+              Game Zone
+            </button>
+
+            <Link to="/real-money" className="footer-link">
+              Real Money
+            </Link>
+
+            <Link to="/share-feedback" className="footer-link">
+              Share Feedback
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
-  )
+  );
 }
