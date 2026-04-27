@@ -1,4 +1,5 @@
 ﻿using MCFL.API.DTOs.Admin.Overview;
+using MCFL.API.DTOs.Admin.Scenarios;
 using MCFL.API.DTOs.Admin.Users;
 using MCFL.API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -52,6 +53,80 @@ namespace MCFL.API.Controllers
             }
 
             return Ok(user);
+        }
+
+        [HttpGet("scenarios")]
+        public async Task<ActionResult<AdminScenariosDto>> GetScenarios()
+        {
+            var scenarios = await _adminService.GetScenariosAsync();
+            return Ok(scenarios);
+        }
+
+        [HttpGet("scenarios/manage")]
+        public async Task<ActionResult<List<AdminManageScenarioDto>>> GetManageScenarios()
+        {
+            var scenarios = await _adminService.GetManageScenariosAsync();
+            return Ok(scenarios);
+        }
+
+        [HttpPost("scenarios/manage")]
+        public async Task<ActionResult<AdminManageScenarioDto>> CreateScenario(
+            [FromBody] AdminUpsertScenarioRequestDto request)
+        {
+            try
+            {
+                var created = await _adminService.CreateScenarioAsync(request);
+                return Ok(created);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("scenarios/manage/{scenarioId:int}")]
+        public async Task<ActionResult<AdminManageScenarioDto>> UpdateScenario(
+            int scenarioId,
+            [FromBody] AdminUpsertScenarioRequestDto request)
+        {
+            try
+            {
+                var updated = await _adminService.UpdateScenarioAsync(scenarioId, request);
+                if (updated == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(updated);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("scenarios/manage/{scenarioId:int}/activate")]
+        public async Task<IActionResult> ActivateScenario(int scenarioId)
+        {
+            var activated = await _adminService.ActivateScenarioAsync(scenarioId);
+            if (!activated)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("scenarios/manage/{scenarioId:int}")]
+        public async Task<IActionResult> DeactivateScenario(int scenarioId)
+        {
+            var deactivated = await _adminService.DeactivateScenarioAsync(scenarioId);
+            if (!deactivated)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
         }
     }
 }

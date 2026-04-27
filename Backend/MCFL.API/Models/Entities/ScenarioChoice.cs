@@ -21,9 +21,8 @@ namespace MCFL.API.Models
         [Column("resultText", TypeName = "TEXT")]
         public string ResultText { get; set; } = null!;
 
-        [Required]
         [Column("lessonText", TypeName = "TEXT")]
-        public string LessonText { get; set; } = null!;
+        public string? LessonText { get; set; }
 
         [Precision(10, 2)]
         [Column("moneyImpact")]

@@ -1,6 +1,8 @@
 ﻿using MCFL.API.DTOs.Admin.Overview;
+using MCFL.API.DTOs.Admin.Scenarios;
 using MCFL.API.DTOs.Admin.Users;
 using MCFL.API.Repositories;
+using MCFL.API.Repositories.Projections;
 
 namespace MCFL.API.Services
 {
@@ -237,6 +239,147 @@ namespace MCFL.API.Services
             }
 
             return age;
+        }
+
+        public async Task<AdminScenariosDto> GetScenariosAsync()
+        {
+            var totalScenarios = await _adminRepository.CountActiveScenariosAsync();
+            var totalCompletions = await _adminRepository.CountScenarioCompletionsAsync();
+            var avgConfidenceGain = await _adminRepository.GetAverageScenarioConfidenceGainAsync();
+            var avgMoneyImpact = await _adminRepository.GetAverageScenarioMoneyImpactAsync();
+            var summaries = await _adminRepository.GetScenarioSummariesAsync();
+
+            return new AdminScenariosDto
+            {
+                TotalScenarios = totalScenarios,
+                TotalCompletions = totalCompletions,
+                AvgConfidenceGain = avgConfidenceGain,
+                AvgMoneyImpact = avgMoneyImpact,
+                Scenarios = summaries.Select(x => new AdminScenarioSummaryDto
+                {
+                    ScenarioId = x.ScenarioId,
+                    Title = x.Title,
+                    MostPopularChoice = x.MostPopularChoice,
+                    Completions = x.Completions,
+                    AvgConfidenceGain = x.AvgConfidenceGain,
+                    AvgMoneyImpact = x.AvgMoneyImpact,
+                    PercentageOfTotal = x.PercentageOfTotal
+                }).ToList()
+            };
+        }
+
+        public async Task<List<AdminManageScenarioDto>> GetManageScenariosAsync()
+        {
+            var scenarios = await _adminRepository.GetManageScenariosAsync();
+            return scenarios.Select(MapManageScenario).ToList();
+        }
+
+        public async Task<AdminManageScenarioDto> CreateScenarioAsync(AdminUpsertScenarioRequestDto request)
+        {
+            var normalized = NormalizeScenarioRequest(request);
+            ValidateScenarioRequest(normalized);
+
+            var created = await _adminRepository.CreateScenarioAsync(normalized);
+            return MapManageScenario(created);
+        }
+
+        public async Task<AdminManageScenarioDto?> UpdateScenarioAsync(
+            int scenarioId,
+            AdminUpsertScenarioRequestDto request)
+        {
+            var normalized = NormalizeScenarioRequest(request);
+            ValidateScenarioRequest(normalized);
+
+            var updated = await _adminRepository.UpdateScenarioAsync(scenarioId, normalized);
+            return updated == null ? null : MapManageScenario(updated);
+        }
+
+        public async Task<bool> ActivateScenarioAsync(int scenarioId)
+        {
+            return await _adminRepository.ActivateScenarioAsync(scenarioId);
+        }
+
+        public async Task<bool> DeactivateScenarioAsync(int scenarioId)
+        {
+            return await _adminRepository.DeactivateScenarioAsync(scenarioId);
+        }
+
+        private static AdminManageScenarioDto MapManageScenario(AdminManageScenarioProjection scenario)
+        {
+            return new AdminManageScenarioDto
+            {
+                ScenarioId = scenario.ScenarioId,
+                Title = scenario.Title,
+                Description = scenario.Description,
+                IsActive = scenario.IsActive,
+                UpdatedAt = scenario.UpdatedAt.ToString("yyyy-MM-dd"),
+                Choices = scenario.Choices
+                    .OrderBy(x => x.SortOrder)
+                    .Select(x => new AdminManageScenarioChoiceDto
+                    {
+                        ScenarioChoiceId = x.ScenarioChoiceId,
+                        OptionText = x.OptionText,
+                        ResultText = x.ResultText,
+                        LessonText = x.LessonText,
+                        MoneyImpact = x.MoneyImpact,
+                        ConfidenceImpact = x.ConfidenceImpact,
+                        SortOrder = x.SortOrder,
+                        IsActive = x.IsActive
+                    })
+                    .ToList()
+            };
+        }
+
+        private static AdminUpsertScenarioRequestDto NormalizeScenarioRequest(AdminUpsertScenarioRequestDto request)
+        {
+            return new AdminUpsertScenarioRequestDto
+            {
+                Title = request.Title?.Trim() ?? "",
+                Description = request.Description?.Trim() ?? "",
+                Choices = request.Choices.Select(choice => new AdminUpsertScenarioChoiceRequestDto
+                {
+                    ScenarioChoiceId = choice.ScenarioChoiceId,
+                    OptionText = choice.OptionText?.Trim() ?? "",
+                    ResultText = choice.ResultText?.Trim() ?? "",
+                    LessonText = string.IsNullOrWhiteSpace(choice.LessonText) ? null : choice.LessonText.Trim(),
+                    MoneyImpact = choice.MoneyImpact,
+                    ConfidenceImpact = choice.ConfidenceImpact
+                }).ToList()
+            };
+        }
+
+        private static void ValidateScenarioRequest(AdminUpsertScenarioRequestDto request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Title))
+            {
+                throw new ArgumentException("Scenario title is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Description))
+            {
+                throw new ArgumentException("Scenario description is required.");
+            }
+
+            if (request.Choices == null || request.Choices.Count != 3)
+            {
+                throw new ArgumentException("A scenario must have exactly 3 choices.");
+            }
+
+            for (var i = 0; i < request.Choices.Count; i++)
+            {
+                var choice = request.Choices[i];
+                var choiceNumber = i + 1;
+
+                if (string.IsNullOrWhiteSpace(choice.OptionText))
+                {
+                    throw new ArgumentException($"Choice {choiceNumber} option text is required.");
+                }
+
+                if (string.IsNullOrWhiteSpace(choice.ResultText))
+                {
+                    throw new ArgumentException($"Choice {choiceNumber} result text is required.");
+                }
+            }
         }
     }
 }

@@ -10,6 +10,8 @@ import FeedbackPage from "./pages/FeedbackPage";
 import MoneyPicture from "./pages/MoneyPicture";
 import AdminOverviewPage from "./pages/admin/AdminOverviewPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminScenariosPage from "./pages/admin/AdminScenariosPage";
+import AdminManageScenariosPage from "./pages/admin/AdminManageScenariosPage";
 
 export default [
     {
@@ -32,6 +34,8 @@ export default [
             { index: true, element: <Navigate to="/admin/overview" replace /> },
             { path: "overview", element: <AdminOverviewPage /> },
             { path: "users", element: <AdminUsersPage /> },
+            { path: "scenarios", element: <AdminScenariosPage /> },
+            { path: "scenarios/manage", element: <AdminManageScenariosPage /> },
         ],
     },
 ];
