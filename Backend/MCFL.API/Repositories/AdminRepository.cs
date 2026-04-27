@@ -1,4 +1,6 @@
 ﻿using MCFL.API.Data;
+using MCFL.API.DTOs.Admin.Scenarios;
+using MCFL.API.Models;
 using MCFL.API.Repositories.Projections;
 using Microsoft.EntityFrameworkCore;
 
@@ -245,10 +247,10 @@ namespace MCFL.API.Repositories
         }
 
         public async Task<List<AdminUserFeedbackProjection>> GetUserFeedbackAsync(
-    string? feedbackType,
-    string? email,
-    DateTime? startDate,
-    DateTime? endDate)
+            string? feedbackType,
+            string? email,
+            DateTime? startDate,
+            DateTime? endDate)
         {
             var query =
                 from feedback in _context.UserFeedbacks.AsNoTracking()
@@ -322,6 +324,424 @@ namespace MCFL.API.Repositories
                 .OrderBy(x => x.SortOrder)
                 .Select(x => x.Name)
                 .ToListAsync();
+        }
+
+        public async Task<List<AdminParentFeedbackProjection>> GetParentFeedbacksAsync(string? childName)
+        {
+            var trimmedChildName = childName?.Trim();
+
+            var query =
+                from feedback in _context.ParentFeedbacks.AsNoTracking()
+                join accessLink in _context.ParentAccessLinks.AsNoTracking()
+                    on feedback.ParentAccessLinkId equals accessLink.ParentAccessLinkId
+                join profile in _context.UserProfiles.AsNoTracking()
+                    on accessLink.UserId equals profile.UserId
+                select new
+                {
+                    Feedback = feedback,
+                    Profile = profile
+                };
+
+            if (!string.IsNullOrWhiteSpace(trimmedChildName))
+            {
+                query = query.Where(x =>
+                    EF.Functions.Like(x.Profile.FullName, $"%{trimmedChildName}%"));
+            }
+
+            return await query
+                .OrderByDescending(x => x.Feedback.SubmittedAt)
+                .Select(x => new AdminParentFeedbackProjection
+                {
+                    ParentFeedbackId = x.Feedback.ParentFeedbackId,
+                    ChildName = x.Profile.FullName,
+                    ParentName = x.Feedback.ParentName ?? "",
+                    ParentEmail = x.Feedback.ParentEmail ?? "",
+                    MoneyStory = x.Feedback.MoneyStory ?? "",
+                    WhatChildShouldLearn = x.Feedback.WhatChildShouldLearn ?? "",
+                    SubmittedAt = x.Feedback.SubmittedAt
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<RegistrationAllowList>> GetAllowedRegistrationEmailsAsync()
+        {
+            return await _context.RegistrationAllowLists
+                .AsNoTracking()
+                .OrderByDescending(x => x.CreatedAt)
+                .ThenByDescending(x => x.RegistrationAllowListId)
+                .ToListAsync();
+        }
+
+        public async Task<RegistrationAllowList?> GetAllowedRegistrationEmailByIdAsync(int id)
+        {
+            return await _context.RegistrationAllowLists
+                .FirstOrDefaultAsync(x => x.RegistrationAllowListId == id);
+        }
+
+        public async Task<bool> AllowedRegistrationEmailExistsAsync(string email)
+        {
+            var normalizedEmail = email.Trim().ToLowerInvariant();
+
+            return await _context.RegistrationAllowLists
+                .AsNoTracking()
+                .AnyAsync(x => x.Email.ToLower() == normalizedEmail);
+        }
+
+        public async Task<RegistrationAllowList> AddAllowedRegistrationEmailAsync(RegistrationAllowList allowedEmail)
+        {
+            _context.RegistrationAllowLists.Add(allowedEmail);
+            await _context.SaveChangesAsync();
+
+            return allowedEmail;
+        }
+
+        public async Task DeleteAllowedRegistrationEmailAsync(RegistrationAllowList allowedEmail)
+        {
+            _context.RegistrationAllowLists.Remove(allowedEmail);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> CountActiveScenariosAsync()
+        {
+            return await _context.Scenarios
+                .AsNoTracking()
+                .CountAsync(x => x.IsActive);
+        }
+
+        public async Task<int> CountScenarioCompletionsAsync()
+        {
+            return await _context.ScenarioPlays
+                .AsNoTracking()
+                .CountAsync();
+        }
+
+        public async Task<double> GetAverageScenarioConfidenceGainAsync()
+        {
+            var average = await _context.ScenarioPlays
+                .AsNoTracking()
+                .Select(x => (double?)x.ConfidenceImpactSnapshot)
+                .AverageAsync();
+
+            return average.HasValue ? Math.Round(average.Value, 1) : 0;
+        }
+
+        public async Task<decimal> GetAverageScenarioMoneyImpactAsync()
+        {
+            var average = await _context.ScenarioPlays
+                .AsNoTracking()
+                .Select(x => (double?)x.MoneyImpactSnapshot)
+                .AverageAsync();
+
+            return average.HasValue ? Math.Round((decimal)average.Value, 2) : 0m;
+        }
+
+        public async Task<List<AdminScenarioSummaryProjection>> GetScenarioSummariesAsync()
+        {
+            var scenarios = await _context.Scenarios
+                .AsNoTracking()
+                .Where(x => x.IsActive)
+                .Select(x => new
+                {
+                    x.ScenarioId,
+                    x.Title
+                })
+                .ToListAsync();
+
+            if (scenarios.Count == 0)
+            {
+                return new List<AdminScenarioSummaryProjection>();
+            }
+
+            var scenarioIds = scenarios.Select(x => x.ScenarioId).ToList();
+
+            var plays = await _context.ScenarioPlays
+                .AsNoTracking()
+                .Where(x => scenarioIds.Contains(x.ScenarioId))
+                .Select(x => new
+                {
+                    x.ScenarioId,
+                    x.ScenarioChoiceId,
+                    x.ConfidenceImpactSnapshot,
+                    x.MoneyImpactSnapshot
+                })
+                .ToListAsync();
+
+            var choices = await _context.ScenarioChoices
+                .AsNoTracking()
+                .Where(x => scenarioIds.Contains(x.ScenarioId))
+                .Select(x => new
+                {
+                    x.ScenarioChoiceId,
+                    x.ScenarioId,
+                    x.OptionText
+                })
+                .ToListAsync();
+
+            var totalCompletions = plays.Count;
+
+            var result = scenarios
+                .Select(scenario =>
+                {
+                    var scenarioPlays = plays
+                        .Where(x => x.ScenarioId == scenario.ScenarioId)
+                        .ToList();
+
+                    var completions = scenarioPlays.Count;
+
+                    var avgConfidenceGain = completions > 0
+                        ? Math.Round(scenarioPlays.Average(x => (double)x.ConfidenceImpactSnapshot), 1)
+                        : 0;
+
+                    var avgMoneyImpact = completions > 0
+                        ? Math.Round((decimal)scenarioPlays.Average(x => (double)x.MoneyImpactSnapshot), 2)
+                        : 0m;
+
+                    var mostPopularChoice = "No plays yet";
+
+                    if (completions > 0)
+                    {
+                        var mostPopularChoiceId = scenarioPlays
+                            .GroupBy(x => x.ScenarioChoiceId)
+                            .OrderByDescending(g => g.Count())
+                            .ThenBy(g => g.Key)
+                            .Select(g => g.Key)
+                            .First();
+
+                        mostPopularChoice = choices
+                            .FirstOrDefault(x => x.ScenarioChoiceId == mostPopularChoiceId)
+                            ?.OptionText ?? "No plays yet";
+                    }
+
+                    var percentageOfTotal = totalCompletions > 0
+                        ? Math.Round((double)completions / totalCompletions * 100, 1)
+                        : 0;
+
+                    return new AdminScenarioSummaryProjection
+                    {
+                        ScenarioId = scenario.ScenarioId,
+                        Title = scenario.Title,
+                        MostPopularChoice = mostPopularChoice,
+                        Completions = completions,
+                        AvgConfidenceGain = avgConfidenceGain,
+                        AvgMoneyImpact = avgMoneyImpact,
+                        PercentageOfTotal = percentageOfTotal
+                    };
+                })
+                .OrderByDescending(x => x.Completions)
+                .ThenBy(x => x.Title)
+                .ToList();
+
+            return result;
+        }
+
+        public async Task<List<AdminManageScenarioProjection>> GetManageScenariosAsync()
+        {
+            var scenarios = await _context.Scenarios
+                .AsNoTracking()
+                .Include(x => x.ScenarioChoices)
+                .OrderByDescending(x => x.IsActive)
+                .ThenByDescending(x => x.UpdatedAt)
+                .ThenBy(x => x.Title)
+                .ToListAsync();
+
+            return scenarios.Select(MapManageScenarioProjection).ToList();
+        }
+
+        public async Task<AdminManageScenarioProjection> CreateScenarioAsync(AdminUpsertScenarioRequestDto request)
+        {
+            var now = DateTime.UtcNow;
+
+            var scenario = new Scenario
+            {
+                Title = request.Title,
+                Description = request.Description,
+                IsActive = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            _context.Scenarios.Add(scenario);
+            await _context.SaveChangesAsync();
+
+            var choices = request.Choices
+                .Select((choice, index) => new ScenarioChoice
+                {
+                    OptionText = choice.OptionText,
+                    ResultText = choice.ResultText,
+                    LessonText = choice.LessonText,
+                    MoneyImpact = choice.MoneyImpact,
+                    ConfidenceImpact = choice.ConfidenceImpact,
+                    SortOrder = index + 1,
+                    IsActive = true,
+                    ScenarioId = scenario.ScenarioId
+                })
+                .ToList();
+
+            _context.ScenarioChoices.AddRange(choices);
+            await _context.SaveChangesAsync();
+
+            var savedScenario = await _context.Scenarios
+                .AsNoTracking()
+                .Include(x => x.ScenarioChoices)
+                .FirstAsync(x => x.ScenarioId == scenario.ScenarioId);
+
+            return MapManageScenarioProjection(savedScenario);
+        }
+
+        public async Task<AdminManageScenarioProjection?> UpdateScenarioAsync(
+            int scenarioId,
+            AdminUpsertScenarioRequestDto request)
+        {
+            var scenario = await _context.Scenarios
+                .Include(x => x.ScenarioChoices)
+                .FirstOrDefaultAsync(x => x.ScenarioId == scenarioId && x.IsActive);
+
+            if (scenario == null)
+            {
+                return null;
+            }
+
+            var now = DateTime.UtcNow;
+
+            scenario.Title = request.Title;
+            scenario.Description = request.Description;
+            scenario.UpdatedAt = now;
+
+            var requestedExistingIds = request.Choices
+                .Where(x => x.ScenarioChoiceId.HasValue)
+                .Select(x => x.ScenarioChoiceId!.Value)
+                .ToHashSet();
+
+            foreach (var existingChoice in scenario.ScenarioChoices)
+            {
+                if (existingChoice.ScenarioChoiceId != 0 &&
+                    !requestedExistingIds.Contains(existingChoice.ScenarioChoiceId))
+                {
+                    existingChoice.IsActive = false;
+                }
+            }
+
+            for (var i = 0; i < request.Choices.Count; i++)
+            {
+                var choiceRequest = request.Choices[i];
+
+                ScenarioChoice choice;
+
+                if (choiceRequest.ScenarioChoiceId.HasValue)
+                {
+                    choice = scenario.ScenarioChoices
+                        .FirstOrDefault(x => x.ScenarioChoiceId == choiceRequest.ScenarioChoiceId.Value)
+                        ?? new ScenarioChoice
+                        {
+                            ScenarioId = scenario.ScenarioId
+                        };
+
+                    if (choice.ScenarioChoiceId == 0)
+                    {
+                        scenario.ScenarioChoices.Add(choice);
+                    }
+                }
+                else
+                {
+                    choice = new ScenarioChoice
+                    {
+                        ScenarioId = scenario.ScenarioId
+                    };
+
+                    scenario.ScenarioChoices.Add(choice);
+                }
+
+                choice.OptionText = choiceRequest.OptionText;
+                choice.ResultText = choiceRequest.ResultText;
+                choice.LessonText = choiceRequest.LessonText;
+                choice.MoneyImpact = choiceRequest.MoneyImpact;
+                choice.ConfidenceImpact = choiceRequest.ConfidenceImpact;
+                choice.SortOrder = i + 1;
+                choice.IsActive = true;
+            }
+
+            await _context.SaveChangesAsync();
+
+            var savedScenario = await _context.Scenarios
+                .AsNoTracking()
+                .Include(x => x.ScenarioChoices)
+                .FirstAsync(x => x.ScenarioId == scenario.ScenarioId);
+
+            return MapManageScenarioProjection(savedScenario);
+        }
+
+        public async Task<bool> ActivateScenarioAsync(int scenarioId)
+        {
+            var scenario = await _context.Scenarios
+                .Include(x => x.ScenarioChoices)
+                .FirstOrDefaultAsync(x => x.ScenarioId == scenarioId);
+
+            if (scenario == null)
+            {
+                return false;
+            }
+
+            scenario.IsActive = true;
+            scenario.UpdatedAt = DateTime.UtcNow;
+
+            foreach (var choice in scenario.ScenarioChoices)
+            {
+                choice.IsActive = true;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> DeactivateScenarioAsync(int scenarioId)
+        {
+            var scenario = await _context.Scenarios
+                .Include(x => x.ScenarioChoices)
+                .FirstOrDefaultAsync(x => x.ScenarioId == scenarioId && x.IsActive);
+
+            if (scenario == null)
+            {
+                return false;
+            }
+
+            scenario.IsActive = false;
+            scenario.UpdatedAt = DateTime.UtcNow;
+
+            foreach (var choice in scenario.ScenarioChoices)
+            {
+                choice.IsActive = false;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        private static AdminManageScenarioProjection MapManageScenarioProjection(Scenario scenario)
+        {
+            return new AdminManageScenarioProjection
+            {
+                ScenarioId = scenario.ScenarioId,
+                Title = scenario.Title,
+                Description = scenario.Description,
+                IsActive = scenario.IsActive,
+                UpdatedAt = scenario.UpdatedAt,
+                Choices = scenario.ScenarioChoices
+                    .OrderBy(x => x.SortOrder)
+                    .Select(x => new AdminManageScenarioChoiceProjection
+                    {
+                        ScenarioChoiceId = x.ScenarioChoiceId,
+                        OptionText = x.OptionText,
+                        ResultText = x.ResultText,
+                        LessonText = x.LessonText,
+                        MoneyImpact = x.MoneyImpact,
+                        ConfidenceImpact = x.ConfidenceImpact,
+                        SortOrder = x.SortOrder,
+                        IsActive = x.IsActive
+                    })
+                    .ToList()
+            };
         }
     }
 }

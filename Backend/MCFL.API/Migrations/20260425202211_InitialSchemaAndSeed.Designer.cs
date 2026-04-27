@@ -11,7 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MCFL.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
+<<<<<<<< HEAD:Backend/MCFL.API/Migrations/20260427022704_InitialSchemaAndSeed.Designer.cs
     [Migration("20260427022704_InitialSchemaAndSeed")]
+========
+    [Migration("20260425202211_InitialSchemaAndSeed")]
+>>>>>>>> 9263dfbb89cb9245e29d4169f93e7a962cfebaf6:Backend/MCFL.API/Migrations/20260425202211_InitialSchemaAndSeed.Designer.cs
     partial class InitialSchemaAndSeed
     {
         /// <inheritdoc />
@@ -547,7 +551,6 @@ namespace MCFL.API.Migrations
                         .HasColumnName("isActive");
 
                     b.Property<string>("LessonText")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("lessonText");
 
@@ -612,7 +615,6 @@ namespace MCFL.API.Migrations
                         .HasColumnName("gameMoneyBefore");
 
                     b.Property<string>("LessonTextSnapshot")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("lessonTextSnapshot");
 

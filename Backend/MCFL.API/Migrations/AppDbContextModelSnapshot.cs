@@ -544,7 +544,6 @@ namespace MCFL.API.Migrations
                         .HasColumnName("isActive");
 
                     b.Property<string>("LessonText")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("lessonText");
 
@@ -609,7 +608,6 @@ namespace MCFL.API.Migrations
                         .HasColumnName("gameMoneyBefore");
 
                     b.Property<string>("LessonTextSnapshot")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("lessonTextSnapshot");
 
