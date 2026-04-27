@@ -100,6 +100,10 @@ namespace MCFL.API.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("FullName")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("fullName");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER")
                         .HasColumnName("isActive");
@@ -164,6 +168,89 @@ namespace MCFL.API.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("MCFL.API.Models.LearningSavingsGoal", b =>
+                {
+                    b.Property<int>("LearningSavingsGoalId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("pkLearningSavingsGoalId");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("createdAt");
+
+                    b.Property<decimal?>("CurrentSavedAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("currentSavedAmount");
+
+                    b.Property<string>("GoalTitle")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("goalTitle");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("isActive");
+
+                    b.Property<decimal>("TargetAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("targetAmount");
+
+                    b.Property<DateOnly?>("TargetDate")
+                        .HasColumnType("date")
+                        .HasColumnName("targetDate");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("updatedAt");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("fkUserId");
+
+                    b.HasKey("LearningSavingsGoalId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("LearningSavingsGoal", t =>
+                        {
+                            t.HasCheckConstraint("CK_SavingsGoal_Amounts", "targetAmount >= 0 AND currentSavedAmount >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("MCFL.API.Models.LearningTopic", b =>
+                {
+                    b.Property<int>("LearningTopicId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("pkLearningTopicId");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("isActive");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("sortOrder");
+
+                    b.Property<string>("TopicName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("topicName");
+
+                    b.HasKey("LearningTopicId");
+
+                    b.HasIndex("TopicName")
+                        .IsUnique();
+
+                    b.ToTable("LearningTopic");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.MoneyEntry", b =>
@@ -406,60 +493,6 @@ namespace MCFL.API.Migrations
                     b.ToTable("RegistrationAllowList");
                 });
 
-            modelBuilder.Entity("MCFL.API.Models.SavingsGoal", b =>
-                {
-                    b.Property<int>("SavingsGoalId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("pkSavingsGoalId");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("createdAt");
-
-                    b.Property<decimal?>("CurrentSavedAmount")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("currentSavedAmount");
-
-                    b.Property<string>("GoalTitle")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("goalTitle");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("isActive");
-
-                    b.Property<decimal>("TargetAmount")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("targetAmount");
-
-                    b.Property<DateOnly?>("TargetDate")
-                        .HasColumnType("date")
-                        .HasColumnName("targetDate");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("updatedAt");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("fkUserId");
-
-                    b.HasKey("SavingsGoalId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("SavingsGoal", t =>
-                        {
-                            t.HasCheckConstraint("CK_SavingsGoal_Amounts", "targetAmount >= 0 AND currentSavedAmount >= 0");
-                        });
-                });
-
             modelBuilder.Entity("MCFL.API.Models.Scenario", b =>
                 {
                     b.Property<int>("ScenarioId")
@@ -511,7 +544,6 @@ namespace MCFL.API.Migrations
                         .HasColumnName("isActive");
 
                     b.Property<string>("LessonText")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("lessonText");
 
@@ -576,7 +608,6 @@ namespace MCFL.API.Migrations
                         .HasColumnName("gameMoneyBefore");
 
                     b.Property<string>("LessonTextSnapshot")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("lessonTextSnapshot");
 
@@ -628,15 +659,13 @@ namespace MCFL.API.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("comment");
 
-                    b.Property<string>("FeedbackType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("feedbackType");
-
                     b.Property<DateTime>("SubmittedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("submittedAt");
+
+                    b.Property<int>("UserFeedbackTypeId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("fkUserFeedbackTypeId");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -645,9 +674,40 @@ namespace MCFL.API.Migrations
 
                     b.HasKey("UserFeedbackId");
 
+                    b.HasIndex("UserFeedbackTypeId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("UserFeedback");
+                });
+
+            modelBuilder.Entity("MCFL.API.Models.UserFeedbackType", b =>
+                {
+                    b.Property<int>("UserFeedbackTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("pkUserFeedbackTypeId");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("isActive");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("name");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("sortOrder");
+
+                    b.HasKey("UserFeedbackTypeId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("UserFeedbackType");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.UserGameStat", b =>
@@ -686,6 +746,35 @@ namespace MCFL.API.Migrations
                         });
                 });
 
+            modelBuilder.Entity("MCFL.API.Models.UserLearningPreference", b =>
+                {
+                    b.Property<int>("UserLearningPreferenceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("pkUserLearningPreferenceId");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("createdAt");
+
+                    b.Property<int>("LearningTopicId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("fkLearningTopicId");
+
+                    b.Property<int>("UserProfileId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("fkUserProfileId");
+
+                    b.HasKey("UserLearningPreferenceId");
+
+                    b.HasIndex("LearningTopicId");
+
+                    b.HasIndex("UserProfileId", "LearningTopicId")
+                        .IsUnique();
+
+                    b.ToTable("UserLearningPreference");
+                });
+
             modelBuilder.Entity("MCFL.API.Models.UserProfile", b =>
                 {
                     b.Property<int>("UserProfileId")
@@ -701,26 +790,52 @@ namespace MCFL.API.Migrations
                         .HasColumnType("date")
                         .HasColumnName("dateOfBirth");
 
+                    b.Property<string>("EarnsMoneyAnswer")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("earnsMoneyAnswer");
+
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("TEXT")
                         .HasColumnName("fullName");
 
-                    b.Property<string>("MoneyHabitAnswer")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("moneyHabitsAnswer");
+                    b.Property<bool>("HasBankAccount")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("hasBankAccount");
 
-                    b.Property<string>("MoneyLearningAnswer")
+                    b.Property<string>("HasSavingsAnswer")
                         .IsRequired()
+                        .HasMaxLength(20)
                         .HasColumnType("TEXT")
-                        .HasColumnName("moneyLearningAnswer");
+                        .HasColumnName("hasSavingsAnswer");
+
+                    b.Property<string>("LearningComments")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("learningComments");
 
                     b.Property<string>("NickName")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
                         .HasColumnName("nickName");
+
+                    b.Property<string>("ParentTeachingsAnswer")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("parentTeachingsAnswer");
+
+                    b.Property<string>("PaysBillsAnswer")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("paysBillsAnswer");
+
+                    b.Property<string>("SpendsOnWantsAnswer")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("spendsOnWantsAnswer");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT")
@@ -730,11 +845,6 @@ namespace MCFL.API.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("fkUserId");
-
-                    b.Property<string>("WhatUserWantsToLearnAnswer")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("whatUserWantsToLearnAnswer");
 
                     b.HasKey("UserProfileId");
 
@@ -876,6 +986,17 @@ namespace MCFL.API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("MCFL.API.Models.LearningSavingsGoal", b =>
+                {
+                    b.HasOne("MCFL.API.Models.Identity.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MCFL.API.Models.MoneyEntry", b =>
                 {
                     b.HasOne("MCFL.API.Models.CashInCategory", "CashInCategory")
@@ -945,17 +1066,6 @@ namespace MCFL.API.Migrations
                     b.Navigation("ParentAccessLink");
                 });
 
-            modelBuilder.Entity("MCFL.API.Models.SavingsGoal", b =>
-                {
-                    b.HasOne("MCFL.API.Models.Identity.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("MCFL.API.Models.ScenarioChoice", b =>
                 {
                     b.HasOne("MCFL.API.Models.Scenario", "Scenario")
@@ -996,6 +1106,12 @@ namespace MCFL.API.Migrations
 
             modelBuilder.Entity("MCFL.API.Models.UserFeedback", b =>
                 {
+                    b.HasOne("MCFL.API.Models.UserFeedbackType", "UserFeedbackType")
+                        .WithMany("UserFeedbacks")
+                        .HasForeignKey("UserFeedbackTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("MCFL.API.Models.Identity.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -1003,6 +1119,8 @@ namespace MCFL.API.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+
+                    b.Navigation("UserFeedbackType");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.UserGameStat", b =>
@@ -1014,6 +1132,25 @@ namespace MCFL.API.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MCFL.API.Models.UserLearningPreference", b =>
+                {
+                    b.HasOne("MCFL.API.Models.LearningTopic", "LearningTopic")
+                        .WithMany("UserLearningPreferences")
+                        .HasForeignKey("LearningTopicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MCFL.API.Models.UserProfile", "UserProfile")
+                        .WithMany("UserLearningPreferences")
+                        .HasForeignKey("UserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LearningTopic");
+
+                    b.Navigation("UserProfile");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.UserProfile", b =>
@@ -1078,9 +1215,24 @@ namespace MCFL.API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MCFL.API.Models.LearningTopic", b =>
+                {
+                    b.Navigation("UserLearningPreferences");
+                });
+
             modelBuilder.Entity("MCFL.API.Models.Scenario", b =>
                 {
                     b.Navigation("ScenarioChoices");
+                });
+
+            modelBuilder.Entity("MCFL.API.Models.UserFeedbackType", b =>
+                {
+                    b.Navigation("UserFeedbacks");
+                });
+
+            modelBuilder.Entity("MCFL.API.Models.UserProfile", b =>
+                {
+                    b.Navigation("UserLearningPreferences");
                 });
 #pragma warning restore 612, 618
         }

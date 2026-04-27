@@ -1,14 +1,54 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
+import { apiFetch } from "../services/apiClient";
+
+type LoginResponse = {
+  token: string;
+  role: string;
+};
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password, rememberMe });
+    setError("");
+
+    try {
+      const data = await apiFetch<LoginResponse>("/account/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password, rememberMe }),
+      });
+
+      const storage = rememberMe ? localStorage : sessionStorage;
+      const otherStorage = rememberMe ? sessionStorage : localStorage;
+
+      otherStorage.removeItem("token");
+      otherStorage.removeItem("role");
+
+      storage.setItem("token", data.token);
+      storage.setItem("role", data.role);
+
+      if (data.role === "Admin") {
+        navigate("/admin/overview");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error(error);
+
+      if (error instanceof TypeError) {
+        setError("Login failed. Please check if backend is running.");
+      } else {
+        setError("Invalid email or password");
+      }
+    }
   };
 
   return (
@@ -26,7 +66,6 @@ export default function Login() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email Input */}
               <div>
                 <label
                   htmlFor="email"
@@ -45,7 +84,6 @@ export default function Login() {
                 />
               </div>
 
-              {/* Password Input */}
               <div>
                 <label
                   htmlFor="password"
@@ -64,7 +102,12 @@ export default function Login() {
                 />
               </div>
 
-              {/* Remember Me & Forgot Password */}
+              {error && (
+                <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                  {error}
+                </p>
+              )}
+
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -77,6 +120,7 @@ export default function Login() {
                     Remember me
                   </span>
                 </label>
+
                 <a
                   href="/forgot-password"
                   className="text-sm font-semibold text-primary hover:text-primary-dark transition-colors"
@@ -85,7 +129,6 @@ export default function Login() {
                 </a>
               </div>
 
-              {/* Login Button */}
               <Button
                 type="submit"
                 variant="primary"
@@ -95,7 +138,6 @@ export default function Login() {
               </Button>
             </form>
 
-            {/* Sign Up Link */}
             <p className="text-center text-nav/70 text-sm mt-6">
               Don't have an account yet?{" "}
               <a
