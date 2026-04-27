@@ -187,9 +187,15 @@ export default function RealMoneyPage() {
             <p>Track your cash in, cash out, and current money balance.</p>
           </div>
 
+          <div className="real-money-header-actions">
+          <Link to="/real-money/transactions" className="real-money-add-top-btn">
+            View All Transactions
+          </Link>
+
           <a href="#add-entry" className="real-money-add-top-btn">
             + Add Entry
           </a>
+        </div>
         </section>
 
         {isLoading && (

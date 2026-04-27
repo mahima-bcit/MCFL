@@ -434,3 +434,19 @@
   }
 }
 
+.real-money-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  .real-money-header-actions {
+    width: 100%;
+  }
+
+  .real-money-header-actions .real-money-add-top-btn {
+    text-align: center;
+  }
+}

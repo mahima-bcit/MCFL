@@ -60,6 +60,28 @@ public class RealMoneyController : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet("entries")]
+    public async Task<ActionResult<List<RealMoneyEntryResponse>>> GetEntries()
+    {
+        var userId = GetCurrentUserId();
+
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return Unauthorized();
+        }
+
+        var entries = await _db.MoneyEntries
+            .AsNoTracking()
+            .Include(entry => entry.CashInCategory)
+            .Include(entry => entry.CashOutCategory)
+            .Where(entry => entry.UserId == userId)
+            .OrderByDescending(entry => entry.CreatedAt)
+            .Select(entry => ToEntryResponse(entry))
+            .ToListAsync();
+
+        return Ok(entries);
+    }
+
     [HttpPost("entries")]
     public async Task<ActionResult<RealMoneyEntryResponse>> CreateEntry(
         [FromBody] CreateRealMoneyEntryRequest request)
@@ -106,14 +128,12 @@ public class RealMoneyController : ControllerBase
 
             cashOutCategory = await _db.CashOutCategories
                 .FirstOrDefaultAsync(category =>
+                    category.CategoryName == cleanCategory ||
                     category.CategoryName == databaseCashOutCategoryName);
 
             if (cashOutCategory is null)
             {
-                return BadRequest(new
-                {
-                    error = $"Cash out category '{cleanCategory}' was not found."
-                });
+                return BadRequest(new { error = $"Cash out category '{cleanCategory}' was not found." });
             }
         }
 

@@ -19,6 +19,8 @@ import AdminScenariosPage from "./pages/admin/AdminScenariosPage";
 import AdminManageScenariosPage from "./pages/admin/AdminManageScenariosPage";
 import AdminAccessControlPage from "./pages/admin/AdminAccessControlPage";
 
+import TransactionPage from "./pages/TransactionsPage";
+
 export default [
     {
         path: "/",
@@ -37,6 +39,7 @@ export default [
     { path: "/moneyPicture", element: <MoneyPicture /> },
     { path: "/game-money", element: <GameMoneyPage /> },
     { path: "/real-money", element: <RealMoneyPage /> },
+    { path: "real-money/transactions", element: <TransactionPage /> },
 
     {
         path: "/admin",
