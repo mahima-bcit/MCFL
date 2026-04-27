@@ -13,11 +13,6 @@ namespace MCFL.API.Models
         public int UserFeedbackId { get; set; }
 
         [Required]
-        [MaxLength(20)]
-        [Column("feedbackType")]
-        public string FeedbackType { get; set; } = null!;
-
-        [Required]
         [Column("comment", TypeName = "TEXT")]
         public string Comment { get; set; } = null!;
 
@@ -28,7 +23,14 @@ namespace MCFL.API.Models
         [Column("fkUserId")]
         public string UserId { get; set; } = null!;
 
+        [Required]
+        [Column("fkUserFeedbackTypeId")]
+        public int UserFeedbackTypeId { get; set; }
+
         [ForeignKey(nameof(UserId))]
         public ApplicationUser User { get; set; } = null!;
+
+        [ForeignKey(nameof(UserFeedbackTypeId))]
+        public UserFeedbackType UserFeedbackType { get; set; } = null!;
     }
 }

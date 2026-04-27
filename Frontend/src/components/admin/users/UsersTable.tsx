@@ -100,6 +100,11 @@ export default function UsersTable({ users }: Props) {
                   All Users
                 </h2>
               </div>
+
+              <p className="mt-1 text-[14px] text-slate-500">
+                {users.length} registered{" "}
+                {users.length === 1 ? "user" : "users"}
+              </p>
             </div>
 
             <button
