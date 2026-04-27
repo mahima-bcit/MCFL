@@ -243,5 +243,42 @@ namespace MCFL.API.Repositories
                 LearningGoalTargetDate = activeGoal?.TargetDate
             };
         }
+
+        public async Task<List<AdminParentFeedbackProjection>> GetParentFeedbacksAsync(string? childName)
+        {
+            var trimmedChildName = childName?.Trim();
+
+            var query =
+                from feedback in _context.ParentFeedbacks.AsNoTracking()
+                join accessLink in _context.ParentAccessLinks.AsNoTracking()
+                    on feedback.ParentAccessLinkId equals accessLink.ParentAccessLinkId
+                join profile in _context.UserProfiles.AsNoTracking()
+                    on accessLink.UserId equals profile.UserId
+                select new
+                {
+                    Feedback = feedback,
+                    Profile = profile
+                };
+
+            if (!string.IsNullOrWhiteSpace(trimmedChildName))
+            {
+                query = query.Where(x =>
+                    EF.Functions.Like(x.Profile.FullName, $"%{trimmedChildName}%"));
+            }
+
+            return await query
+                .OrderByDescending(x => x.Feedback.SubmittedAt)
+                .Select(x => new AdminParentFeedbackProjection
+                {
+                    ParentFeedbackId = x.Feedback.ParentFeedbackId,
+                    ChildName = x.Profile.FullName,
+                    ParentName = x.Feedback.ParentName ?? "",
+                    ParentEmail = x.Feedback.ParentEmail,
+                    MoneyStory = x.Feedback.MoneyStory,
+                    WhatChildShouldLearn = x.Feedback.WhatChildShouldLearn,
+                    SubmittedAt = x.Feedback.SubmittedAt
+                })
+                .ToListAsync();
+        }
     }
 }

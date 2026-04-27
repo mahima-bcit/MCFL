@@ -1,5 +1,6 @@
 ﻿using MCFL.API.DTOs.Admin.Overview;
 using MCFL.API.DTOs.Admin.Users;
+using MCFL.API.DTOs.Feedbacks;
 using MCFL.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -52,6 +53,13 @@ namespace MCFL.API.Controllers
             }
 
             return Ok(user);
+        }
+
+        [HttpGet("parent-feedbacks")]
+        public async Task<ActionResult<List<AdminParentFeedbackDto>>> GetParentFeedbacks([FromQuery] string? childName = null)
+        {
+            var feedbacks = await _adminService.GetParentFeedbacksAsync(childName);
+            return Ok(feedbacks);
         }
     }
 }

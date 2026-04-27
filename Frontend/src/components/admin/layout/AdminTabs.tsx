@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Users } from "lucide-react";
 
 type Props = {
   orientation?: "horizontal" | "vertical";
@@ -9,6 +9,7 @@ type Props = {
 const tabs = [
   { label: "Overview", to: "/admin/overview", icon: LayoutDashboard },
   { label: "Users", to: "/admin/users", icon: Users },
+  { label: "Parent Feedback", to: "/admin/parent-feedback", icon: MessageSquare },
 ];
 
 export default function AdminTabs({

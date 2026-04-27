@@ -1,5 +1,6 @@
 ﻿using MCFL.API.DTOs.Admin.Overview;
 using MCFL.API.DTOs.Admin.Users;
+using MCFL.API.DTOs.Feedbacks;
 using MCFL.API.Repositories;
 
 namespace MCFL.API.Services
@@ -224,6 +225,24 @@ namespace MCFL.API.Services
                 LearningGoalTargetAmount = data.LearningGoalTargetAmount,
                 LearningGoalTargetDate = data.LearningGoalTargetDate?.ToString("yyyy-MM-dd") ?? ""
             };
+        }
+
+        public async Task<List<AdminParentFeedbackDto>> GetParentFeedbacksAsync(string? childName)
+        {
+            var rows = await _adminRepository.GetParentFeedbacksAsync(childName);
+
+            return rows.Select(x => new AdminParentFeedbackDto
+            {
+                ParentFeedbackId = x.ParentFeedbackId,
+                ChildName = x.ChildName,
+                ParentName = string.IsNullOrWhiteSpace(x.ParentName)
+                    ? "Not provided"
+                    : x.ParentName,
+                ParentEmail = x.ParentEmail,
+                MoneyStory = x.MoneyStory,
+                WhatChildShouldLearn = x.WhatChildShouldLearn,
+                SubmittedAt = x.SubmittedAt.ToString("yyyy-MM-dd")
+            }).ToList();
         }
 
         private static int CalculateAge(DateOnly dateOfBirth)
