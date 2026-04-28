@@ -154,34 +154,6 @@ function readRegistrationDraft(): RegistrationDraft | null {
   }
 }
 
-function BrandHeader() {
-  return (
-    <header className="border-b border-[#edf1f6] bg-white/95">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 md:px-8">
-        <Link to="/" className="flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#5a63f1] shadow-[0_8px_18px_rgba(90,99,241,0.22)]">
-            <img
-              src="/logo.png"
-              alt="Money Confidence for Life logo"
-              className="h-5 w-5"
-            />
-          </span>
-          <span className="text-base font-black tracking-[-0.02em] text-[#153c73] md:text-xl">
-            Money Confidence for Life
-          </span>
-        </Link>
-
-        <Link
-          to="/signup"
-          className="inline-flex items-center gap-2 text-sm font-medium text-[#516c8f] transition-colors hover:text-[#295cff]"
-        >
-          ← Back
-        </Link>
-      </div>
-    </header>
-  );
-}
-
 function ArrowLeftIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
     <svg
@@ -723,9 +695,6 @@ export default function ProfileSetupFlow() {
   }
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(90deg,#fbfdff_0%,#fdfefe_48%,#f4f7ff_100%)] text-[#153c73]">
-      <BrandHeader />
-
       <section className="mx-auto max-w-3xl px-5 py-10 md:px-8 md:py-12">
         {submitted ? (
           <div className="mx-auto rounded-[32px] border border-[#edf1f6] bg-white p-8 text-center shadow-[0_16px_38px_rgba(23,42,79,0.08)]">
@@ -766,6 +735,5 @@ export default function ProfileSetupFlow() {
           </form>
         )}
       </section>
-    </main>
   );
 }
