@@ -41,30 +41,6 @@ function calculateAge(dateOfBirth: string) {
   return age;
 }
 
-function BrandHeader() {
-  return (
-    <header className="border-b border-[#edf1f6] bg-white/95">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 md:px-8">
-        <Link to="/" className="flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#5a63f1] shadow-[0_8px_18px_rgba(90,99,241,0.22)]">
-            <img src="/logo.png" alt="Money Confidence for Life logo" className="h-5 w-5" />
-          </span>
-          <span className="text-base font-black tracking-[-0.02em] text-[#153c73] md:text-xl">
-            Money Confidence for Life
-          </span>
-        </Link>
-
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-sm font-medium text-[#516c8f] transition-colors hover:text-[#295cff]"
-        >
-          ← Back
-        </Link>
-      </div>
-    </header>
-  );
-}
-
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return <label className="mb-2 block text-xs font-bold text-[#153c73]">{children}</label>;
 }
@@ -129,9 +105,6 @@ export default function Signup() {
   }
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(90deg,#fbfdff_0%,#fdfefe_48%,#f4f7ff_100%)] text-[#153c73]">
-      <BrandHeader />
-
       <section className="mx-auto max-w-3xl px-5 py-10 md:px-8 md:py-12">
         <header className="mb-7">
           <h1 className="text-[1.55rem] font-black leading-tight tracking-[-0.04em] md:text-[2rem]">
@@ -239,10 +212,5 @@ export default function Signup() {
           Next →
         </button>
       </section>
-
-      <footer className="mt-6 bg-[#184577] py-5 text-center text-xs text-white/70">
-        © 2026 Money Confidence for Life. All rights reserved.
-      </footer>
-    </main>
   );
 }

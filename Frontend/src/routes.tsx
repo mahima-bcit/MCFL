@@ -21,24 +21,21 @@ import AdminAccessControlPage from "./pages/admin/AdminAccessControlPage";
 
 export default [
   {
-    path: "/profile-setup",
-    element: <ProfileSetupFlow />,
-  },
-  {
     path: "/",
     element: <RootLayout />,
     children: [
       { index: true, element: <Index /> },
       { path: "login", element: <Login /> },
       { path: "signup", element: <Signup /> },
-      { path: "parentFeedback", element: <ParentsFeedback /> },
-      { path: "dashboard", element: <DashboardPage /> },
-      { path: "game", element: <GamePage /> },
-      { path: "money", element: <MoneyPage /> },
-      { path: "feedback", element: <FeedbackPage /> },
-      { path: "moneyPicture", element: <MoneyPicture /> },
+      { path: "/profile-setup", element: <ProfileSetupFlow /> },
     ],
   },
+  { path: "dashboard", element: <DashboardPage /> },
+  { path: "game", element: <GamePage /> },
+  { path: "money", element: <MoneyPage /> },
+  { path: "feedback", element: <FeedbackPage /> },
+  { path: "moneyPicture", element: <MoneyPicture /> },
+  { path: "parentFeedback", element: <ParentsFeedback /> },
   {
     path: "/admin",
     children: [
