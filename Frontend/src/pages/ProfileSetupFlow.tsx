@@ -128,7 +128,7 @@ const setupSteps: StepDefinition[] = [
 
 const optionBaseClass =
   "rounded-2xl border border-[#d7e6f3] bg-[#f7fbff] px-5 py-3 text-[15px] font-medium text-[#264a74] transition-all duration-200";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "https://localhost:7001";
+const API_BASE_URL = ""; // old default: https://localhost:7001
 
 type RegisterResponse = {
   token: string;
