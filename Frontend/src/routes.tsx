@@ -8,6 +8,7 @@ import DashboardPage from "./pages/DashboardPage";
 import GamePage from "./pages/GamePage";
 import MoneyPage from "./pages/MoneyPage";
 import FeedbackPage from "./pages/FeedbackPage";
+import UserFeedback from "./pages/UserFeedback";
 import MoneyPicture from "./pages/MoneyPicture";
 import ProfileSetupFlow from "./pages/ProfileSetupFlow";
 import GameMoneyPage from "./pages/GameMoneyPage";
@@ -43,6 +44,7 @@ export default [
     { path: "/game-money", element: <GameMoneyPage /> },
     { path: "/real-money", element: <RealMoneyPage /> },
     { path: "/real-money/transactions", element: <TransactionPage /> },
+    { path: "/userFeedback", element: <UserFeedback /> },
 
     {
         path: "/admin",

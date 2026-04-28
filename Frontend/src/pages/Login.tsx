@@ -21,7 +21,7 @@ export default function Login() {
     setError("");
 
     try {
-      const data = await apiFetch<LoginResponse>("/account/login", {
+      const data = await apiFetch<LoginResponse>("api/account/login", {
         method: "POST",
         body: JSON.stringify({ email, password, rememberMe }),
       });
