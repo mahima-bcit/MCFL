@@ -1,4 +1,5 @@
 using MCFL.API.Data;
+using MCFL.API.Models;
 using MCFL.API.Models.DTOs;
 using MCFL.API.Models.Identity;
 using MCFL.API.Services;
@@ -53,13 +54,27 @@ public class AccountController : ControllerBase
         var existing = await _userManager.FindByEmailAsync(email);
         if (existing != null) return BadRequest(new { error = "Email already registered" });
 
+        if (model.RequiresParentConsent)
+        {
+            if (model.ParentAuthorization is null ||
+                !model.ParentAuthorization.Authorized ||
+                string.IsNullOrWhiteSpace(model.ParentAuthorization.ParentGuardianName) ||
+                string.IsNullOrWhiteSpace(model.ParentAuthorization.ParentGuardianEmail))
+            {
+                return BadRequest(new { error = "Parent or guardian authorization is required." });
+            }
+        }
+
         var user = new ApplicationUser
         {
             UserName = email,
             Email = email,
-            FullName = string.IsNullOrWhiteSpace(model.FullName) ? null : model.FullName.Trim(),
+            FullName = model.FullName.Trim(),
             IsActive = true,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            ParentConsentRequired = model.RequiresParentConsent,
+            ParentConsentReceived = model.RequiresParentConsent && model.ParentAuthorization?.Authorized == true,
+            OnboardingCompleted = true
         };
 
         var result = await _userManager.CreateAsync(user, model.Password);
@@ -84,6 +99,78 @@ public class AccountController : ControllerBase
             return StatusCode(
                 StatusCodes.Status500InternalServerError,
                 new { error = "Registration failed while assigning the default role." });
+        }
+
+        try
+        {
+            var profile = new UserProfile
+            {
+                FullName = model.FullName.Trim(),
+                NickName = string.IsNullOrWhiteSpace(model.Nickname) ? null : model.Nickname.Trim(),
+                DateOfBirth = model.DateOfBirth,
+                HasBankAccount = model.ProfileSetup.BankAccount.Equals("yes", StringComparison.OrdinalIgnoreCase),
+                EarnsMoneyAnswer = NormalizeAnswer(model.ProfileSetup.EarnMoney),
+                HasSavingsAnswer = NormalizeAnswer(model.ProfileSetup.HaveSavings),
+                PaysBillsAnswer = NormalizeAnswer(model.ProfileSetup.PayBills),
+                SpendsOnWantsAnswer = NormalizeAnswer(model.ProfileSetup.SpendOnWants),
+                ParentTeachingsAnswer = string.IsNullOrWhiteSpace(model.ProfileSetup.ParentsTaughtMoney)
+                    ? null
+                    : model.ProfileSetup.ParentsTaughtMoney.Trim(),
+                LearningComments = string.IsNullOrWhiteSpace(model.ProfileSetup.LearningGoalText)
+                    ? null
+                    : model.ProfileSetup.LearningGoalText.Trim(),
+                UserId = user.Id,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.UserProfiles.Add(profile);
+
+            if (model.RequiresParentConsent && model.ParentAuthorization is not null)
+            {
+                _context.ParentConsents.Add(new ParentConsent
+                {
+                    ParentName = model.ParentAuthorization.ParentGuardianName.Trim(),
+                    ParentEmail = model.ParentAuthorization.ParentGuardianEmail.Trim().ToLowerInvariant(),
+                    ConsentGiven = model.ParentAuthorization.Authorized,
+                    ConsentGivenAt = model.ParentAuthorization.Authorized ? DateTime.UtcNow : null,
+                    UserId = user.Id,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+
+            await _context.SaveChangesAsync();
+
+            var selectedLearningGoals = model.ProfileSetup.LearningGoals
+                .Where(goal => !string.IsNullOrWhiteSpace(goal))
+                .Select(goal => goal.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (selectedLearningGoals.Count > 0)
+            {
+                var learningTopics = await _context.LearningTopics
+                    .Where(topic => selectedLearningGoals.Contains(topic.TopicName))
+                    .ToListAsync();
+
+                foreach (var topic in learningTopics)
+                {
+                    _context.UserLearningPreferences.Add(new UserLearningPreference
+                    {
+                        UserProfileId = profile.UserProfileId,
+                        LearningTopicId = topic.LearningTopicId,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save profile setup for user {UserId}", user.Id);
+            await _userManager.DeleteAsync(user);
+            return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Registration failed while saving profile setup." });
         }
 
         var token = await _tokenService.CreateTokenAsync(user);
@@ -122,5 +209,10 @@ public class AccountController : ControllerBase
             token,
             role
         });
+    }
+
+    private static string NormalizeAnswer(string answer)
+    {
+        return answer.Trim().ToLowerInvariant();
     }
 }
