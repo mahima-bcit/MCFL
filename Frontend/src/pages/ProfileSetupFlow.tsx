@@ -31,7 +31,6 @@ type RegistrationDraft = {
 };
 
 type ProfileSetupData = {
-  parentConsentInfoRead: boolean;
   parentAuthorized: boolean;
   parentGuardianName: string;
   parentGuardianEmail: string;
@@ -47,19 +46,12 @@ type ProfileSetupData = {
 };
 
 type StepDefinition = {
-  key:
-    | "parent-rule"
-    | "parent-auth"
-    | "financial"
-    | "beliefs"
-    | "parents-taught"
-    | "learning-goals";
+  key: "parent-auth" | "financial" | "beliefs" | "parents-taught" | "learning-goals";
   title: string;
   subtitle: string;
 };
 
 const initialData: ProfileSetupData = {
-  parentConsentInfoRead: false,
   parentAuthorized: false,
   parentGuardianName: "",
   parentGuardianEmail: "",
@@ -91,10 +83,7 @@ const beliefRows: { key: BeliefKey; label: string }[] = [
   { key: "loveSpendingMoney", label: "I love spending money" },
   { key: "parentsGiveMeMoney", label: "My parents give me money" },
   { key: "dontNeedMoney", label: "I don't need money" },
-  {
-    key: "likeHelpingOthers",
-    label: "I like helping others, they don't have to pay me",
-  },
+  { key: "likeHelpingOthers", label: "I like helping others, they don't have to pay me" },
 ];
 
 const learningGoals: LearningGoal[] = [
@@ -106,12 +95,6 @@ const learningGoals: LearningGoal[] = [
 ];
 
 const parentSteps: StepDefinition[] = [
-  {
-    key: "parent-rule",
-    title: "Parent consent required",
-    subtitle:
-      "Players age 17 or under need parent/guardian approval before continuing.",
-  },
   {
     key: "parent-auth",
     title: "Parent authorization",
@@ -160,11 +143,7 @@ function BrandHeader() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 md:px-8">
         <Link to="/" className="flex items-center gap-3">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#5a63f1] shadow-[0_8px_18px_rgba(90,99,241,0.22)]">
-            <img
-              src="/logo.png"
-              alt="Money Confidence for Life logo"
-              className="h-5 w-5"
-            />
+            <img src="/logo.png" alt="Money Confidence for Life logo" className="h-5 w-5" />
           </span>
           <span className="text-base font-black tracking-[-0.02em] text-[#153c73] md:text-xl">
             Money Confidence for Life
@@ -184,15 +163,7 @@ function BrandHeader() {
 
 function ArrowLeftIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
       <line x1="19" y1="12" x2="5" y2="12" />
       <polyline points="12 19 5 12 12 5" />
     </svg>
@@ -201,25 +172,14 @@ function ArrowLeftIcon({ className = "h-5 w-5" }: { className?: string }) {
 
 function ArrowRightIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
       <line x1="5" y1="12" x2="19" y2="12" />
       <polyline points="12 5 19 12 12 19" />
     </svg>
   );
 }
 
-function PageTitle({
-  title,
-  subtitle,
-}: Pick<StepDefinition, "title" | "subtitle">) {
+function PageTitle({ title, subtitle }: Pick<StepDefinition, "title" | "subtitle">) {
   return (
     <header className="mb-7">
       <h1 className="text-[1.55rem] font-black leading-tight tracking-[-0.04em] text-[#153c73] md:text-[2rem]">
@@ -230,39 +190,19 @@ function PageTitle({
   );
 }
 
-function StepCard({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+function StepCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div
-      className={`rounded-[28px] border border-[#edf1f6] bg-white p-5 shadow-[0_14px_34px_rgba(23,42,79,0.07)] md:p-7 ${className}`}
-    >
+    <div className={`rounded-[28px] border border-[#edf1f6] bg-white p-5 shadow-[0_14px_34px_rgba(23,42,79,0.07)] md:p-7 ${className}`}>
       {children}
     </div>
   );
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <label className="mb-3 block text-sm font-bold text-[#153c73]">
-      {children}
-    </label>
-  );
+  return <label className="mb-3 block text-sm font-bold text-[#153c73]">{children}</label>;
 }
 
-function TextField({
-  value,
-  placeholder,
-  onChange,
-}: {
-  value: string;
-  placeholder: string;
-  onChange: (nextValue: string) => void;
-}) {
+function TextField({ value, placeholder, onChange }: { value: string; placeholder: string; onChange: (nextValue: string) => void }) {
   return (
     <input
       value={value}
@@ -273,17 +213,7 @@ function TextField({
   );
 }
 
-function LargeTextarea({
-  value,
-  placeholder,
-  rows = 6,
-  onChange,
-}: {
-  value: string;
-  placeholder: string;
-  rows?: number;
-  onChange: (nextValue: string) => void;
-}) {
+function LargeTextarea({ value, placeholder, rows = 6, onChange }: { value: string; placeholder: string; rows?: number; onChange: (nextValue: string) => void }) {
   return (
     <textarea
       value={value}
@@ -295,15 +225,7 @@ function LargeTextarea({
   );
 }
 
-function TogglePill({
-  active,
-  children,
-  onClick,
-}: {
-  active: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
-}) {
+function TogglePill({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) {
   return (
     <button
       type="button"
@@ -319,25 +241,11 @@ function TogglePill({
   );
 }
 
-function FooterNav({
-  showBack,
-  nextLabel,
-  nextDisabled,
-  onBack,
-}: {
-  showBack: boolean;
-  nextLabel: string;
-  nextDisabled: boolean;
-  onBack: () => void;
-}) {
+function FooterNav({ showBack, nextLabel, nextDisabled, onBack }: { showBack: boolean; nextLabel: string; nextDisabled: boolean; onBack: () => void }) {
   return (
     <div className="mt-8 flex items-center justify-between gap-4">
       {showBack ? (
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex items-center gap-2 px-2 py-2 text-sm font-medium text-[#2d4c72] hover:text-[#295cff]"
-        >
+        <button type="button" onClick={onBack} className="inline-flex items-center gap-2 px-2 py-2 text-sm font-medium text-[#2d4c72] hover:text-[#295cff]">
           <ArrowLeftIcon className="h-4 w-4" />
           Back
         </button>
@@ -363,15 +271,10 @@ function FooterNav({
 
 export default function ProfileSetupFlow() {
   const registrationDraft = useMemo(() => readRegistrationDraft(), []);
-  const requiresParentAuthorization =
-    registrationDraft?.requiresParentConsent ?? false;
-
+  const requiresParentAuthorization = registrationDraft?.requiresParentConsent ?? false;
   const visibleSteps = useMemo(
-    () =>
-      requiresParentAuthorization
-        ? [...parentSteps, ...setupSteps]
-        : setupSteps,
-    [requiresParentAuthorization]
+    () => (requiresParentAuthorization ? [...parentSteps, ...setupSteps] : setupSteps),
+    [requiresParentAuthorization],
   );
 
   const [step, setStep] = useState(0);
@@ -382,47 +285,27 @@ export default function ProfileSetupFlow() {
 
   const isCurrentStepValid = useMemo(() => {
     switch (currentStepDefinition.key) {
-      case "parent-rule":
-        return formData.parentConsentInfoRead;
-
       case "parent-auth":
         return (
           formData.parentAuthorized &&
           formData.parentGuardianName.trim().length > 0 &&
           /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.parentGuardianEmail)
         );
-
       case "financial":
-        return Boolean(
-          formData.bankAccount &&
-            formData.earnMoney &&
-            formData.haveSavings &&
-            formData.payBills &&
-            formData.spendOnWants
-        );
-
+        return Boolean(formData.bankAccount && formData.earnMoney && formData.haveSavings && formData.payBills && formData.spendOnWants);
       case "beliefs":
         return beliefRows.every(({ key }) => Boolean(formData.beliefs[key]));
-
       case "parents-taught":
         return formData.parentsTaughtMoney.trim().length >= 10;
-
       case "learning-goals":
-        return (
-          formData.learningGoals.length > 0 ||
-          formData.learningGoalText.trim().length > 0
-        );
-
+        return formData.learningGoals.length > 0 || formData.learningGoalText.trim().length > 0;
       default:
         return false;
     }
   }, [currentStepDefinition.key, formData]);
 
   function updateBelief(key: BeliefKey, value: BeliefAnswer) {
-    setFormData((current) => ({
-      ...current,
-      beliefs: { ...current.beliefs, [key]: value },
-    }));
+    setFormData((current) => ({ ...current, beliefs: { ...current.beliefs, [key]: value } }));
   }
 
   function goBack() {
@@ -430,13 +313,11 @@ export default function ProfileSetupFlow() {
       window.location.assign("/signup");
       return;
     }
-
     setStep((current) => current - 1);
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     if (!isCurrentStepValid) return;
 
     if (step === visibleSteps.length - 1) {
@@ -449,106 +330,31 @@ export default function ProfileSetupFlow() {
     setStep((current) => current + 1);
   }
 
-  function renderParentRuleStep() {
-    return (
-      <StepCard>
-        <div className="rounded-2xl border border-[#f2e6b5] bg-[#fff8e6] px-4 py-4 text-sm leading-6 text-[#8d6a22]">
-          Based on the date of birth entered during account creation, this
-          player is age 17 or under. A parent or guardian must approve the
-          account before activation.
-        </div>
-
-        <div className="mt-6 grid gap-4 text-sm leading-6 text-[#2b466a]">
-          <div className="rounded-2xl bg-[#f7fbff] p-4">
-            <strong className="block text-[#153c73]">
-              What happens next?
-            </strong>
-            We will collect a parent/guardian name and email. The confirmation
-            request should go to the parent/guardian email instead of the youth
-            email.
-          </div>
-
-          <div className="rounded-2xl bg-[#f7fbff] p-4">
-            <strong className="block text-[#153c73]">Why?</strong>
-            The project rules say users age 17 or under need parent consent
-            before the account becomes active.
-          </div>
-        </div>
-
-        <label className="mt-6 flex items-start gap-3">
-          <input
-            type="checkbox"
-            checked={formData.parentConsentInfoRead}
-            onChange={(event) =>
-              setFormData((current) => ({
-                ...current,
-                parentConsentInfoRead: event.target.checked,
-              }))
-            }
-            className="mt-1 h-4 w-4 rounded border-[#bcc9d8] accent-[#1d2b39]"
-          />
-          <span className="text-sm leading-6 text-[#2b466a]">
-            I understand that parent/guardian consent is required before
-            continuing.
-          </span>
-        </label>
-      </StepCard>
-    );
-  }
-
   function renderParentAuthorizationStep() {
     return (
       <StepCard>
         <div className="rounded-2xl border border-[#f2e6b5] bg-[#fff8e6] px-4 py-4 text-sm leading-6 text-[#8d6a22]">
-          Because you are under 18, a parent or guardian authorization is
-          required before continuing.
+          Because you are under 18, a parent or guardian authorization is required before continuing.
         </div>
 
         <label className="mt-6 flex items-start gap-3">
           <input
             type="checkbox"
             checked={formData.parentAuthorized}
-            onChange={(event) =>
-              setFormData((current) => ({
-                ...current,
-                parentAuthorized: event.target.checked,
-              }))
-            }
+            onChange={(event) => setFormData((current) => ({ ...current, parentAuthorized: event.target.checked }))}
             className="mt-1 h-4 w-4 rounded border-[#bcc9d8] accent-[#1d2b39]"
           />
-          <span className="text-sm leading-6 text-[#2b466a]">
-            I confirm that a parent or guardian has authorized this player to
-            continue.
-          </span>
+          <span className="text-sm leading-6 text-[#2b466a]">I confirm that a parent or guardian has authorized this player to continue.</span>
         </label>
 
         <div className="mt-6 space-y-5">
           <div>
             <FieldLabel>Parent / guardian name</FieldLabel>
-            <TextField
-              value={formData.parentGuardianName}
-              placeholder="Parent or guardian name"
-              onChange={(nextValue) =>
-                setFormData((current) => ({
-                  ...current,
-                  parentGuardianName: nextValue,
-                }))
-              }
-            />
+            <TextField value={formData.parentGuardianName} placeholder="Parent or guardian name" onChange={(nextValue) => setFormData((current) => ({ ...current, parentGuardianName: nextValue }))} />
           </div>
-
           <div>
             <FieldLabel>Parent / guardian email</FieldLabel>
-            <TextField
-              value={formData.parentGuardianEmail}
-              placeholder="parent@example.com"
-              onChange={(nextValue) =>
-                setFormData((current) => ({
-                  ...current,
-                  parentGuardianEmail: nextValue,
-                }))
-              }
-            />
+            <TextField value={formData.parentGuardianEmail} placeholder="parent@example.com" onChange={(nextValue) => setFormData((current) => ({ ...current, parentGuardianEmail: nextValue }))} />
           </div>
         </div>
       </StepCard>
@@ -563,18 +369,7 @@ export default function ProfileSetupFlow() {
             <FieldLabel>Do you have a bank account?</FieldLabel>
             <div className="flex flex-wrap gap-3">
               {(["yes", "no"] as const).map((option) => (
-                <TogglePill
-                  key={option}
-                  active={formData.bankAccount === option}
-                  onClick={() =>
-                    setFormData((current) => ({
-                      ...current,
-                      bankAccount: option,
-                    }))
-                  }
-                >
-                  {option}
-                </TogglePill>
+                <TogglePill key={option} active={formData.bankAccount === option} onClick={() => setFormData((current) => ({ ...current, bankAccount: option }))}>{option}</TogglePill>
               ))}
             </div>
           </div>
@@ -592,12 +387,7 @@ export default function ProfileSetupFlow() {
                   <TogglePill
                     key={option}
                     active={formData[key as keyof ProfileSetupData] === option}
-                    onClick={() =>
-                      setFormData((current) => ({
-                        ...current,
-                        [key]: option,
-                      }))
-                    }
+                    onClick={() => setFormData((current) => ({ ...current, [key]: option }))}
                   >
                     {option}
                   </TogglePill>
@@ -619,13 +409,7 @@ export default function ProfileSetupFlow() {
               <FieldLabel>{label}</FieldLabel>
               <div className="flex flex-wrap gap-3">
                 {(["agree", "disagree", "unsure"] as const).map((option) => (
-                  <TogglePill
-                    key={option}
-                    active={formData.beliefs[key] === option}
-                    onClick={() => updateBelief(key, option)}
-                  >
-                    {option}
-                  </TogglePill>
+                  <TogglePill key={option} active={formData.beliefs[key] === option} onClick={() => updateBelief(key, option)}>{option}</TogglePill>
                 ))}
               </div>
             </div>
@@ -638,17 +422,7 @@ export default function ProfileSetupFlow() {
   function renderParentsTeachMoneyStep() {
     return (
       <StepCard>
-        <LargeTextarea
-          value={formData.parentsTaughtMoney}
-          placeholder="They told me to be careful with money and not spend too quickly."
-          rows={7}
-          onChange={(nextValue) =>
-            setFormData((current) => ({
-              ...current,
-              parentsTaughtMoney: nextValue,
-            }))
-          }
-        />
+        <LargeTextarea value={formData.parentsTaughtMoney} placeholder="They told me to be careful with money and not spend too quickly." rows={7} onChange={(nextValue) => setFormData((current) => ({ ...current, parentsTaughtMoney: nextValue }))} />
       </StepCard>
     );
   }
@@ -659,25 +433,13 @@ export default function ProfileSetupFlow() {
         <div className="grid gap-4 md:grid-cols-2">
           {learningGoals.map((goal, index) => {
             const isSelected = formData.learningGoals.includes(goal);
-
             return (
               <button
                 key={goal}
                 type="button"
-                onClick={() =>
-                  setFormData((current) => ({
-                    ...current,
-                    learningGoals: isSelected
-                      ? current.learningGoals.filter((item) => item !== goal)
-                      : [...current.learningGoals, goal],
-                  }))
-                }
-                className={`${optionBaseClass} min-h-[58px] text-left ${
-                  index === 4 ? "md:col-span-2" : ""
-                } ${
-                  isSelected
-                    ? "border-[#7e8cff] bg-[#eef1ff] text-[#153c73] shadow-[0_0_15px_rgba(101,116,255,0.4)]"
-                    : "hover:border-[#bfd2ea] hover:bg-white"
+                onClick={() => setFormData((current) => ({ ...current, learningGoals: isSelected ? current.learningGoals.filter((item) => item !== goal) : [...current.learningGoals, goal] }))}
+                className={`${optionBaseClass} min-h-[58px] text-left ${index === 4 ? "md:col-span-2" : ""} ${
+                  isSelected ? "border-[#7e8cff] bg-[#eef1ff] text-[#153c73] shadow-[0_0_15px_rgba(101,116,255,0.4)]" : "hover:border-[#bfd2ea] hover:bg-white"
                 }`}
               >
                 {goal}
@@ -705,8 +467,6 @@ export default function ProfileSetupFlow() {
 
   function renderCurrentStep() {
     switch (currentStepDefinition.key) {
-      case "parent-rule":
-        return renderParentRuleStep();
       case "parent-auth":
         return renderParentAuthorizationStep();
       case "financial":
@@ -729,37 +489,21 @@ export default function ProfileSetupFlow() {
       <section className="mx-auto max-w-3xl px-5 py-10 md:px-8 md:py-12">
         {submitted ? (
           <div className="mx-auto rounded-[32px] border border-[#edf1f6] bg-white p-8 text-center shadow-[0_16px_38px_rgba(23,42,79,0.08)]">
-            <h1 className="text-[2rem] font-black tracking-[-0.04em] text-[#153c73]">
-              Registration complete
-            </h1>
+            <h1 className="text-[2rem] font-black tracking-[-0.04em] text-[#153c73]">Registration complete</h1>
             <p className="mt-3 text-sm leading-6 text-[#7c90aa]">
-              Your registration/setup answers are ready to send to the backend
-              when the API integration is connected.
+              Your registration/setup answers are ready to send to the backend when the API integration is connected.
             </p>
-
-            <Link
-              to="/login"
-              className="mt-7 inline-flex rounded-2xl bg-[#2f6feb] px-7 py-3 text-sm font-bold text-white hover:bg-[#255ed0]"
-            >
+            <Link to="/login" className="mt-7 inline-flex rounded-2xl bg-[#2f6feb] px-7 py-3 text-sm font-bold text-white hover:bg-[#255ed0]">
               Go to login
             </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <PageTitle
-              title={currentStepDefinition.title}
-              subtitle={currentStepDefinition.subtitle}
-            />
-
+            <PageTitle title={currentStepDefinition.title} subtitle={currentStepDefinition.subtitle} />
             {renderCurrentStep()}
-
             <FooterNav
               showBack={true}
-              nextLabel={
-                step === visibleSteps.length - 1
-                  ? "Complete Registration"
-                  : "Next"
-              }
+              nextLabel={step === visibleSteps.length - 1 ? "Complete Registration" : "Next"}
               nextDisabled={!isCurrentStepValid}
               onBack={goBack}
             />
