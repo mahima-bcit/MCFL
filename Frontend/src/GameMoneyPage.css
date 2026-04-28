@@ -480,4 +480,26 @@
     font-weight: 900;
     text-decoration: none;
   }
+
+    
+  .game-zone-page h1,
+  .game-zone-title,
+  .game-zone-main h1,
+  .game-zone-content h1 {
+    font-size: 34px;
+    line-height: 1.1;
+    font-weight: 900;
+    color: #123f35;
+    margin: 0 0 14px;
+  }
+
+  .game-zone-page > p,
+  .game-zone-subtitle,
+  .game-zone-main > p,
+  .game-zone-content > p {
+    font-size: 20px;
+    line-height: 1.45;
+    font-weight: 800;
+    color: #51679a;
+  }
 }

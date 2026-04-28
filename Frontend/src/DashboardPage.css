@@ -26,9 +26,9 @@
 
 .dashboard-header-inner,
 .dashboard-footer-inner {
-  max-width: 1240px;
+  width: min(100%, 1440px);
   margin: 0 auto;
-  padding: 20px 24px;
+  padding: 28px 48px;
 }
 
 .dashboard-header-inner {
@@ -50,9 +50,9 @@
 
 .dashboard-brand-logo,
 .footer-logo-box {
-  width: 54px;
-  height: 54px;
-  border-radius: 10px;
+  width: 70px;
+  height: 70px;
+  border-radius: 0;
   background: #ffffff;
   display: flex;
   align-items: center;
@@ -65,7 +65,7 @@
 .footer-brand-logo {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .dashboard-brand-logo-fallback {
@@ -83,14 +83,17 @@
 }
 
 .dashboard-brand-text h1 {
-  font-size: 1.1rem;
+  font-size: 30px;
+  font-weight: 900;
+  color: #ffffff;
 }
 
 .dashboard-brand-text p,
 .footer-brand p {
-  margin: 4px 0 0;
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.9);
+  margin: 8px 0 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .dashboard-header-right {
@@ -115,10 +118,11 @@
   color: #ffffff;
   text-decoration: none;
   cursor: pointer;
-  font-size: 0.98rem;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 900;
   padding: 0;
   font-family: inherit;
+  opacity: 0.9;
 }
 
 .dashboard-nav-item:hover,
@@ -130,9 +134,9 @@
 }
 
 .dashboard-nav-item-active {
-  text-decoration: underline;
-  text-underline-offset: 8px;
-  text-decoration-thickness: 2px;
+  border-bottom: 3px solid white;
+  padding-bottom: 6px;
+  opacity: 1;
 }
 
 .mobile-menu-button {
@@ -834,4 +838,68 @@
     font-size: 0.95rem;
     font-weight: 700;
   }
+
+  
+
+}
+
+
+.dashboard-page .detail-card .detail-card-header h3,
+.detail-card .detail-card-header h3 {
+  font-size: 22px !important;
+  line-height: 1.25 !important;
+  font-weight: 900 !important;
+  color: #274e3e !important;
+  margin: 0 0 18px !important;
+  font-family: inherit !important;
+}
+
+.dashboard-page .hero-card h2,
+.dashboard-page .hero-content h2,
+.dashboard-page .featured-card h2,
+.dashboard-page .scenario-card h2,
+.dashboard-page .dashboard-hero h2,
+.dashboard-page section:first-of-type h2 {
+  color: #ffffff ;
+}
+
+.dashboard-page h2 {
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 900;
+  color: #123f35;
+  margin: 0 0 12px;
+}
+
+.dashboard-page .section-description,
+.dashboard-page .section-subtitle,
+.dashboard-page .overview-description,
+.dashboard-page .overview-subtitle {
+  font-size: 20px;
+  line-height: 1.45;
+  font-weight: 800;
+  color: #51679a;
+}
+
+.dashboard-page .stat-label {
+  font-size: 22px;
+  line-height: 1.25;
+  font-weight: 900;
+  color: #123f35;
+}
+
+.dashboard-page .stat-value {
+  font-size: 42px;
+  line-height: 1.1;
+  font-weight: 900;
+  color: #079268;
+}
+
+.dashboard-page .stat-description,
+.dashboard-page .card-description,
+.dashboard-page .money-picture-description {
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 600;
+  color: #51679a;
 }

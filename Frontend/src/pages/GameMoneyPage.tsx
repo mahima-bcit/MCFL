@@ -210,6 +210,8 @@ export default function GameMoneyPage() {
           </div>
         </section>
 
+        
+
         {isLoading && (
           <section className="game-money-card">
             <p>Loading game money data...</p>

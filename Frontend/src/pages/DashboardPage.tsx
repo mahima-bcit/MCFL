@@ -216,18 +216,16 @@ export default function DashboardPage() {
                 Dashboard
               </button>
 
-              <button
-                type="button"
-                onClick={openGameZoneTab}
-                className={`dashboard-nav-item ${
-                  activeTab === "gameZone" ? "dashboard-nav-item-active" : ""
-                }`}
+              <Link
+                to="/game-money"
+                className="dashboard-nav-link"
+                onClick={closeMobileMenu}
               >
-                Game Zone
-              </button>
+                Game Money
+              </Link>
 
               <Link
-                to="/money"
+                to="/real-money"
                 className="dashboard-nav-link"
                 onClick={closeMobileMenu}
               >
@@ -423,9 +421,7 @@ export default function DashboardPage() {
                       </div>
                     </div>
 
-                    <Link to="/money" className="inline-link-button">
-                      Go to Real Money
-                    </Link>
+                    
                   </article>
 
                   <article className="detail-card">
@@ -444,9 +440,7 @@ export default function DashboardPage() {
                       {dashboardData.parentFeedback.link}
                     </div>
 
-                    <Link to="/feedback" className="inline-link-button">
-                      Go to Share Feedback
-                    </Link>
+                    
                   </article>
                 </div>
               </section>
@@ -455,7 +449,7 @@ export default function DashboardPage() {
             <>
               <section className="game-zone-header">
                 <div className="game-zone-header-text">
-                  <h2>Game Zone</h2>
+                  <h2>Game Money</h2>
                   <p>
                     Practice making money decisions in quick, low-stakes
                     scenarios.
@@ -626,13 +620,9 @@ export default function DashboardPage() {
               Dashboard
             </button>
 
-            <button
-              type="button"
-              onClick={openGameZoneTab}
-              className="footer-link-button"
-            >
-              Game Zone
-            </button>
+            <Link to="/game-zone" className="dashboard-nav-link">
+              Game Money
+            </Link>
 
             <Link to="/money" className="footer-link">
               Real Money
