@@ -1,0 +1,483 @@
+.game-money-layout {
+  min-height: 100vh;
+  background: #eef8f4;
+}
+
+.money-app-header {
+  background: #154f3d;
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.money-app-header-inner {
+  width: min(100%, 1440px);
+  margin: 0 auto;
+  padding: 28px 48px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 36px;
+}
+
+.money-app-brand,
+.money-app-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  color: white;
+  text-decoration: none;
+}
+
+.money-app-logo {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  background: white;
+}
+
+.money-app-brand h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 900;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.money-app-brand p {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.money-app-nav,
+.money-app-footer-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 26px;
+}
+
+.money-app-nav a,
+.money-app-footer-nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 900;
+  opacity: 0.9;
+}
+
+.money-app-nav a.active {
+  border-bottom: 3px solid white;
+  padding-bottom: 6px;
+  opacity: 1;
+}
+
+.money-app-logout {
+  color: white;
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.game-money-page {
+  min-height: 100vh;
+  background: #eef8f4;
+  padding: 32px 48px 56px;
+  color: #1f336e;
+  width: min(100%, 1440px);
+  margin: 0 auto;
+}
+
+.game-money-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.game-money-header h1 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 900;
+  color: #173f3a;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.game-money-header p {
+  margin: 6px 0 0;
+  color: #4c5f91;
+  font-weight: 700;
+}
+
+.game-money-hero {
+  background: linear-gradient(135deg, #08664f, #21a67d);
+  border-radius: 30px;
+  padding: 32px;
+  margin-bottom: 20px;
+  color: white;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 18px 40px rgba(20, 78, 62, 0.22);
+}
+
+.game-money-badge {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 8px 16px;
+  margin-bottom: 18px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.game-money-hero h2 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.game-money-hero p {
+  margin: 12px 0 0;
+  max-width: 620px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.game-money-hero-btn {
+  border: none;
+  border-radius: 999px;
+  background: white;
+  color: #173f3a;
+  padding: 16px 30px;
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 12px 26px rgba(15, 63, 50, 0.18);
+}
+
+.game-money-card {
+  background: white;
+  border: 1.5px solid #c8e4d7;
+  border-radius: 28px;
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 18px 42px rgba(30, 60, 90, 0.1);
+}
+
+.game-money-card h2 {
+  margin: 0 0 18px;
+  color: #173f3a;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.game-money-top-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 16px;
+}
+
+.breakdown-card {
+  min-height: 260px;
+}
+
+.bar-chart {
+  height: 210px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  align-items: end;
+}
+
+.bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #4c5f91;
+  font-weight: 800;
+}
+
+.bar-amount {
+  color: #173f3a;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.bar-area {
+  width: 100%;
+  height: 140px;
+  display: flex;
+  align-items: end;
+}
+
+.bar-fill {
+  width: 100%;
+  min-height: 8px;
+  border-radius: 999px 999px 0 0;
+}
+
+.category-list {
+  display: grid;
+  gap: 12px;
+}
+
+.category-row {
+  background: #f0f2fb;
+  border-radius: 999px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #1f336e;
+  font-size: 18px;
+}
+
+.category-row div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.category-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+}
+
+.game-total-card {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.game-total-card p {
+  margin: 0 0 4px;
+  color: #4c5f91;
+  font-weight: 700;
+}
+
+.game-total-card strong {
+  color: #078460;
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.feeling-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.feeling-grid button {
+  border: 2px solid #dde5ff;
+  background: white;
+  border-radius: 16px;
+  padding: 12px;
+  color: #4c5f91;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.feeling-grid button span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 26px;
+}
+
+.feeling-grid button.selected {
+  border-color: #20c985;
+  background: #effaf6;
+}
+
+.save-feeling-btn {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  background: #91d7bf;
+  color: white;
+  padding: 16px;
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.recent-game-list {
+  display: grid;
+  gap: 8px;
+}
+
+.recent-game-entry {
+  background: #f0f2fb;
+  border-radius: 22px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.recent-game-entry div {
+  display: grid;
+  gap: 2px;
+}
+
+.recent-game-entry span {
+  color: #7581a3;
+  font-weight: 700;
+}
+
+.recent-game-entry strong:last-child {
+  color: #078460;
+}
+
+.money-app-footer {
+  background: #154f3d;
+  color: white;
+  padding: 28px 48px;
+}
+
+.money-app-footer-inner {
+  width: min(100%, 1440px);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.money-app-footer-logo {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  background: white;
+}
+
+.money-app-footer h3 {
+  margin: 0;
+  font-size: 20px;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.money-app-footer p {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.money-app-menu {
+  display: contents;
+}
+
+.money-mobile-menu-button {
+  display: none;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  background: transparent;
+  color: white;
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  font-size: 34px;
+  line-height: 1;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .money-app-header-inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 22px 24px;
+    text-align: left;
+  }
+
+  .money-app-brand {
+    justify-content: flex-start;
+  }
+
+  .money-app-logo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .money-app-brand h1 {
+    font-size: 22px;
+    line-height: 1.1;
+  }
+
+  .money-app-brand p {
+    display: none;
+  }
+
+  .money-mobile-menu-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .money-app-menu {
+    grid-column: 1 / -1;
+    display: none;
+    padding-top: 28px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    margin-top: 22px;
+  }
+
+  .money-app-menu.open {
+    display: block;
+  }
+
+  .money-app-nav {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    justify-items: center;
+    width: 100%;
+    padding: 0 24px 28px;
+  }
+
+  .money-app-nav a {
+    display: inline-block;
+    width: fit-content;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.72);
+    text-align: center;
+    font-size: 20px;
+    font-weight: 900;
+    text-decoration: none;
+  }
+
+  .money-app-nav a.active {
+    color: white;
+    border-bottom: 3px solid white;
+    padding-bottom: 6px;
+    background: transparent;
+  }
+
+  .money-app-logout {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 28px 0 0;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.72);
+    text-align: center;
+    font-size: 20px;
+    font-weight: 900;
+    text-decoration: none;
+  }
+}
