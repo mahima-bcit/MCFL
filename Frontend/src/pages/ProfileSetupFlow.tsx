@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
 type TernaryAnswer = "yes" | "no" | "sometimes";
+type YesNoAnswer = "yes" | "no";
 type BeliefAnswer = "agree" | "disagree" | "unsure";
 type LearningGoal =
   | "How to get rich"
@@ -19,11 +21,21 @@ type BeliefKey =
   | "dontNeedMoney"
   | "likeHelpingOthers";
 
+type RegistrationDraft = {
+  fullName?: string;
+  nickname?: string;
+  dateOfBirth?: string;
+  email?: string;
+  age?: number | null;
+  requiresParentConsent?: boolean;
+};
+
 type ProfileSetupData = {
+  parentConsentInfoRead: boolean;
   parentAuthorized: boolean;
   parentGuardianName: string;
   parentGuardianEmail: string;
-  bankAccount: "Chequing" | "Savings" | "Both" | "";
+  bankAccount: YesNoAnswer | "";
   earnMoney: TernaryAnswer | "";
   haveSavings: TernaryAnswer | "";
   payBills: TernaryAnswer | "";
@@ -31,39 +43,23 @@ type ProfileSetupData = {
   beliefs: Record<BeliefKey, BeliefAnswer | "">;
   parentsTaughtMoney: string;
   learningGoals: LearningGoal[];
+  learningGoalText: string;
 };
 
 type StepDefinition = {
+  key:
+    | "parent-rule"
+    | "parent-auth"
+    | "financial"
+    | "beliefs"
+    | "parents-taught"
+    | "learning-goals";
   title: string;
   subtitle: string;
 };
 
-const requiresParentAuthorization = true;
-
-const stepDefinitions: StepDefinition[] = [
-  {
-    title: "Parent Authorization",
-    subtitle: "Required for players age 17 or under",
-  },
-  {
-    title: "Financial stuff",
-    subtitle: "Bank account, earning money, savings, bills, and spending basics",
-  },
-  {
-    title: "Money beliefs",
-    subtitle: "Agree / disagree to help personalize the experience",
-  },
-  {
-    title: "What did your parents teach you about money?",
-    subtitle: "Comment freely here",
-  },
-  {
-    title: "What do you want to learn?",
-    subtitle: "Tick as many as you like",
-  },
-];
-
 const initialData: ProfileSetupData = {
+  parentConsentInfoRead: false,
   parentAuthorized: false,
   parentGuardianName: "",
   parentGuardianEmail: "",
@@ -84,6 +80,7 @@ const initialData: ProfileSetupData = {
   },
   parentsTaughtMoney: "",
   learningGoals: [],
+  learningGoalText: "",
 };
 
 const beliefRows: { key: BeliefKey; label: string }[] = [
@@ -108,31 +105,80 @@ const learningGoals: LearningGoal[] = [
   "How to invest",
 ];
 
+const parentSteps: StepDefinition[] = [
+  {
+    key: "parent-rule",
+    title: "Parent consent required",
+    subtitle:
+      "Players age 17 or under need parent/guardian approval before continuing.",
+  },
+  {
+    key: "parent-auth",
+    title: "Parent authorization",
+    subtitle: "Required for players age 17 or under",
+  },
+];
+
+const setupSteps: StepDefinition[] = [
+  {
+    key: "financial",
+    title: "Financial stuff",
+    subtitle: "Bank account, earning money, savings, bills, and spending basics",
+  },
+  {
+    key: "beliefs",
+    title: "Money beliefs",
+    subtitle: "Agree / disagree to help personalize the experience",
+  },
+  {
+    key: "parents-taught",
+    title: "What did your parents teach you about money?",
+    subtitle: "Comment freely here",
+  },
+  {
+    key: "learning-goals",
+    title: "What do you want to learn?",
+    subtitle: "Tick as many as you like",
+  },
+];
+
 const optionBaseClass =
   "rounded-2xl border border-[#d7e6f3] bg-[#f7fbff] px-5 py-3 text-[15px] font-medium text-[#264a74] transition-all duration-200";
 
+function readRegistrationDraft(): RegistrationDraft | null {
+  try {
+    const rawDraft = localStorage.getItem("mcflRegistrationDraft");
+    return rawDraft ? JSON.parse(rawDraft) : null;
+  } catch {
+    return null;
+  }
+}
+
 function BrandHeader() {
   return (
-    <div className="border-b border-[#edf1f6] bg-white/90">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 md:px-8">
-        <a href="/" className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#4d5cff] shadow-[0_8px_20px_rgba(77,92,255,0.18)]">
-            <img src="/logo.png" alt="Money Confidence for Life logo" className="h-6 w-6" />
-          </div>
-          <span className="text-xl font-bold tracking-tight text-[#143a73] md:text-[1.7rem]">
+    <header className="border-b border-[#edf1f6] bg-white/95">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 md:px-8">
+        <Link to="/" className="flex items-center gap-3">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#5a63f1] shadow-[0_8px_18px_rgba(90,99,241,0.22)]">
+            <img
+              src="/logo.png"
+              alt="Money Confidence for Life logo"
+              className="h-5 w-5"
+            />
+          </span>
+          <span className="text-base font-black tracking-[-0.02em] text-[#153c73] md:text-xl">
             Money Confidence for Life
           </span>
-        </a>
+        </Link>
 
-        <a
-          href="/"
+        <Link
+          to="/signup"
           className="inline-flex items-center gap-2 text-sm font-medium text-[#516c8f] transition-colors hover:text-[#295cff]"
         >
-          <ArrowLeftIcon className="h-4 w-4" />
-          Back
-        </a>
+          ← Back
+        </Link>
       </div>
-    </div>
+    </header>
   );
 }
 
@@ -170,27 +216,42 @@ function ArrowRightIcon({ className = "h-5 w-5" }: { className?: string }) {
   );
 }
 
-function PageTitle({ title, subtitle }: StepDefinition) {
+function PageTitle({
+  title,
+  subtitle,
+}: Pick<StepDefinition, "title" | "subtitle">) {
   return (
-    <header className="mb-8 md:mb-10">
-      <h1 className="text-[1.5rem] font-black leading-[1.06] tracking-[-0.04em] text-[#153c73] md:text-[2.4rem]">
+    <header className="mb-7">
+      <h1 className="text-[1.55rem] font-black leading-tight tracking-[-0.04em] text-[#153c73] md:text-[2rem]">
         {title}
       </h1>
-      <p className="mt-3 text-base text-[#7c90aa] md:text-lg">{subtitle}</p>
+      <p className="mt-2 text-sm text-[#7c90aa] md:text-base">{subtitle}</p>
     </header>
   );
 }
 
-function StepCard({ children }: { children: React.ReactNode }) {
+function StepCard({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <div className="rounded-[28px] border border-[#edf1f6] bg-white p-5 shadow-[0_12px_32px_rgba(23,42,79,0.06)] md:p-7">
+    <div
+      className={`rounded-[28px] border border-[#edf1f6] bg-white p-5 shadow-[0_14px_34px_rgba(23,42,79,0.07)] md:p-7 ${className}`}
+    >
       {children}
     </div>
   );
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <label className="mb-3 block text-sm font-semibold text-[#2b466a]">{children}</label>;
+  return (
+    <label className="mb-3 block text-sm font-bold text-[#153c73]">
+      {children}
+    </label>
+  );
 }
 
 function TextField({
@@ -206,7 +267,7 @@ function TextField({
     <input
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="w-full rounded-2xl border border-[#dce6ef] bg-[#f7fbff] px-4 py-3.5 text-[15px] text-[#1f3a60] outline-none transition-all duration-200 placeholder:text-[#9aa9bc] focus:border-[#5c7cff] focus:bg-white focus:ring-4 focus:ring-[#5c7cff]/10"
+      className="h-12 w-full rounded-2xl border border-[#dce6ef] bg-[#f7fbff] px-4 text-sm text-[#1f3a60] outline-none transition-all placeholder:text-[#9aa9bc] focus:border-[#5c7cff] focus:bg-white focus:ring-4 focus:ring-[#5c7cff]/10"
       placeholder={placeholder}
     />
   );
@@ -228,7 +289,7 @@ function LargeTextarea({
       value={value}
       rows={rows}
       onChange={(event) => onChange(event.target.value)}
-      className="w-full resize-none rounded-2xl border border-[#dce6ef] bg-[#f7fbff] px-4 py-4 text-[15px] leading-7 text-[#1f3a60] outline-none transition-all duration-200 placeholder:text-[#9aa9bc] focus:border-[#5c7cff] focus:bg-white focus:ring-4 focus:ring-[#5c7cff]/10"
+      className="w-full resize-none rounded-2xl border border-[#dce6ef] bg-[#f7fbff] px-4 py-4 text-sm leading-7 text-[#1f3a60] outline-none transition-all placeholder:text-[#9aa9bc] focus:border-[#5c7cff] focus:bg-white focus:ring-4 focus:ring-[#5c7cff]/10"
       placeholder={placeholder}
     />
   );
@@ -250,7 +311,7 @@ function TogglePill({
       className={`${optionBaseClass} ${
         active
           ? "border-[#7e8cff] bg-[#eef1ff] text-[#153c73] shadow-[0_0_15px_rgba(101,116,255,0.4)]"
-  : "hover:border-[#bfd2ea] hover:bg-white"
+          : "hover:border-[#bfd2ea] hover:bg-white"
       }`}
     >
       {children}
@@ -275,7 +336,7 @@ function FooterNav({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-2 px-2 py-2 text-base font-medium text-[#2d4c72] transition-colors hover:text-[#295cff]"
+          className="inline-flex items-center gap-2 px-2 py-2 text-sm font-medium text-[#2d4c72] hover:text-[#295cff]"
         >
           <ArrowLeftIcon className="h-4 w-4" />
           Back
@@ -287,7 +348,7 @@ function FooterNav({
       <button
         type="submit"
         disabled={nextDisabled}
-        className={`inline-flex min-w-[220px] items-center justify-center gap-2 rounded-2xl px-8 py-4 text-base font-semibold transition-all duration-200 ${
+        className={`inline-flex min-w-[220px] items-center justify-center gap-2 rounded-2xl px-8 py-4 text-sm font-semibold transition-all ${
           nextDisabled
             ? "bg-[#d8e3ee] text-[#9aa9bc]"
             : "bg-[#d8e3ee] text-[#5b6f87] hover:bg-[#cad8e6]"
@@ -301,58 +362,72 @@ function FooterNav({
 }
 
 export default function ProfileSetupFlow() {
+  const registrationDraft = useMemo(() => readRegistrationDraft(), []);
+  const requiresParentAuthorization =
+    registrationDraft?.requiresParentConsent ?? false;
+
+  const visibleSteps = useMemo(
+    () =>
+      requiresParentAuthorization
+        ? [...parentSteps, ...setupSteps]
+        : setupSteps,
+    [requiresParentAuthorization]
+  );
+
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState<ProfileSetupData>(initialData);
 
-  const visibleSteps = requiresParentAuthorization
-    ? stepDefinitions
-    : stepDefinitions.filter((_, index) => index !== 0);
-
   const currentStepDefinition = visibleSteps[step] ?? visibleSteps[0];
 
   const isCurrentStepValid = useMemo(() => {
-    const effectiveStepIndex = requiresParentAuthorization ? step : step + 1;
+    switch (currentStepDefinition.key) {
+      case "parent-rule":
+        return formData.parentConsentInfoRead;
 
-    switch (effectiveStepIndex) {
-      case 0:
+      case "parent-auth":
         return (
           formData.parentAuthorized &&
           formData.parentGuardianName.trim().length > 0 &&
           /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.parentGuardianEmail)
         );
-      case 1:
+
+      case "financial":
         return Boolean(
           formData.bankAccount &&
             formData.earnMoney &&
             formData.haveSavings &&
             formData.payBills &&
-            formData.spendOnWants,
+            formData.spendOnWants
         );
-      case 2:
+
+      case "beliefs":
         return beliefRows.every(({ key }) => Boolean(formData.beliefs[key]));
-      case 3:
+
+      case "parents-taught":
         return formData.parentsTaughtMoney.trim().length >= 10;
-      case 4:
-        return formData.learningGoals.length > 0;
+
+      case "learning-goals":
+        return (
+          formData.learningGoals.length > 0 ||
+          formData.learningGoalText.trim().length > 0
+        );
+
       default:
         return false;
     }
-  }, [formData, step]);
+  }, [currentStepDefinition.key, formData]);
 
   function updateBelief(key: BeliefKey, value: BeliefAnswer) {
     setFormData((current) => ({
       ...current,
-      beliefs: {
-        ...current.beliefs,
-        [key]: value,
-      },
+      beliefs: { ...current.beliefs, [key]: value },
     }));
   }
 
   function goBack() {
     if (step === 0) {
-      window.location.assign("/");
+      window.location.assign("/signup");
       return;
     }
 
@@ -362,11 +437,10 @@ export default function ProfileSetupFlow() {
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!isCurrentStepValid) {
-      return;
-    }
+    if (!isCurrentStepValid) return;
 
     if (step === visibleSteps.length - 1) {
+      console.log("Registration draft", registrationDraft);
       console.log("Profile setup complete", formData);
       setSubmitted(true);
       return;
@@ -375,11 +449,59 @@ export default function ProfileSetupFlow() {
     setStep((current) => current + 1);
   }
 
+  function renderParentRuleStep() {
+    return (
+      <StepCard>
+        <div className="rounded-2xl border border-[#f2e6b5] bg-[#fff8e6] px-4 py-4 text-sm leading-6 text-[#8d6a22]">
+          Based on the date of birth entered during account creation, this
+          player is age 17 or under. A parent or guardian must approve the
+          account before activation.
+        </div>
+
+        <div className="mt-6 grid gap-4 text-sm leading-6 text-[#2b466a]">
+          <div className="rounded-2xl bg-[#f7fbff] p-4">
+            <strong className="block text-[#153c73]">
+              What happens next?
+            </strong>
+            We will collect a parent/guardian name and email. The confirmation
+            request should go to the parent/guardian email instead of the youth
+            email.
+          </div>
+
+          <div className="rounded-2xl bg-[#f7fbff] p-4">
+            <strong className="block text-[#153c73]">Why?</strong>
+            The project rules say users age 17 or under need parent consent
+            before the account becomes active.
+          </div>
+        </div>
+
+        <label className="mt-6 flex items-start gap-3">
+          <input
+            type="checkbox"
+            checked={formData.parentConsentInfoRead}
+            onChange={(event) =>
+              setFormData((current) => ({
+                ...current,
+                parentConsentInfoRead: event.target.checked,
+              }))
+            }
+            className="mt-1 h-4 w-4 rounded border-[#bcc9d8] accent-[#1d2b39]"
+          />
+          <span className="text-sm leading-6 text-[#2b466a]">
+            I understand that parent/guardian consent is required before
+            continuing.
+          </span>
+        </label>
+      </StepCard>
+    );
+  }
+
   function renderParentAuthorizationStep() {
     return (
       <StepCard>
         <div className="rounded-2xl border border-[#f2e6b5] bg-[#fff8e6] px-4 py-4 text-sm leading-6 text-[#8d6a22]">
-          Because you are under 18, a parent or guardian authorization is required before continuing.
+          Because you are under 18, a parent or guardian authorization is
+          required before continuing.
         </div>
 
         <label className="mt-6 flex items-start gap-3">
@@ -387,12 +509,16 @@ export default function ProfileSetupFlow() {
             type="checkbox"
             checked={formData.parentAuthorized}
             onChange={(event) =>
-              setFormData((current) => ({ ...current, parentAuthorized: event.target.checked }))
+              setFormData((current) => ({
+                ...current,
+                parentAuthorized: event.target.checked,
+              }))
             }
             className="mt-1 h-4 w-4 rounded border-[#bcc9d8] accent-[#1d2b39]"
           />
-          <span className="text-[15px] leading-6 text-[#2b466a]">
-            I confirm that a parent or guardian has authorized this player to continue.
+          <span className="text-sm leading-6 text-[#2b466a]">
+            I confirm that a parent or guardian has authorized this player to
+            continue.
           </span>
         </label>
 
@@ -403,17 +529,24 @@ export default function ProfileSetupFlow() {
               value={formData.parentGuardianName}
               placeholder="Parent or guardian name"
               onChange={(nextValue) =>
-                setFormData((current) => ({ ...current, parentGuardianName: nextValue }))
+                setFormData((current) => ({
+                  ...current,
+                  parentGuardianName: nextValue,
+                }))
               }
             />
           </div>
+
           <div>
             <FieldLabel>Parent / guardian email</FieldLabel>
             <TextField
               value={formData.parentGuardianEmail}
               placeholder="parent@example.com"
               onChange={(nextValue) =>
-                setFormData((current) => ({ ...current, parentGuardianEmail: nextValue }))
+                setFormData((current) => ({
+                  ...current,
+                  parentGuardianEmail: nextValue,
+                }))
               }
             />
           </div>
@@ -429,11 +562,16 @@ export default function ProfileSetupFlow() {
           <div>
             <FieldLabel>Do you have a bank account?</FieldLabel>
             <div className="flex flex-wrap gap-3">
-              {(["Chequing", "Savings", "Both"] as const).map((option) => (
+              {(["yes", "no"] as const).map((option) => (
                 <TogglePill
                   key={option}
                   active={formData.bankAccount === option}
-                  onClick={() => setFormData((current) => ({ ...current, bankAccount: option }))}
+                  onClick={() =>
+                    setFormData((current) => ({
+                      ...current,
+                      bankAccount: option,
+                    }))
+                  }
                 >
                   {option}
                 </TogglePill>
@@ -505,7 +643,10 @@ export default function ProfileSetupFlow() {
           placeholder="They told me to be careful with money and not spend too quickly."
           rows={7}
           onChange={(nextValue) =>
-            setFormData((current) => ({ ...current, parentsTaughtMoney: nextValue }))
+            setFormData((current) => ({
+              ...current,
+              parentsTaughtMoney: nextValue,
+            }))
           }
         />
       </StepCard>
@@ -518,7 +659,6 @@ export default function ProfileSetupFlow() {
         <div className="grid gap-4 md:grid-cols-2">
           {learningGoals.map((goal, index) => {
             const isSelected = formData.learningGoals.includes(goal);
-            const shouldSpanTwoColumns = index === 4;
 
             return (
               <button
@@ -532,12 +672,12 @@ export default function ProfileSetupFlow() {
                       : [...current.learningGoals, goal],
                   }))
                 }
-                className={`${optionBaseClass} min-h-[84px] text-left text-[1rem] ${
-                  shouldSpanTwoColumns ? "md:col-span-2" : ""
+                className={`${optionBaseClass} min-h-[58px] text-left ${
+                  index === 4 ? "md:col-span-2" : ""
                 } ${
                   isSelected
                     ? "border-[#7e8cff] bg-[#eef1ff] text-[#153c73] shadow-[0_0_15px_rgba(101,116,255,0.4)]"
-  : "hover:border-[#bfd2ea] hover:bg-white"
+                    : "hover:border-[#bfd2ea] hover:bg-white"
                 }`}
               >
                 {goal}
@@ -545,23 +685,37 @@ export default function ProfileSetupFlow() {
             );
           })}
         </div>
+
+        <div className="mt-6">
+          <FieldLabel>Tell us what you want to learn?</FieldLabel>
+          <TextField
+            value={formData.learningGoalText}
+            placeholder="Write your idea here"
+            onChange={(nextValue) =>
+              setFormData((current) => ({
+                ...current,
+                learningGoalText: nextValue,
+              }))
+            }
+          />
+        </div>
       </StepCard>
     );
   }
 
   function renderCurrentStep() {
-    const effectiveStepIndex = requiresParentAuthorization ? step : step + 1;
-
-    switch (effectiveStepIndex) {
-      case 0:
+    switch (currentStepDefinition.key) {
+      case "parent-rule":
+        return renderParentRuleStep();
+      case "parent-auth":
         return renderParentAuthorizationStep();
-      case 1:
+      case "financial":
         return renderFinancialStuffStep();
-      case 2:
+      case "beliefs":
         return renderMoneyBeliefsStep();
-      case 3:
+      case "parents-taught":
         return renderParentsTeachMoneyStep();
-      case 4:
+      case "learning-goals":
         return renderLearningGoalsStep();
       default:
         return null;
@@ -569,39 +723,49 @@ export default function ProfileSetupFlow() {
   }
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(90deg,#fbfdff_0%,#fdfefe_48%,#fafcff_100%)]">
+    <main className="min-h-screen bg-[linear-gradient(90deg,#fbfdff_0%,#fdfefe_48%,#f4f7ff_100%)] text-[#153c73]">
       <BrandHeader />
 
-      <div className="mx-auto max-w-4xl px-5 py-10 md:px-8 md:py-16">
+      <section className="mx-auto max-w-3xl px-5 py-10 md:px-8 md:py-12">
         {submitted ? (
-          <div className="mx-auto max-w-2xl rounded-[32px] border border-[#edf1f6] bg-white p-8 text-center shadow-[0_16px_38px_rgba(23,42,79,0.08)] md:p-12">
-            <h1 className="text-[2.4rem] font-black tracking-[-0.04em] text-[#153c73] md:text-[3.6rem]">
-              Profile setup complete
+          <div className="mx-auto rounded-[32px] border border-[#edf1f6] bg-white p-8 text-center shadow-[0_16px_38px_rgba(23,42,79,0.08)]">
+            <h1 className="text-[2rem] font-black tracking-[-0.04em] text-[#153c73]">
+              Registration complete
             </h1>
-            
-            <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
-              <a
-                href="/"
-                className="inline-flex items-center justify-center rounded-2xl border border-[#d7e6f3] bg-white px-6 py-3.5 font-semibold text-[#2b466a] transition-colors hover:bg-[#f7fbff]"
-              >
-                Back to home
-              </a>
-              
-            </div>
+            <p className="mt-3 text-sm leading-6 text-[#7c90aa]">
+              Your registration/setup answers are ready to send to the backend
+              when the API integration is connected.
+            </p>
+
+            <Link
+              to="/login"
+              className="mt-7 inline-flex rounded-2xl bg-[#2f6feb] px-7 py-3 text-sm font-bold text-white hover:bg-[#255ed0]"
+            >
+              Go to login
+            </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="mx-auto max-w-3xl">
-            <PageTitle title={currentStepDefinition.title} subtitle={currentStepDefinition.subtitle} />
+          <form onSubmit={handleSubmit}>
+            <PageTitle
+              title={currentStepDefinition.title}
+              subtitle={currentStepDefinition.subtitle}
+            />
+
             {renderCurrentStep()}
+
             <FooterNav
-              showBack={step > 0}
-              nextLabel={step === visibleSteps.length - 1 ? "Complete Registration" : "Next"}
+              showBack={true}
+              nextLabel={
+                step === visibleSteps.length - 1
+                  ? "Complete Registration"
+                  : "Next"
+              }
               nextDisabled={!isCurrentStepValid}
               onBack={goBack}
             />
           </form>
         )}
-      </div>
+      </section>
     </main>
   );
 }
