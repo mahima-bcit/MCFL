@@ -2,14 +2,17 @@ import { Navigate } from "react-router-dom";
 import RootLayout from "./components/layout/RootLayout";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import ParentsFeedback from "./pages/ParentFeedback";
 import DashboardPage from "./pages/DashboardPage";
 import GamePage from "./pages/GamePage";
 import MoneyPage from "./pages/MoneyPage";
 import FeedbackPage from "./pages/FeedbackPage";
 import MoneyPicture from "./pages/MoneyPicture";
+import ProfileSetupFlow from "./pages/ProfileSetupFlow";
 import GameMoneyPage from "./pages/GameMoneyPage";
 import RealMoneyPage from "./pages/RealMoneyPage";
+import TransactionPage from "./pages/TransactionsPage";
 
 import AdminOverviewPage from "./pages/admin/AdminOverviewPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
@@ -19,8 +22,6 @@ import AdminScenariosPage from "./pages/admin/AdminScenariosPage";
 import AdminManageScenariosPage from "./pages/admin/AdminManageScenariosPage";
 import AdminAccessControlPage from "./pages/admin/AdminAccessControlPage";
 
-import TransactionPage from "./pages/TransactionsPage";
-
 export default [
     {
         path: "/",
@@ -28,6 +29,8 @@ export default [
         children: [
             { index: true, element: <Index /> },
             { path: "login", element: <Login /> },
+            { path: "signup", element: <Signup /> },
+            { path: "profile-setup", element: <ProfileSetupFlow /> },
             { path: "parentFeedback", element: <ParentsFeedback /> },
         ],
     },
@@ -39,7 +42,7 @@ export default [
     { path: "/moneyPicture", element: <MoneyPicture /> },
     { path: "/game-money", element: <GameMoneyPage /> },
     { path: "/real-money", element: <RealMoneyPage /> },
-    { path: "real-money/transactions", element: <TransactionPage /> },
+    { path: "/real-money/transactions", element: <TransactionPage /> },
 
     {
         path: "/admin",
