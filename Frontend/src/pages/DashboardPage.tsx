@@ -30,6 +30,7 @@ const sampleDashboardData: DashboardData = {
   },
   parentFeedback: {
     name: "Alex Rivera",
+    token: "sample-token",
     link: "http://localhost:5173/parentFeedback?username=Alex%20Rivera",
   },
   recentScenario: {
@@ -81,7 +82,7 @@ export default function DashboardPage() {
   const [dashboardData, setDashboardData] =
     useState<DashboardData>(sampleDashboardData);
 
-  const LOGO_SRC = "/MCFL.png?v=3";
+  const LOGO_SRC = "/MCFL.png";
 
   useEffect(() => {
     let isCancelled = false;
@@ -167,6 +168,12 @@ export default function DashboardPage() {
     100,
     Math.max(0, dashboardData.confidence),
   );
+
+  const parentFeedbackToken =
+  dashboardData.parentFeedback.token || "sample-token";
+  const parentFeedbackUrl = `${window.location.origin}/parentFeedback?token=${encodeURIComponent(
+  parentFeedbackToken,
+  )}`;
 
   return (
     <div className="dashboard-page">
@@ -264,13 +271,13 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="scenario-banner-actions">
-                  <button
-                    type="button"
+                  <Link
+                    to="/game-money"
                     className="scenario-banner-button"
-                    onClick={openGameZoneTab}
+                    onClick={closeMobileMenu}
                   >
                     Start Scenario
-                  </button>
+                  </Link>
                 </div>
               </section>
 
@@ -313,21 +320,21 @@ export default function DashboardPage() {
                     </div>
                   </article>
 
-                  <button
-                    type="button"
-                    className="stat-card picture-link-card"
-                    onClick={openGameZoneTab}
-                  >
-                    <div className="stat-body">
-                      <span className="stat-label">Game Money Picture</span>
-                      <p className="picture-summary-text">
-                        View your Want, Need, Fun, Save breakdown
-                      </p>
-                      <span className="picture-link-text">
-                        Open Game Zone →
-                      </span>
-                    </div>
-                  </button>
+                  <Link
+                  to="/game-money"
+                  className="stat-card picture-link-card"
+                  onClick={closeMobileMenu}
+                >
+                  <div className="stat-body">
+                    <span className="stat-label">Game Money Picture</span>
+                    <p className="picture-summary-text">
+                      View your Want, Need, Fun, Save breakdown
+                    </p>
+                    <span className="picture-link-text">
+                      Open Game Money →
+                    </span>
+                  </div>
+                </Link>
                 </div>
               </section>
 
@@ -437,7 +444,7 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="feedback-link-box">
-                      {dashboardData.parentFeedback.link}
+                      {parentFeedbackUrl}
                     </div>
 
                     
@@ -465,9 +472,13 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="scenario-banner-actions">
-                  <button type="button" className="scenario-banner-button">
+                  <Link
+                    to="/game-money"
+                    className="scenario-banner-button"
+                    onClick={closeMobileMenu}
+                  >
                     Start Scenario
-                  </button>
+                  </Link>
                 </div>
               </section>
 
@@ -620,11 +631,11 @@ export default function DashboardPage() {
               Dashboard
             </button>
 
-            <Link to="/game-zone" className="dashboard-nav-link">
+            <Link to="/game-money" className="footer-link">
               Game Money
             </Link>
 
-            <Link to="/money" className="footer-link">
+            <Link to="/real-money" className="footer-link">
               Real Money
             </Link>
 

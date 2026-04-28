@@ -27,6 +27,7 @@ export type DashboardData = {
 
   parentFeedback: {
     name: string;
+    token?: string;
     link: string;
   };
 
