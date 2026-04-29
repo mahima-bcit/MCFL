@@ -141,11 +141,11 @@
   animation: bounceSlow 1.8s infinite ease-in-out;
 }
 
-#spin-btn {
+/* #spin-btn {
   margin: 2em 2em 0;
   position: relative;
   width: 30%;
-}
+} */
 
 .circle-shadow {
   width: 100%;
