@@ -21,6 +21,7 @@ import AdminParentFeedbackPage from "./pages/admin/AdminParentFeedbackPage";
 import AdminScenariosPage from "./pages/admin/AdminScenariosPage";
 import AdminManageScenariosPage from "./pages/admin/AdminManageScenariosPage";
 import AdminAccessControlPage from "./pages/admin/AdminAccessControlPage";
+import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 
 export default [
     {
@@ -55,6 +56,7 @@ export default [
             { path: "scenarios", element: <AdminScenariosPage /> },
             { path: "scenarios/manage", element: <AdminManageScenariosPage /> },
             { path: "access-control", element: <AdminAccessControlPage /> },
+            { path: "settings", element: <AdminSettingsPage /> },
         ],
     },
 ];

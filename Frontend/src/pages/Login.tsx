@@ -6,6 +6,7 @@ import { apiFetch } from "../services/apiClient";
 type LoginResponse = {
   token: string;
   role: string;
+  mustChangePassword: boolean;
 };
 
 export default function Login() {
@@ -36,7 +37,9 @@ export default function Login() {
       storage.setItem("role", data.role);
 
       if (data.role === "Admin") {
-        navigate("/admin/overview");
+        navigate(
+          data.mustChangePassword ? "/admin/settings" : "/admin/overview",
+        );
       } else {
         navigate("/dashboard");
       }
