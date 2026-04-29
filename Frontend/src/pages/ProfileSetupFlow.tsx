@@ -46,6 +46,12 @@ type ProfileSetupData = {
   learningGoalText: string;
 };
 
+type ParentAuthorizationErrors = {
+  parentAuthorized?: string;
+  parentGuardianName?: string;
+  parentGuardianEmail?: string;
+};
+
 type StepDefinition = {
   key: "parent-auth" | "financial" | "beliefs" | "parents-taught" | "learning-goals";
   title: string;
@@ -128,7 +134,13 @@ const setupSteps: StepDefinition[] = [
 
 const optionBaseClass =
   "rounded-2xl border border-[#d7e6f3] bg-[#f7fbff] px-5 py-3 text-[15px] font-medium text-[#264a74] transition-all duration-200";
-const API_BASE_URL = ""; // old default: https://localhost:7001
+const API_BASE_URL = "";
+
+const pageFontClass = "font-sans";
+const pageTitleClass =
+  "font-sans text-[1.55rem] font-black leading-tight tracking-[-0.04em] text-black md:text-[2rem]";
+const subtitleClass = "font-sans mt-2 text-sm text-[#7c90aa] md:text-base";
+const fieldLabelClass = "font-sans mb-3 block text-sm font-bold text-black";
 
 type RegisterResponse = {
   token: string;
@@ -143,8 +155,6 @@ function readRegistrationDraft(): RegistrationDraft | null {
     return null;
   }
 }
-
-
 
 function ArrowLeftIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
@@ -167,10 +177,8 @@ function ArrowRightIcon({ className = "h-5 w-5" }: { className?: string }) {
 function PageTitle({ title, subtitle }: Pick<StepDefinition, "title" | "subtitle">) {
   return (
     <header className="mb-7">
-      <h1 className="text-[1.55rem] font-black leading-tight tracking-[-0.04em] text-[#153c73] md:text-[2rem]">
-        {title}
-      </h1>
-      <p className="mt-2 text-sm text-[#7c90aa] md:text-base">{subtitle}</p>
+      <h1 className={pageTitleClass}>{title}</h1>
+      <p className={subtitleClass}>{subtitle}</p>
     </header>
   );
 }
@@ -184,7 +192,13 @@ function StepCard({ children, className = "" }: { children: React.ReactNode; cla
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <label className="mb-3 block text-sm font-bold text-[#153c73]">{children}</label>;
+  return <label className={fieldLabelClass}>{children}</label>;
+}
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+
+  return <p className="mt-2 text-xs font-semibold text-[#c53030]">{message}</p>;
 }
 
 function TextField({ value, placeholder, onChange }: { value: string; placeholder: string; onChange: (nextValue: string) => void }) {
@@ -192,7 +206,7 @@ function TextField({ value, placeholder, onChange }: { value: string; placeholde
     <input
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-12 w-full rounded-2xl border border-[#dce6ef] bg-[#f7fbff] px-4 text-sm text-[#1f3a60] outline-none transition-all placeholder:text-[#9aa9bc] focus:border-[#5c7cff] focus:bg-white focus:ring-4 focus:ring-[#5c7cff]/10"
+      className="h-12 w-full rounded-2xl border border-[#dce6ef] bg-[#f7fbff] px-4 text-sm text-[#1f3a60] outline-none transition-all placeholder:text-[#9aa9bc] focus:border-[#6fbf9a] focus:bg-white focus:shadow-[0_0_8px_rgba(111,191,154,0.9)]"
       placeholder={placeholder}
     />
   );
@@ -204,7 +218,7 @@ function LargeTextarea({ value, placeholder, rows = 6, onChange }: { value: stri
       value={value}
       rows={rows}
       onChange={(event) => onChange(event.target.value)}
-      className="w-full resize-none rounded-2xl border border-[#dce6ef] bg-[#f7fbff] px-4 py-4 text-sm leading-7 text-[#1f3a60] outline-none transition-all placeholder:text-[#9aa9bc] focus:border-[#5c7cff] focus:bg-white focus:ring-4 focus:ring-[#5c7cff]/10"
+      className="w-full resize-none rounded-2xl border border-[#dce6ef] bg-[#f7fbff] px-4 py-4 text-sm leading-7 text-[#1f3a60] outline-none transition-all placeholder:text-[#9aa9bc] focus:border-[#6fbf9a] focus:bg-white focus:shadow-[0_0_8px_rgba(111,191,154,0.9)]"
       placeholder={placeholder}
     />
   );
@@ -217,7 +231,7 @@ function TogglePill({ active, children, onClick }: { active: boolean; children: 
       onClick={onClick}
       className={`${optionBaseClass} ${
         active
-          ? "border-[#7e8cff] bg-[#eef1ff] text-[#153c73] shadow-[0_0_15px_rgba(101,116,255,0.4)]"
+          ? "border-[#6fbf9a] bg-[#eefaf5] text-[#153c73] shadow-[0_0_8px_rgba(111,191,154,0.9)]"
           : "hover:border-[#bfd2ea] hover:bg-white"
       }`}
     >
@@ -242,10 +256,10 @@ function FooterNav({ showBack, nextLabel, nextDisabled, onBack }: { showBack: bo
         type="submit"
         disabled={nextDisabled}
         className={`inline-flex min-w-[220px] items-center justify-center gap-2 rounded-2xl px-8 py-4 text-sm font-semibold transition-all ${
-          nextDisabled
-            ? "bg-[#d8e3ee] text-[#9aa9bc]"
-            : "bg-[#d8e3ee] text-[#5b6f87] hover:bg-[#cad8e6]"
-        } md:min-w-[320px]`}
+        nextDisabled
+        ? "bg-[#d8e3ee] text-[#9aa9bc]"
+         : "bg-[#21A879] text-white shadow-[0_10px_24px_rgba(33,168,121,0.24)] hover:bg-[#1c9169]"
+      } md:min-w-[320px]`}
       >
         {nextLabel}
         <ArrowRightIcon className="h-4 w-4" />
@@ -267,6 +281,7 @@ export default function ProfileSetupFlow() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [formData, setFormData] = useState<ProfileSetupData>(initialData);
+  const [parentAuthorizationErrors, setParentAuthorizationErrors] = useState<ParentAuthorizationErrors>({});
 
   const currentStepDefinition = visibleSteps[step] ?? visibleSteps[0];
 
@@ -291,6 +306,27 @@ export default function ProfileSetupFlow() {
     }
   }, [currentStepDefinition.key, formData]);
 
+  function validateParentAuthorizationStep() {
+    const errors: ParentAuthorizationErrors = {};
+
+    if (!formData.parentAuthorized) {
+      errors.parentAuthorized =
+        "You must confirm that a parent or guardian has authorized this player to continue.";
+    }
+
+    if (formData.parentGuardianName.trim().length === 0) {
+      errors.parentGuardianName = "Parent or guardian name is required.";
+    }
+
+    if (formData.parentGuardianEmail.trim().length === 0) {
+      errors.parentGuardianEmail = "Parent or guardian email is required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.parentGuardianEmail)) {
+      errors.parentGuardianEmail = "Please enter a valid parent or guardian email address.";
+    }
+
+    return errors;
+  }
+
   function updateBelief(key: BeliefKey, value: BeliefAnswer) {
     setFormData((current) => ({ ...current, beliefs: { ...current.beliefs, [key]: value } }));
   }
@@ -307,7 +343,18 @@ export default function ProfileSetupFlow() {
     event.preventDefault();
     setSubmitError("");
 
-    if (!isCurrentStepValid || isSubmitting) return;
+    if (isSubmitting) return;
+
+    if (currentStepDefinition.key === "parent-auth") {
+      const errors = validateParentAuthorizationStep();
+      setParentAuthorizationErrors(errors);
+
+      if (Object.keys(errors).length > 0) {
+        return;
+      }
+    } else if (!isCurrentStepValid) {
+      return;
+    }
 
     if (step !== visibleSteps.length - 1) {
       setStep((current) => current + 1);
@@ -392,20 +439,43 @@ export default function ProfileSetupFlow() {
           <input
             type="checkbox"
             checked={formData.parentAuthorized}
-            onChange={(event) => setFormData((current) => ({ ...current, parentAuthorized: event.target.checked }))}
+            onChange={(event) => {
+              setFormData((current) => ({ ...current, parentAuthorized: event.target.checked }));
+              setParentAuthorizationErrors((current) => ({ ...current, parentAuthorized: undefined }));
+            }}
             className="mt-1 h-4 w-4 rounded border-[#bcc9d8] accent-[#1d2b39]"
           />
-          <span className="text-sm leading-6 text-[#2b466a]">I confirm that a parent or guardian has authorized this player to continue.</span>
+          <span className="text-sm leading-6 text-[#2b466a]">
+            I confirm that a parent or guardian has authorized this player to continue.
+          </span>
         </label>
+        <FieldError message={parentAuthorizationErrors.parentAuthorized} />
 
         <div className="mt-6 space-y-5">
           <div>
             <FieldLabel>Parent / guardian name</FieldLabel>
-            <TextField value={formData.parentGuardianName} placeholder="Parent or guardian name" onChange={(nextValue) => setFormData((current) => ({ ...current, parentGuardianName: nextValue }))} />
+            <TextField
+              value={formData.parentGuardianName}
+              placeholder="Parent or guardian name"
+              onChange={(nextValue) => {
+                setFormData((current) => ({ ...current, parentGuardianName: nextValue }));
+                setParentAuthorizationErrors((current) => ({ ...current, parentGuardianName: undefined }));
+              }}
+            />
+            <FieldError message={parentAuthorizationErrors.parentGuardianName} />
           </div>
+
           <div>
             <FieldLabel>Parent / guardian email</FieldLabel>
-            <TextField value={formData.parentGuardianEmail} placeholder="parent@example.com" onChange={(nextValue) => setFormData((current) => ({ ...current, parentGuardianEmail: nextValue }))} />
+            <TextField
+              value={formData.parentGuardianEmail}
+              placeholder="parent@example.com"
+              onChange={(nextValue) => {
+                setFormData((current) => ({ ...current, parentGuardianEmail: nextValue }));
+                setParentAuthorizationErrors((current) => ({ ...current, parentGuardianEmail: undefined }));
+              }}
+            />
+            <FieldError message={parentAuthorizationErrors.parentGuardianEmail} />
           </div>
         </div>
       </StepCard>
@@ -490,7 +560,7 @@ export default function ProfileSetupFlow() {
                 type="button"
                 onClick={() => setFormData((current) => ({ ...current, learningGoals: isSelected ? current.learningGoals.filter((item) => item !== goal) : [...current.learningGoals, goal] }))}
                 className={`${optionBaseClass} min-h-[58px] text-left ${index === 4 ? "md:col-span-2" : ""} ${
-                  isSelected ? "border-[#7e8cff] bg-[#eef1ff] text-[#153c73] shadow-[0_0_15px_rgba(101,116,255,0.4)]" : "hover:border-[#bfd2ea] hover:bg-white"
+                  isSelected ? "border-[#6fbf9a] bg-[#eefaf5] text-[#153c73] shadow-[0_0_8px_rgba(111,191,154,0.9)]" : "hover:border-[#bfd2ea] hover:bg-white"
                 }`}
               >
                 {goal}
@@ -534,34 +604,38 @@ export default function ProfileSetupFlow() {
   }
 
   return (
-      <section className="mx-auto max-w-3xl px-5 py-10 md:px-8 md:py-12">
-        {submitted ? (
-          <div className="mx-auto rounded-[32px] border border-[#edf1f6] bg-white p-8 text-center shadow-[0_16px_38px_rgba(23,42,79,0.08)]">
-            <h1 className="text-[2rem] font-black tracking-[-0.04em] text-[#153c73]">Registration complete</h1>
-            <p className="mt-3 text-sm leading-6 text-[#7c90aa]">
-              Your account and profile setup answers were saved successfully.
-            </p>
-            <Link to="/login" className="mt-7 inline-flex rounded-2xl bg-[#2f6feb] px-7 py-3 text-sm font-bold text-white hover:bg-[#255ed0]">
-              Go to login
-            </Link>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            <PageTitle title={currentStepDefinition.title} subtitle={currentStepDefinition.subtitle} />
-            {renderCurrentStep()}
-            {submitError && (
-              <div className="mt-5 rounded-2xl border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 text-sm font-semibold text-[#b42318]">
-                {submitError}
-              </div>
-            )}
-            <FooterNav
-              showBack={true}
-              nextLabel={step === visibleSteps.length - 1 ? (isSubmitting ? "Creating account..." : "Complete Registration") : "Next"}
-              nextDisabled={!isCurrentStepValid || isSubmitting}
-              onBack={goBack}
-            />
-          </form>
-        )}
-      </section>
+    <section className={`mx-auto max-w-3xl px-5 py-10 md:px-8 md:py-12 ${pageFontClass}`}>
+      {submitted ? (
+        <div className="mx-auto rounded-[32px] border border-[#edf1f6] bg-white p-8 text-center shadow-[0_16px_38px_rgba(23,42,79,0.08)]">
+          <h1 className="font-sans text-[2rem] font-black tracking-[-0.04em] text-black">Registration complete</h1>
+          <p className="mt-3 text-sm leading-6 text-[#7c90aa]">
+            Your account and profile setup answers were saved successfully.
+          </p>
+          <Link to="/login" className="mt-7 inline-flex rounded-2xl bg-[#21A879] px-7 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(33,168,121,0.24)] hover:bg-[#1c9169]">
+            Go to login
+          </Link>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <PageTitle title={currentStepDefinition.title} subtitle={currentStepDefinition.subtitle} />
+          {renderCurrentStep()}
+          {submitError && (
+            <div className="mt-5 rounded-2xl border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 text-sm font-semibold text-[#b42318]">
+              {submitError}
+            </div>
+          )}
+          <FooterNav
+            showBack={true}
+            nextLabel={step === visibleSteps.length - 1 ? (isSubmitting ? "Creating account..." : "Complete Registration") : "Next"}
+            nextDisabled={
+              currentStepDefinition.key === "parent-auth"
+                ? isSubmitting
+                : !isCurrentStepValid || isSubmitting
+            }
+            onBack={goBack}
+          />
+        </form>
+      )}
+    </section>
   );
 }
