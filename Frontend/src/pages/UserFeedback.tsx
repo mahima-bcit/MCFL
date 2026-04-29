@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../services/apiClient";
 
-type FeedbackCategory = "General" | "Bug Report" | "Feature Idea" | "Scenario";
+type FeedbackCategory = "General" | "Bug Report" | "Feature Idea" | "Scenario" |"Others";
 
 interface FeedbackFormData {
   category: FeedbackCategory;
@@ -18,6 +18,7 @@ const CATEGORIES: FeedbackCategory[] = [
   "Bug Report",
   "Feature Idea",
   "Scenario",
+  "Others"
 ];
 
 const ErrorIcon = () => (

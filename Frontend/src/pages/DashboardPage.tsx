@@ -235,7 +235,7 @@ export default function DashboardPage() {
               </Link>
 
               <Link
-                to="/feedback"
+                to="/userFeedback"
                 className="dashboard-nav-link"
                 onClick={closeMobileMenu}
               >
