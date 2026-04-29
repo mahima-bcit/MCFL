@@ -18,7 +18,7 @@ namespace MCFL.API.Data.Seed
 
         public async Task SeedAsync()
         {
-            var minorEmails = new[] { "mahima@mcfl.local", "susie@mcfl.local" };
+            var minorEmails = new[] { "mahima@mcfl.local", "saman@mcfl.local", "harry@mcfl.local" };
 
             foreach (var email in minorEmails)
             {
@@ -30,8 +30,20 @@ namespace MCFL.API.Data.Seed
                 {
                     consent = new ParentConsent
                     {
-                        ParentName = email.StartsWith("mahima") ? "Maria Carter" : "Kevin Lee",
-                        ParentEmail = email.StartsWith("mahima") ? "maria.parent@mcfl.local" : "kevin.parent@mcfl.local",
+                        ParentName = email switch
+                        {
+                            "mahima@mcfl.local" => "Maria Carter",
+                            "saman@mcfl.local" => "Kevin Lee",
+                            "harry@mcfl.local" => "Nina Brooks",
+                            _ => "Parent Guardian"
+                        },
+                        ParentEmail = email switch
+                        {
+                            "mahima@mcfl.local" => "maria.parent@mcfl.local",
+                            "saman@mcfl.local" => "kevin.parent@mcfl.local",
+                            "harry@mcfl.local" => "nina.parent@mcfl.local",
+                            _ => "parent@mcfl.local"
+                        },
                         ConsentGiven = user.ParentConsentReceived,
                         ConsentGivenAt = user.ParentConsentReceived ? DateTime.UtcNow.AddDays(-20) : null,
                         CreatedAt = DateTime.UtcNow.AddDays(-20),

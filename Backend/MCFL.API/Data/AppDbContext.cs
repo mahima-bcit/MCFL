@@ -1,30 +1,34 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using MCFL.API.Models;
-using Microsoft.AspNetCore.Identity;
 using MCFL.API.Models.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace MCFL.API.Data;
 
-public class AppDbContext : IdentityDbContext<Models.Identity.ApplicationUser>
+public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, string>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    public DbSet<UserGameStat> UserGameStats { get; set; } = null!;
-    public DbSet<MoneyEntry> MoneyEntries { get; set; } = null!;
-    public DbSet<UserFeedback> UserFeedbacks { get; set; } = null!;
-    public DbSet<MoneyFeelingSubmission> MoneyFeelingSubmissions { get; set; } = null!;
     public DbSet<CashInCategory> CashInCategories { get; set; } = null!;
     public DbSet<CashOutCategory> CashOutCategories { get; set; } = null!;
-    public DbSet<SavingsGoal> SavingsGoals { get; set; } = null!;
-    public DbSet<UserProfile> UserProfiles { get; set; } = null!;
-    public DbSet<RegistrationAllowList> RegistrationAllowLists { get; set; } = null!;
-    public DbSet<ParentConsent> ParentConsents { get; set; } = null!;
+    public DbSet<MoneyEntry> MoneyEntries { get; set; } = null!;
+    public DbSet<MoneyFeelingSubmission> MoneyFeelingSubmissions { get; set; } = null!;
     public DbSet<ParentAccessLink> ParentAccessLinks { get; set; } = null!;
+    public DbSet<ParentConsent> ParentConsents { get; set; } = null!;
     public DbSet<ParentFeedback> ParentFeedbacks { get; set; } = null!;
+    public DbSet<RegistrationAllowList> RegistrationAllowLists { get; set; } = null!;
+    public DbSet<LearningSavingsGoal> LearningSavingsGoals { get; set; } = null!;
     public DbSet<Scenario> Scenarios { get; set; } = null!;
-    public DbSet<ScenarioPlay> ScenarioPlays { get; set; } = null!;
     public DbSet<ScenarioChoice> ScenarioChoices { get; set; } = null!;
+    public DbSet<ScenarioPlay> ScenarioPlays { get; set; } = null!;
+    public DbSet<UserFeedback> UserFeedbacks { get; set; } = null!;
+    public DbSet<UserFeedbackType> UserFeedbackTypes { get; set; } = null!;
+    public DbSet<UserGameStat> UserGameStats { get; set; } = null!;
+    public DbSet<UserProfile> UserProfiles { get; set; } = null!;
+    public DbSet<LearningTopic> LearningTopics { get; set; } = null!;
+    public DbSet<UserLearningPreference> UserLearningPreferences { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -68,6 +72,18 @@ public class AppDbContext : IdentityDbContext<Models.Identity.ApplicationUser>
             .HasForeignKey<UserProfile>(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<UserLearningPreference>()
+            .HasOne(x => x.UserProfile)
+            .WithMany(x => x.UserLearningPreferences)
+            .HasForeignKey(x => x.UserProfileId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserLearningPreference>()
+            .HasOne(x => x.LearningTopic)
+            .WithMany(x => x.UserLearningPreferences)
+            .HasForeignKey(x => x.LearningTopicId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<ParentConsent>()
             .HasOne(x => x.User)
             .WithOne()
@@ -81,7 +97,7 @@ public class AppDbContext : IdentityDbContext<Models.Identity.ApplicationUser>
             .OnDelete(DeleteBehavior.Cascade);
 
         // One-to-many tables
-        modelBuilder.Entity<SavingsGoal>()
+        modelBuilder.Entity<LearningSavingsGoal>()
             .HasOne(x => x.User)
             .WithMany()
             .HasForeignKey(x => x.UserId)
@@ -92,6 +108,12 @@ public class AppDbContext : IdentityDbContext<Models.Identity.ApplicationUser>
             .WithMany()
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserFeedback>()
+            .HasOne(x => x.UserFeedbackType)
+            .WithMany(x => x.UserFeedbacks)
+            .HasForeignKey(x => x.UserFeedbackTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<MoneyFeelingSubmission>()
             .HasOne(x => x.User)
@@ -170,7 +192,7 @@ public class AppDbContext : IdentityDbContext<Models.Identity.ApplicationUser>
                 "CK_ParentConsent_ConsentGivenAt",
                 "(consentGiven = 0 AND consentGivenAt IS NULL) OR (consentGiven = 1 AND consentGivenAt IS NOT NULL)"));
 
-        modelBuilder.Entity<SavingsGoal>()
+        modelBuilder.Entity<LearningSavingsGoal>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_SavingsGoal_Amounts",
                 "targetAmount >= 0 AND currentSavedAmount >= 0"));
