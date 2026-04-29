@@ -121,12 +121,20 @@ export default function GameMoneyPage() {
 
   async function handleSaveFeeling() {
     if (!feeling) {
+      alert("Please choose how you feel first.");
       return;
     }
 
     try {
       await saveGameMoneyFeeling({ feeling });
-      alert("Feeling saved.");
+
+      if (feeling === "Good") {
+        alert("Congratulations! You are moving on to the next level 🎉");
+      } else if (feeling === "Unsure") {
+        alert("That is okay. You are still learning, and every step helps you understand your money better.");
+      } else if (feeling === "Worried") {
+        alert("Thanks is okay. Take a breath and give it a second thought, review your money picture, and choose one small next step.");
+      }
     } catch (error) {
       console.error("Could not save feeling.", error);
       alert("Could not save feeling. Please try again.");

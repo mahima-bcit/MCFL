@@ -503,3 +503,33 @@
     color: #51679a;
   }
 }
+
+@media (min-width: 901px) {
+  .money-app-header-inner {
+    width: min(100%, 1440px);
+    margin: 0 auto;
+    padding: 28px 48px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 36px;
+  }
+
+  .money-app-menu {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 26px;
+  }
+
+  .money-app-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 26px;
+  }
+
+  .money-app-logout {
+    margin-left: 0;
+  }
+}

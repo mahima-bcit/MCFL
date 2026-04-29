@@ -100,6 +100,8 @@ export default function RealMoneyPage() {
         comment,
       });
 
+      alert("You successfully added a new entry!");
+
       setAmount("");
       setComment("");
 
@@ -314,7 +316,7 @@ export default function RealMoneyPage() {
               <h2>Recent Entries</h2>
 
               <div className="recent-entry-list">
-                {summary.entries.map((entry: RealMoneyEntry) => (
+                {summary.entries.slice(0, 5).map((entry: RealMoneyEntry) => (
                   <div key={entry.id} className="recent-entry">
                     <div>
                       <strong>
