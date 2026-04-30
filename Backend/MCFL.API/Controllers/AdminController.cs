@@ -40,9 +40,9 @@ namespace MCFL.API.Controllers
         }
 
         [HttpGet("users")]
-        public async Task<ActionResult<List<AdminUserListItemDto>>> GetUsers()
+        public async Task<ActionResult<List<AdminUserListItemDto>>> GetUsers([FromQuery] string? search = null)
         {
-            var users = await _adminService.GetUsersAsync();
+            var users = await _adminService.GetUsersAsync(search);
             return Ok(users);
         }
 
