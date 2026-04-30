@@ -71,7 +71,6 @@ export default function MoneyPicture() {
       .filter((entry) => entry.type === "cashOut" && entry.category === "Save")
       .reduce((sum, entry) => sum + entry.amount, 0);
 
-    const have = Math.max(totalCashIn - totalCashOut, 0);
     const net = totalCashIn - totalCashOut;
 
     return {

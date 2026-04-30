@@ -44,7 +44,7 @@ export default function Hero() {
         {/* ── Left: Text content ── */}
         <div className="animate-fade-up text-center md:text-left">
           <div className="flex justify-center md:justify-start">
-            <Badge icon={<UserIcon />}>Build confidence with money</Badge>
+            <Badge icon={<UserIcon />}>Level Up Your Future</Badge>
           </div>
 
           {/* Heading: smaller on mobile, larger on desktop */}

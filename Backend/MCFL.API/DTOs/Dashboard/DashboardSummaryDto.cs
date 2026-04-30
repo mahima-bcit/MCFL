@@ -2,9 +2,9 @@ namespace MCFL.API.DTOs.Dashboard;
 
 public class DashboardSummaryDto
 {
-    public string FeaturedTitle { get; set; } = "Try a 2-minute scenario";
+    public string FeaturedTitle { get; set; } = "Try a 2-minute scenario!";
     public string FeaturedDescription { get; set; } =
-        "Practice a quick money decision and build confidence one small step at a time.";
+        "Spin the wheel and see how you'd handle a money decision.";
 
     public decimal GameBalance { get; set; }
     public int Confidence { get; set; }
@@ -12,6 +12,7 @@ public class DashboardSummaryDto
     public decimal GoalCurrent { get; set; }
     public decimal GoalTarget { get; set; }
     public string GoalDueLabel { get; set; } = "No target date";
+    public string GoalTitle { get; set; } = string.Empty;
 
     public decimal MonthlyNet { get; set; }
 
