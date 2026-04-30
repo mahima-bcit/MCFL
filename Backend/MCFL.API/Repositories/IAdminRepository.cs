@@ -14,7 +14,7 @@ namespace MCFL.API.Repositories
         Task<int> CountPositiveConfidenceScenarioPlaysInRangeAsync(DateTime dateFrom, DateTime dateToExclusive);
         Task<List<DateTime>> GetProfileCreatedDatesInRangeAsync(DateTime dateFrom, DateTime dateToExclusive);
 
-        Task<List<AdminUserListProjection>> GetUserListAsync();
+        Task<List<AdminUserListProjection>> GetUserListAsync(string? search);
         Task<AdminUserDetailProjection?> GetUserDetailAsync(string userId);
 
         Task<List<AdminUserFeedbackProjection>> GetUserFeedbackAsync(
