@@ -149,13 +149,19 @@ namespace MCFL.API.Data.Seed
                     _context.MoneyFeelingSubmissions.AddRange(
                         new MoneyFeelingSubmission
                         {
-                            Feeling = "Confident",
+                            Feeling = "Good",
                             SubmittedAt = DateTime.UtcNow.AddDays(-6),
                             UserId = user.Id
                         },
                         new MoneyFeelingSubmission
                         {
-                            Feeling = "Curious",
+                            Feeling = "Worried",
+                            SubmittedAt = DateTime.UtcNow.AddDays(-4),
+                            UserId = user.Id
+                        },
+                        new MoneyFeelingSubmission
+                        {
+                            Feeling = "Unsure",
                             SubmittedAt = DateTime.UtcNow.AddDays(-2),
                             UserId = user.Id
                         });

@@ -76,10 +76,9 @@ public class RealMoneyController : ControllerBase
             .Include(entry => entry.CashOutCategory)
             .Where(entry => entry.UserId == userId)
             .OrderByDescending(entry => entry.CreatedAt)
-            .Select(entry => ToEntryResponse(entry))
             .ToListAsync();
 
-        return Ok(entries);
+        return Ok(entries.Select(ToEntryResponse).ToList());
     }
 
     [HttpPost("entries")]

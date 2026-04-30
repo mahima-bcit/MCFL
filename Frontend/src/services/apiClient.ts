@@ -1,4 +1,7 @@
-const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? "/api").replace(
+  /\/$/,
+  "",
+);
 
 type ApiRequestOptions = RequestInit;
 
@@ -35,6 +38,8 @@ export async function apiFetch<T>(
     if (response.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("role");
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("role");
     }
 
     const message = await response.text();

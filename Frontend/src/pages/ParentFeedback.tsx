@@ -85,7 +85,7 @@ const ParentsFeedback: React.FC = () => {
     setSubmitError(null);
 
     try {
-      await apiFetch("/api/ParentFeedback", {
+      await apiFetch("/ParentFeedback", {
         method: "POST",
         body: JSON.stringify({
           parentEmail: formData.email,

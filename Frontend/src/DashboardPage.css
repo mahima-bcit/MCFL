@@ -11,7 +11,7 @@
 .dashboard-content {
   max-width: 1240px;
   margin: 0 auto;
-  padding: 28px 24px 40px;
+  padding: 18px 14px 28px;
 }
 
 .dashboard-header,
@@ -26,23 +26,39 @@
 
 .dashboard-header-inner,
 .dashboard-footer-inner {
-  max-width: 1240px;
+  width: min(100%, 1440px);
   margin: 0 auto;
-  padding: 20px 24px;
 }
 
 .dashboard-header-inner {
+  padding: 14px 16px;
+}
+
+.dashboard-footer-inner {
+  padding: 14px 16px;
+}
+
+
+.dashboard-header-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.dashboard-header-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  position: relative;
+  padding-bottom: 12px;
 }
 
 .dashboard-brand {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+  max-width: calc(100% - 72px);
   text-decoration: none;
   color: inherit;
   min-width: 0;
@@ -50,22 +66,23 @@
 
 .dashboard-brand-logo,
 .footer-logo-box {
-  width: 54px;
-  height: 54px;
-  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
   background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 .dashboard-brand-logo-image,
 .footer-brand-logo {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .dashboard-brand-logo-fallback {
@@ -79,19 +96,25 @@
   margin: 0;
   font-family: Georgia, "Times New Roman", serif;
   font-weight: 700;
-  line-height: 1.05;
+  line-height: 1.02;
+  font-size: 0.92rem;
 }
 
 .dashboard-brand-text h1 {
-  font-size: 1.1rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.02em;
 }
 
 .dashboard-brand-text p,
 .footer-brand p {
-  margin: 4px 0 0;
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.9);
+  margin-top: 3px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.72);
+  letter-spacing: 0.01em;
 }
+
 
 .dashboard-header-right {
   display: flex;
@@ -115,10 +138,18 @@
   color: #ffffff;
   text-decoration: none;
   cursor: pointer;
-  font-size: 0.98rem;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 900;
   padding: 0;
   font-family: inherit;
+  opacity: 0.9;
+}
+
+.footer-link,
+.footer-link-button {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 
 .dashboard-nav-item:hover,
@@ -130,9 +161,9 @@
 }
 
 .dashboard-nav-item-active {
-  text-decoration: underline;
-  text-underline-offset: 8px;
-  text-decoration-thickness: 2px;
+  border-bottom: 3px solid white;
+  padding-bottom: 6px;
+  opacity: 1;
 }
 
 .mobile-menu-button {
@@ -152,7 +183,7 @@
 .recent-scenario-card {
   background: #ffffff;
   border: 1px solid #cfe0d7;
-  border-radius: 26px;
+  border-radius: 22px;
   box-shadow: 0 10px 24px rgba(22, 63, 51, 0.06);
 }
 
@@ -168,56 +199,70 @@
 }
 
 .scenario-banner {
-  background: linear-gradient(135deg, #19885d, #26a47a);
+  background-image: url("/scenario-banner.png");
+  background-size: cover;
+  background-position: 60% center;
+  background-repeat: no-repeat;
   color: #ffffff;
-  border-radius: 28px;
-  padding: 30px 34px;
+  border-radius: 22px;
+  padding: 24px 20px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 34px;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  min-height: 180px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 18px 40px rgba(20, 78, 62, 0.18);
+}
+
+.scenario-banner-clickable {
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.scenario-banner-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 44px rgba(20, 78, 62, 0.24);
+}
+
+.scenario-banner-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 70%;
 }
 
 .scenario-badge {
   display: inline-flex;
   align-items: center;
-  padding: 7px 14px;
+  padding: 7px 16px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
+  background: #0ea77d;
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 900;
   font-size: 0.78rem;
   letter-spacing: 0.04em;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .scenario-banner-copy h2 {
   margin: 0 0 12px;
-  font-size: 2.1rem;
+  font-size: 1.65rem;
   font-family: Georgia, "Times New Roman", serif;
   line-height: 1.05;
+  color: #ffffff !important;
 }
 
 .scenario-banner-copy p {
   margin: 0;
-  font-size: 1.06rem;
+  font-size: 0.98rem;
   max-width: 620px;
+  color: rgba(255, 255, 255, 0.92);
 }
 
-.scenario-banner-actions {
-  flex-shrink: 0;
-}
-
+.scenario-banner-actions,
 .scenario-banner-button {
-  border: none;
-  background: #ffffff;
-  color: #173f33;
-  border-radius: 18px;
-  padding: 16px 26px;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
+  display: none;
 }
 
 .section-block {
@@ -231,7 +276,7 @@
 .section-heading h2 {
   margin: 0 0 8px;
   color: #184739;
-  font-size: 2rem;
+  font-size: 1.9rem;
   font-family: Georgia, "Times New Roman", serif;
   line-height: 1.05;
 }
@@ -239,7 +284,7 @@
 .section-heading p {
   margin: 0;
   color: #61708f;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .stats-grid {
@@ -248,21 +293,21 @@
 }
 
 .three-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
 }
 
 .two-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
 }
 
 .stat-card {
-  padding: 30px 32px;
+  padding: 22px 18px;
   text-align: left;
 }
 
 .stat-card,
 .detail-card {
-  min-height: 220px;
+  min-height: 0;
 }
 
 .stat-body {
@@ -279,7 +324,7 @@
 
 .stat-value {
   display: block;
-  font-size: 2.4rem;
+  font-size: 2rem;
   line-height: 1;
   color: #0f8f66;
   font-weight: 800;
@@ -329,13 +374,13 @@
 
 .detail-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 22px;
   margin-top: 22px;
 }
 
 .detail-card {
-  padding: 30px 32px;
+  padding: 22px 18px;
 }
 
 .detail-card-header {
@@ -346,7 +391,7 @@
 .detail-card-header h3 {
   margin: 0 0 8px;
   color: #194d3e;
-  font-size: 1.8rem;
+  font-size: 1.45rem;
   font-family: Georgia, "Times New Roman", serif;
   line-height: 1.05;
 }
@@ -369,6 +414,7 @@
   padding: 16px 0;
   border-bottom: 1px solid #e4ece7;
   color: #55627d;
+  font-size: 0.95rem;
 }
 
 .snapshot-row strong {
@@ -386,6 +432,7 @@
   text-decoration: none;
   color: #194d3e;
   font-weight: 700;
+  width: 100%;
 }
 
 .feedback-link-box {
@@ -408,18 +455,19 @@
 .game-zone-header-text h2 {
   margin: 0 0 8px;
   color: #184739;
-  font-size: 2rem;
+  font-size: 1.9rem;
   font-family: Georgia, "Times New Roman", serif;
 }
 
 .game-zone-header-text p {
   margin: 0;
   color: #61708f;
+  font-size: 0.95rem;
 }
 
 .game-zone-overview-layout {
   display: grid;
-  grid-template-columns: 0.9fr 1.6fr;
+  grid-template-columns: 1fr;
   gap: 22px;
 }
 
@@ -440,8 +488,8 @@
   display: flex;
   align-items: end;
   justify-content: space-between;
-  gap: 14px;
-  height: 240px;
+  gap: 10px;
+  height: 180px;
   padding-top: 20px;
   margin-top: 6px;
 }
@@ -464,7 +512,7 @@
 
 .mini-chart-bar {
   width: 100%;
-  max-width: 78px;
+  max-width: 54px;
   border-radius: 18px 18px 0 0;
   min-height: 20%;
 }
@@ -497,9 +545,10 @@
 }
 
 .recent-scenario-card {
-  padding: 22px 24px;
+  padding: 22px 18px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
   margin-bottom: 24px;
@@ -519,7 +568,7 @@
 
 .recent-scenario-copy h3 {
   margin: 0 0 8px;
-  font-size: 1.8rem;
+  font-size: 1.45rem;
   color: #194d3e;
   font-family: Georgia, "Times New Roman", serif;
 }
@@ -563,6 +612,8 @@
   border-radius: 999px;
   font-weight: 700;
   cursor: pointer;
+  width: 100%;
+  justify-content: center;
 }
 
 .tip-row {
@@ -571,7 +622,8 @@
   border-radius: 22px;
   padding: 18px 22px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
 }
@@ -584,7 +636,8 @@
 
 .dashboard-footer-inner {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
 }
@@ -592,7 +645,7 @@
 .footer-brand {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .footer-brand-text h3 {
@@ -600,238 +653,799 @@
 }
 
 .dashboard-footer-right {
+  width: 100%;
   display: flex;
-  align-items: center;
-  gap: 18px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
 }
 
-@media (max-width: 1024px) {
-  .three-grid,
-  .two-grid,
-  .detail-grid,
-  .game-zone-overview-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .scenario-banner,
-  .recent-scenario-card,
-  .tip-row,
-  .dashboard-footer-inner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .dashboard-footer-right {
-    flex-wrap: wrap;
-  }
-}
-
-@media (max-width: 768px) {
+@media (min-width: 769px) {
   .dashboard-content {
-    padding: 18px 14px 28px;
+    padding: 28px 24px 40px;
   }
 
-  .dashboard-header-inner,
+  .dashboard-header-inner {
+    padding: 16px 20px 0;
+  }
+
   .dashboard-footer-inner {
-    padding: 14px 16px;
+    padding: 16px 20px;
   }
 
   .dashboard-header,
   .dashboard-footer {
-    background: #173f33;
+    background: #154f3d;
   }
 
   .dashboard-brand {
-    gap: 12px;
-    max-width: calc(100% - 72px);
+    gap: 16px;
+    max-width: none;
   }
 
   .dashboard-brand-logo,
   .footer-logo-box {
-    width: 38px;
-    height: 38px;
-    border-radius: 6px;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
   }
 
   .dashboard-brand-text h1,
   .footer-brand h3 {
-    font-size: 0.92rem;
-    line-height: 1.02;
-    margin: 0;
+    font-size: 18px;
+    line-height: 1.05;
   }
 
   .dashboard-brand-text p,
   .footer-brand p {
-    font-size: 0.72rem;
-    margin-top: 3px;
-  }
-
-  .mobile-menu-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    right: 16px;
-    top: 14px;
-    width: 34px;
-    height: 34px;
-    border: none;
-    background: transparent;
-    color: #ffffff;
-    font-size: 2.2rem;
-    line-height: 1;
-    z-index: 20;
-  }
-
-  .dashboard-header-inner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  .dashboard-header-right {
-    display: none;
-    width: 100%;
-    padding-top: 12px;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-  }
-
-  .dashboard-header-right.open {
-    display: flex;
-  }
-
-  .dashboard-nav {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-    width: 100%;
-  }
-
-  .dashboard-nav-item,
-  .dashboard-nav-link,
-  .dashboard-logout-button {
-    width: 100%;
-    display: block;
-    text-align: left;
-    padding: 18px 0;
-    font-family: Georgia, "Times New Roman", serif;
-    font-weight: 700;
-    font-size: 1.08rem;
-    color: #ffffff;
-    border: none;
-    background: transparent;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    text-decoration: none;
-    border-radius: 0;
-    box-shadow: none;
-  }
-
-  .dashboard-nav-item-active {
-    text-decoration: none;
-    color: #d9efe4;
-  }
-
-  .dashboard-logout-button {
-    margin-top: 6px;
+    font-size: 12px;
+    margin: 3px 0 0;
   }
 
   .scenario-banner {
-    padding: 22px 18px;
-    border-radius: 22px;
-    margin-bottom: 24px;
-    align-items: flex-start;
+    padding: 34px 44px;
+    border-radius: 28px;
+    margin-bottom: 34px;
+    min-height: 190px;
+    background-position: center;
+  }
+
+  .scenario-banner-copy {
+    max-width: 680px;
   }
 
   .scenario-banner-copy h2 {
-    font-size: 1.6rem;
+    font-size: 2.4rem;
   }
 
   .scenario-banner-copy p {
-    font-size: 0.98rem;
-  }
-
-  .scenario-banner-actions {
-    width: 100%;
-  }
-
-  .scenario-banner-button {
-    width: 100%;
-    padding: 14px 18px;
-    font-size: 1rem;
+    font-size: 1.12rem;
   }
 
   .section-heading h2,
   .game-zone-header-text h2 {
-    font-size: 1.9rem;
+    font-size: 2rem;
   }
 
   .section-heading p,
   .game-zone-header-text p {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   .stat-card,
-  .detail-card,
+  .detail-card {
+    padding: 30px 32px;
+    border-radius: 26px;
+    min-height: 220px;
+  }
+
   .recent-scenario-card {
-    padding: 22px 18px;
-    border-radius: 22px;
-    min-height: 0;
+    padding: 22px 24px;
+    border-radius: 26px;
   }
 
   .stat-value {
-    font-size: 2rem;
+    font-size: 2.4rem;
   }
 
   .detail-card-header h3,
   .recent-scenario-copy h3 {
-    font-size: 1.45rem;
+    font-size: 1.8rem;
   }
 
   .mini-chart {
-    height: 180px;
-    gap: 10px;
+    height: 240px;
+    gap: 14px;
   }
 
   .mini-chart-bar {
-    max-width: 54px;
+    max-width: 78px;
   }
 
   .recent-scenario-button,
   .tip-link-button,
   .inline-link-button {
-    width: 100%;
-    justify-content: center;
+    width: auto;
+    justify-content: flex-start;
   }
 
   .snapshot-row {
-    font-size: 0.95rem;
-  }
-
-  .dashboard-footer-inner {
-    align-items: flex-start;
+    font-size: inherit;
   }
 
   .footer-brand {
-    align-items: center;
-    gap: 12px;
+    gap: 16px;
   }
 
   .dashboard-footer-right {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    width: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 18px;
   }
 
   .footer-link,
   .footer-link-button {
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 0.95rem;
-    font-weight: 700;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 900;
   }
 }
+
+@media (min-width: 1024px) {
+  .dashboard-header-inner {
+    padding: 20px 48px 16px;
+  }
+
+  .dashboard-footer-inner {
+    padding: 20px 48px;
+  }
+
+  .dashboard-brand-text h1 {
+    font-size: 24px;
+  }
+
+  .dashboard-brand-text p {
+    margin: 4px 0 0;
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .three-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .two-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .game-zone-overview-layout {
+    grid-template-columns: 0.9fr 1.6fr;
+  }
+
+  .scenario-banner,
+  .recent-scenario-card,
+  .tip-row {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .dashboard-footer-inner {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.dashboard-page .detail-card .detail-card-header h3,
+.detail-card .detail-card-header h3 {
+  font-size: 22px !important;
+  line-height: 1.25 !important;
+  font-weight: 900 !important;
+  color: #274e3e !important;
+  margin: 0 0 18px !important;
+  font-family: inherit !important;
+}
+
+.dashboard-page .hero-card h2,
+.dashboard-page .hero-content h2,
+.dashboard-page .featured-card h2,
+.dashboard-page .scenario-card h2,
+.dashboard-page .dashboard-hero h2 {
+  color: #ffffff;
+}
+
+.dashboard-page h2 {
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 900;
+  color: #123f35;
+  margin: 0 0 12px;
+}
+
+.dashboard-page .section-description,
+.dashboard-page .section-subtitle,
+.dashboard-page .overview-description,
+.dashboard-page .overview-subtitle {
+  font-size: 20px;
+  line-height: 1.45;
+  font-weight: 800;
+  color: #51679a;
+}
+
+.dashboard-page .stat-label {
+  font-size: 22px;
+  line-height: 1.25;
+  font-weight: 900;
+  color: #123f35;
+}
+
+.dashboard-page .stat-value {
+  font-size: 42px;
+  line-height: 1.1;
+  font-weight: 900;
+  color: #079268;
+}
+
+.dashboard-page .stat-description,
+.dashboard-page .card-description,
+.dashboard-page .money-picture-description {
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 600;
+  color: #51679a;
+}
+
+/* ── Scenario Banner: new row layout ─────────────────────────── */
+.scenario-banner {
+  background-image:
+    linear-gradient(to right, #154f3d 45%, rgba(21, 79, 61, 0.55) 70%, transparent 100%),
+    url("/scenario-banner.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 26px 22px;
+}
+
+.scenario-banner-arrow {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+/* ── Section heading row (icon + title) ──────────────────────── */
+.section-heading-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.section-heading-row h2 {
+  margin: 0 !important;
+  color: #133d30 !important;
+  font-size: 1.2rem !important;
+  font-weight: 900 !important;
+  font-family: inherit !important;
+}
+
+.section-heading-icon {
+  color: #154f3d;
+  flex-shrink: 0;
+}
+
+/* ── Stat card: icon-column layout ───────────────────────────── */
+.stat-card-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 16px 18px !important;
+}
+
+.stat-card-icon-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.stat-card-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.stat-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #edf7f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #154f3d;
+  flex-shrink: 0;
+}
+
+/* ── Star rating ─────────────────────────────────────────────── */
+.star-rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.star-filled {
+  color: #154f3d;
+}
+
+.star-empty {
+  color: #c5d8cf;
+}
+
+/* ── Wide card (full-width horizontal row card) ───────────────── */
+.wide-card {
+  background: #ffffff;
+  border: 1px solid #cfe0d7;
+  border-radius: 22px;
+  box-shadow: 0 10px 24px rgba(22, 63, 51, 0.06);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.wide-card + .section-block,
+.section-block + .wide-card {
+  margin-top: 22px;
+}
+
+.wide-card {
+  margin-bottom: 24px;
+}
+
+.wide-card-clickable {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wide-card-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(22, 63, 51, 0.1);
+}
+
+.wide-card-icon-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #edf7f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #154f3d;
+  flex-shrink: 0;
+}
+
+.wide-card-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.wide-card-text strong {
+  display: block;
+  color: #194d3e;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+
+.wide-card-text p {
+  margin: 0;
+  color: #61708f;
+  font-size: 0.92rem;
+}
+
+.wide-card-arrow {
+  color: #8da89e;
+  flex-shrink: 0;
+}
+
+/* ── Parent feedback card ────────────────────────────────────── */
+.parent-feedback-card {
+  flex-wrap: wrap;
+  row-gap: 14px;
+  align-items: center;
+}
+
+.feedback-link-pill {
+  flex: 1 1 200px;
+  min-width: 0;
+  background: #f0f9f4;
+  border: 1px solid #cfe0d7;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 0.82rem;
+  color: #194d3e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feedback-copy-btn {
+  flex-shrink: 0;
+  background: #154f3d;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.feedback-copy-btn:hover {
+  background: #1a6b52;
+}
+
+/* ── Remove forced min-height for new-layout cards ───────────── */
+.stat-card-goal,
+.stat-card-row,
+.stat-card-icon {
+  min-height: 0 !important;
+}
+
+/* ── Compact font sizes inside icon stat cards ───────────────── */
+.stat-card-icon .stat-label {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  margin-bottom: 0 !important;
+}
+
+.stat-card-icon .stat-value {
+  font-size: 1.8rem !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+  margin-bottom: 0 !important;
+}
+
+/* ── Goal card ───────────────────────────────────────────────── */
+.stat-card-goal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stat-card-goal .progress-bar {
+  margin-bottom: 0;
+}
+
+.stat-card-goal-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stat-goal-desc {
+  margin: 4px 0 0;
+  color: #61708f;
+  font-size: 0.92rem;
+}
+
+.stat-goal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  color: #61708f;
+}
+
+.stat-goal-footer span:first-child {
+  font-weight: 700;
+  color: #184739;
+}
+
+/* ── Loading placeholder ─────────────────────────────────────── */
+.dashboard-loading {
+  padding: 60px 24px;
+  text-align: center;
+  color: #61708f;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* ── Two-grid: 2 columns at 600px+ ───────────────────────────── */
+@media (min-width: 600px) {
+  .two-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ── Scenario banner: show wheel on desktop ───────────────────── */
+@media (min-width: 769px) {
+  .scenario-banner {
+    padding: 30px 36px;
+  }
+
+  .scenario-banner-wheel {
+    display: block;
+    width: 150px;
+    height: 150px;
+  }
+}
+
+/* ── Compact padding for new-layout stat cards ───────────────── */
+@media (min-width: 769px) {
+  .stat-card-goal,
+  .stat-card-row {
+    padding: 22px 24px !important;
+    border-radius: 22px !important;
+  }
+  .stat-card-icon {
+    padding: 16px 18px !important;
+    border-radius: 22px !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   VISUAL APPEAL — 16–24 Canadian users
+   ════════════════════════════════════════════════════════════════ */
+
+/* 1. Progress bar — animate fill on load */
+@keyframes fillBar {
+  from { width: 0; }
+  to   { width: var(--goal-pct, 0%); }
+}
+
+.progress-bar-animated {
+  width: 0;
+  animation: fillBar 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.goal-pct-label {
+  font-weight: 800;
+  color: #0ea77d;
+  font-size: 0.88rem;
+}
+
+/* 2. Progress bar — thicker, vivid gradient */
+.progress-bar {
+  height: 14px !important;
+  background: #dff0e9 !important;
+}
+
+.progress-bar-fill {
+  background: linear-gradient(90deg, #0ea77d, #34d39a) !important;
+}
+
+/* 3. Game Balance value — hero number */
+.stat-card-icon .stat-value {
+  font-size: 2.4rem !important;
+  font-weight: 900 !important;
+  color: #0ea77d !important;
+  letter-spacing: -0.02em;
+  line-height: 1 !important;
+}
+
+/* 4. Confidence stars — bigger, vibrant */
+.star-filled {
+  color: #0ea77d !important;
+}
+
+.star-empty {
+  color: #c8e8dc !important;
+}
+
+.star-rating {
+  gap: 5px !important;
+}
+
+/* 5. Stat cards — gradient tint */
+.stat-card-icon,
+.stat-card-goal {
+  background: linear-gradient(145deg, #f0faf5 0%, #ffffff 65%) !important;
+}
+
+/* 6. Section heading — left accent bar */
+.section-heading-row {
+  border-left: 3px solid #0ea77d;
+  padding-left: 12px;
+}
+
+/* 7. Card hover — energetic lift with green glow */
+.wide-card-clickable:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 20px 40px rgba(14, 167, 125, 0.14) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.stat-card-row.wide-card-clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(14, 167, 125, 0.14);
+}
+
+/* 8. Quick Start badge — brighter, glowing pill */
+.scenario-badge {
+  background: #0ea77d !important;
+  box-shadow: 0 2px 10px rgba(14, 167, 125, 0.45);
+  letter-spacing: 0.08em !important;
+}
+
+/* 9. Copy Link button — pill shape, vibrant */
+.feedback-copy-btn {
+  background: #0ea77d !important;
+  border-radius: 999px !important;
+  padding: 11px 24px !important;
+  box-shadow: 0 4px 12px rgba(14, 167, 125, 0.3);
+  transition: background 0.15s, transform 0.15s !important;
+}
+
+.feedback-copy-btn:hover {
+  background: #0d9b71 !important;
+  transform: translateY(-1px);
+}
+
+/* 10. Page background — subtle dot texture */
+.dashboard-shell {
+  background-image: radial-gradient(circle, rgba(14, 167, 125, 0.055) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DARK MODE
+   Applied via .dark-mode class on <html> element
+   ════════════════════════════════════════════════════════════════ */
+
+/* Base page */
+.dark-mode body,
+.dark-mode .dashboard-page {
+  background: #0d1a15;
+  color: #d4efe5;
+}
+
+.dark-mode .dashboard-shell {
+  background-image: radial-gradient(circle, rgba(14, 167, 125, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark-mode .dashboard-content {
+  background: transparent;
+}
+
+/* Header & footer */
+.dark-mode .dashboard-header,
+.dark-mode .dashboard-footer {
+  background: #0a1410;
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Cards */
+.dark-mode .stat-card,
+.dark-mode .detail-card,
+.dark-mode .wide-card,
+.dark-mode .recent-scenario-card {
+  background: #172620 !important;
+  border-color: #2a4039 !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Stat card gradient tint override for dark */
+.dark-mode .stat-card-icon,
+.dark-mode .stat-card-goal {
+  background: linear-gradient(145deg, #1c3028 0%, #172620 65%) !important;
+}
+
+/* Text colours */
+.dark-mode .stat-label,
+.dark-mode .wide-card-text strong,
+.dark-mode .stat-card-goal-header strong {
+  color: #c8e8da !important;
+}
+
+.dark-mode .stat-value {
+  color: #34d39a !important;
+}
+
+.dark-mode .stat-card-icon .stat-value {
+  color: #34d39a !important;
+}
+
+.dark-mode .stat-note,
+.dark-mode .wide-card-text p,
+.dark-mode .stat-goal-desc,
+.dark-mode .stat-goal-footer {
+  color: #7aaa98 !important;
+}
+
+.dark-mode .stat-goal-footer span:first-child {
+  color: #c8e8da !important;
+}
+
+.dark-mode .goal-pct-label {
+  color: #34d39a !important;
+}
+
+/* Section headings */
+.dark-mode .section-heading-row h2 {
+  color: #d4efe5 !important;
+}
+
+.dark-mode .section-heading-icon {
+  color: #0ea77d !important;
+}
+
+/* Icon circles */
+.dark-mode .stat-icon-circle,
+.dark-mode .wide-card-icon-circle {
+  background: #1e3530 !important;
+  color: #34d39a !important;
+}
+
+/* Progress bar */
+.dark-mode .progress-bar {
+  background: #1e3530 !important;
+}
+
+/* Stars */
+.dark-mode .star-empty {
+  color: #2a4a3c !important;
+}
+
+/* Wide card arrow */
+.dark-mode .wide-card-arrow {
+  color: #5a8a7a !important;
+}
+
+/* Feedback link pill */
+.dark-mode .feedback-link-pill {
+  background: #1e3530 !important;
+  border-color: #2a4039 !important;
+  color: #a0c8b8 !important;
+}
+
+/* Scenario banner — slightly deeper gradient in dark */
+.dark-mode .scenario-banner {
+  background-image:
+    linear-gradient(to right, #0a1a13 45%, rgba(10, 26, 19, 0.55) 70%, transparent 100%),
+    url("/scenario-banner.png") !important;
+}
+
+/* Nav tab colours are handled directly in DashboardTabs.tsx via useTheme() */
+
+/* Smooth theme transition */
+.dashboard-page,
+.stat-card,
+.wide-card,
+.dashboard-header,
+.dashboard-footer,
+.stat-icon-circle,
+.wide-card-icon-circle,
+.progress-bar,
+.feedback-link-pill {
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
