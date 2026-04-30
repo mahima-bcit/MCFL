@@ -37,6 +37,36 @@ public class AccountController : ControllerBase
         _logger = logger;
     }
 
+    [HttpGet("validate-registration-email")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ValidateRegistrationEmail([FromQuery] string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return BadRequest(new { error = "Email is required." });
+        }
+
+        var normalizedEmail = email.Trim().ToLowerInvariant();
+
+        var isAllowed = await _context.RegistrationAllowLists
+            .AsNoTracking()
+            .AnyAsync(x => x.Email.ToLower() == normalizedEmail);
+
+        if (!isAllowed)
+        {
+            return BadRequest(new { error = "This email is not approved for registration." });
+        }
+
+        var existing = await _userManager.FindByEmailAsync(normalizedEmail);
+
+        if (existing != null)
+        {
+            return BadRequest(new { error = "Email already registered" });
+        }
+
+        return Ok(new { allowed = true });
+    }
+
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterRequest model)

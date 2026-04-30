@@ -70,7 +70,7 @@ function TextInput({
       value={value}
       placeholder={placeholder}
       onChange={(event) => onChange(event.target.value)}
-      className="h-12 w-full rounded-2xl border border-[#dce6ef] bg-[#f7fbff] px-4 font-sans text-sm text-[#1f3a60] outline-none transition-all placeholder:text-[#9aa9bc] focus:border-[#5c7cff] focus:bg-white focus:ring-4 focus:ring-[#5c7cff]/10"
+      className="h-12 w-full rounded-2xl border border-[#dce6ef] bg-[#f7fbff] px-4 font-sans text-sm text-[#1f3a60] outline-none transition-all placeholder:text-[#9aa9bc] focus:border-[#21A879] focus:bg-white focus:ring-4 focus:ring-[#21A879]/15"
     />
   );
 }
@@ -79,6 +79,7 @@ export default function Signup() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<SignupFormData>(initialFormData);
   const [formErrors, setFormErrors] = useState<SignupFormErrors>({});
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
 
   const age = useMemo(() => calculateAge(formData.dateOfBirth), [formData.dateOfBirth]);
   const requiresParentConsent = age !== null && age <= 17;
@@ -140,7 +141,21 @@ export default function Signup() {
     }));
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function validateRegistrationEmail() {
+    const response = await fetch(
+      `/api/account/validate-registration-email?email=${encodeURIComponent(
+        formData.email.trim(),
+      )}`,
+    );
+
+    const responseBody = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      throw new Error(responseBody?.error ?? "Unable to validate email.");
+    }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const errors = validateForm();
@@ -150,16 +165,33 @@ export default function Signup() {
       return;
     }
 
-    localStorage.setItem(
-      "mcflRegistrationDraft",
-      JSON.stringify({
-        ...formData,
-        age,
-        requiresParentConsent,
-      }),
-    );
+    try {
+      setIsCheckingEmail(true);
 
-    navigate("/profile-setup");
+      await validateRegistrationEmail();
+
+      localStorage.setItem(
+        "mcflRegistrationDraft",
+        JSON.stringify({
+          ...formData,
+          email: formData.email.trim(),
+          age,
+          requiresParentConsent,
+        }),
+      );
+
+      navigate("/profile-setup");
+    } catch (error) {
+      setFormErrors((current) => ({
+        ...current,
+        email:
+          error instanceof Error
+            ? error.message
+            : "Unable to validate email.",
+      }));
+    } finally {
+      setIsCheckingEmail(false);
+    }
   }
 
   return (
@@ -257,13 +289,14 @@ export default function Signup() {
 
       <button
         type="button"
+        disabled={isCheckingEmail}
         onClick={() => {
           const form = document.querySelector("form");
           form?.requestSubmit();
         }}
-        className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#21A879] px-8 py-4 font-sans text-sm font-semibold text-white shadow-[0_10px_24px_rgba(33,168,121,0.24)] transition-all hover:bg-[#1c9169] md:text-base"
+        className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#21A879] px-8 py-4 font-sans text-sm font-semibold text-white shadow-[0_10px_24px_rgba(33,168,121,0.24)] transition-all hover:bg-[#1c9169] disabled:cursor-not-allowed disabled:opacity-60 md:text-base"
       >
-        Next →
+        {isCheckingEmail ? "Checking email..." : "Next →"}
       </button>
     </section>
   );
