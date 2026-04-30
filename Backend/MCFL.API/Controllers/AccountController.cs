@@ -1,4 +1,5 @@
 using MCFL.API.Data;
+using MCFL.API.DTOs.Admin.AdminSettings;
 using MCFL.API.Models.DTOs;
 using MCFL.API.Models.Identity;
 using MCFL.API.Services;
@@ -6,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace MCFL.API.Controllers;
 
@@ -120,7 +123,83 @@ public class AccountController : ControllerBase
         return Ok(new
         {
             token,
-            role
+            role,
+            mustChangePassword = user.MustChangePassword
         });
+    }
+
+    [HttpGet("settings")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<AccountSettingsDto>> GetCurrentAdmin()
+    {
+        var user = await GetCurrentUserAsync();
+
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        return Ok(new AccountSettingsDto
+        {
+            Email = user.Email ?? "",
+            MustChangePassword = user.MustChangePassword
+        });
+    }
+
+    [HttpPut("password")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var user = await GetCurrentUserAsync();
+
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        if (model.CurrentPassword == model.NewPassword)
+        {
+            return BadRequest(new
+            {
+                error = "New password must be different from the current password."
+            });
+        }
+
+        var result = await _userManager.ChangePasswordAsync(
+            user,
+            model.CurrentPassword,
+            model.NewPassword);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(new
+            {
+                errors = result.Errors.Select(e => e.Description).ToList()
+            });
+        }
+
+        user.MustChangePassword = false;
+        await _userManager.UpdateAsync(user);
+
+        return NoContent();
+    }
+
+    private async Task<ApplicationUser?> GetCurrentUserAsync()
+    {
+        var userId =
+            User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return null;
+        }
+
+        return await _userManager.FindByIdAsync(userId);
     }
 }

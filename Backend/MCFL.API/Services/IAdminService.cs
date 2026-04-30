@@ -11,7 +11,7 @@ namespace MCFL.API.Services
     {
         Task<AdminOverviewDto> GetOverviewAsync(string? range, DateTime? startDate, DateTime? endDate);
 
-        Task<List<AdminUserListItemDto>> GetUsersAsync();
+        Task<List<AdminUserListItemDto>> GetUsersAsync(string? search);
         Task<AdminUserDetailDto?> GetUserByIdAsync(string userId);
 
         Task<List<AdminUserFeedbackDto>> GetUserFeedbackAsync(string? feedbackType, string? email, DateTime? startDate, DateTime? endDate);
