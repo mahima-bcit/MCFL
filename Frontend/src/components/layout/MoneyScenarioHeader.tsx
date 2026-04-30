@@ -1,14 +1,25 @@
 import { useState } from "react";
-import Button from "../ui/Button";
+import { useNavigate } from "react-router-dom";
+import { IoArrowBack } from "react-icons/io5";
+
 import Badge from "../ui/Badge";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const navigate = useNavigate();
+
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200">
       <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-        {/* Logo */}
+        <button
+          className="w-full sm:w-auto px-8 py-4"
+          onClick={() => {
+            navigate("/dashboard");
+          }}
+        >
+          <IoArrowBack />
+        </button>
         <div className="flex items-center gap-2 md:gap-3">
           <span className="text-base text-gray-900 font-body font-semibold text-sm md:text-lg tracking-tight">
             Money <span className="hidden sm:inline"> Scenario</span>

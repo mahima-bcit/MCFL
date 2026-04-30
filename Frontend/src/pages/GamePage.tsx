@@ -1,15 +1,29 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import "../styles/SpinTheWheel.css";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
 import MoneyScenarioHeader from "../components/layout/MoneyScenarioHeader";
 
+import "../styles/SpinTheWheel.css";
+
 type StepDefinition = {
   key: "spin-the-wheel" | "scenario-selection" | "scenario-result";
+};
 
+type Scenario = {
+  id: number;
   title: string;
-  subtitle: string;
+  description: string;
+  choices: ScenarioChoice[];
+};
+
+type ScenarioChoice = {
+  id: number;
+  optionText: string;
+  resultText: string;
+  moneyImpact: number;
+  confidenceImpact: number;
 };
 
 function StepCard({
@@ -32,84 +46,72 @@ function StepCard({
 const setupSteps: StepDefinition[] = [
   {
     key: "spin-the-wheel",
-    title: "Spin the Wheel",
-    subtitle: "Discover your next financial scenario",
   },
   {
     key: "scenario-selection",
-    title: "Scenario Selection",
-    subtitle: "Choose the scenario that interests you",
   },
   {
     key: "scenario-result",
-    title: "Scenario Result",
-    subtitle: "See the outcome of your decision",
   },
 ];
 
-const generateScenario = () => {
-  let scenario = {
+const generateScenario: () => Scenario = () => {
+  return {
     id: 0,
     title: "Scenario Title",
+    description:
+      "This is where the scenario description will go from the backend.",
+    choices: [
+      {
+        id: 1,
+        optionText: "Choice One",
+        resultText: "result for option one.",
+        moneyImpact: 100,
+        confidenceImpact: 5,
+      },
+      {
+        id: 2,
+        optionText: "Choice Two",
+        resultText: "result for option two.",
+        moneyImpact: -50,
+        confidenceImpact: 2,
+      },
+      {
+        id: 3,
+        optionText: "Choice Three",
+        resultText: "result for option three.",
+        moneyImpact: 200,
+        confidenceImpact: 15,
+      },
+    ],
   };
-  return scenario;
 };
 
-const getScenarios = () => {
+const getScenarios: () => Scenario[] = () => {
   const itemCount = 6;
   let scenarios = [];
   for (let i = 0; i < itemCount; i++) {
     let scenario = generateScenario();
     scenario.id = i;
+    scenario.title = `Scenario ${i + 1}`;
     scenarios.push(scenario);
   }
   return scenarios;
 };
 
-// 🔹 Types (match these to your backend later)
-export type ScenarioChoice = {
-  id: number;
-  title: string;
-  description: string;
-};
-
-export type Scenario = {
-  id: number;
-  title: string;
-  description: string;
-  choices: ScenarioChoice[];
-};
-
-// 🔹 TEMP placeholder (replace with API later)
-const mockScenario: Scenario = {
-  id: 1,
-  title: "Scenario Title",
-  description:
-    "This is where the scenario description will go from the backend.",
-  choices: [
-    { id: 1, title: "Choice One", description: "Description for option one." },
-    { id: 2, title: "Choice Two", description: "Description for option two." },
-    {
-      id: 3,
-      title: "Choice Three",
-      description: "Description for option three.",
-    },
-  ],
-};
-
-const mockResult = {
-  description: "You invested wisely and saw a strong return over time.",
-  moneyChange: 250,
-  confidenceChange: 10,
-};
-
 export default function GamePage() {
-  let scenarios = getScenarios();
+  const navigate = useNavigate();
+  const [step, setStep] = useState<number>(0);
+  const currentStepDefinition = setupSteps[step] ?? setupSteps[0];
+
+  const [scenarios, setScenarios] = useState<Scenario[]>(getScenarios());
   let spun = false;
 
-  const [step, setStep] = useState(0);
-
-  const currentStepDefinition = setupSteps[step] ?? setupSteps[0];
+  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(
+    null,
+  );
+  const [selectedScenarioChoice, setSelectedScenarioChoice] =
+    useState<ScenarioChoice | null>(null);
 
   function renderCurrentStep() {
     switch (currentStepDefinition.key) {
@@ -123,26 +125,6 @@ export default function GamePage() {
         return null;
     }
   }
-
-  const [selectedChoiceId, setSelectedChoiceId] = useState<number | null>(null);
-
-  const scenario = mockScenario;
-
-  const handleConfirm = () => {
-    if (!selectedChoiceId) return;
-
-    // Move to next step after confirming choice
-    setStep((current) => current + 1);
-
-    console.log("Confirmed choice:", selectedChoiceId);
-  };
-
-  const result = mockResult;
-
-  const isMoneyPositive = result.moneyChange >= 0;
-  const isConfidencePositive = result.confidenceChange >= 0;
-
-  const navigate = useNavigate();
 
   function renderSpinTheWheelStep() {
     return (
@@ -194,7 +176,7 @@ export default function GamePage() {
               let selectedScenarioIndex = Math.floor(
                 (spinDegrees % 360) / (360 / scenarios.length),
               );
-              let selectedScenario = scenarios[selectedScenarioIndex];
+              setSelectedScenario(scenarios[selectedScenarioIndex]);
               console.log(selectedScenario);
 
               animation = wheel.animate(
@@ -261,23 +243,23 @@ export default function GamePage() {
         "
           >
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-body font-bold text-nav mb-4">
-              {scenario.title}
+              {selectedScenario?.title}
             </h1>
 
             <p className="text-sm sm:text-base md:text-lg text-nav/70 leading-relaxed">
-              {scenario.description}
+              {selectedScenario?.description}
             </p>
           </div>
 
           {/* 🧩 Choices */}
           <div className="w-full grid gap-4 md:gap-6">
-            {scenario.choices.map((choice) => {
-              const isSelected = selectedChoiceId === choice.id;
+            {selectedScenario?.choices.map((choice) => {
+              const isSelected = selectedScenarioChoice?.id === choice.id;
 
               return (
                 <div
                   key={choice.id}
-                  onClick={() => setSelectedChoiceId(choice.id)}
+                  onClick={() => setSelectedScenarioChoice(choice)}
                   className={`
                 cursor-pointer
                 rounded-2xl border-2
@@ -296,12 +278,8 @@ export default function GamePage() {
                 }
               `}
                 >
-                  <h3 className="text-base md:text-lg font-semibold text-nav mb-2">
-                    {choice.title}
-                  </h3>
-
                   <p className="text-sm text-nav/60 leading-relaxed">
-                    {choice.description}
+                    {choice.optionText}
                   </p>
                 </div>
               );
@@ -313,7 +291,7 @@ export default function GamePage() {
             <Button
               onClick={handleConfirm}
               variant="primary"
-              disabled={!selectedChoiceId}
+              disabled={!selectedScenarioChoice}
               className="
                     px-10 py-4 text-base font-semibold
       
@@ -326,7 +304,7 @@ export default function GamePage() {
               Confirm Choice
             </Button>
 
-            {!selectedChoiceId && (
+            {!selectedScenarioChoice && (
               <p className="text-sm text-nav/50 animate-pulse">
                 Please select an option to continue
               </p>
@@ -360,7 +338,7 @@ export default function GamePage() {
               </h1>
 
               <p className="text-sm sm:text-base md:text-lg text-nav/70 leading-relaxed">
-                {result.description}
+                {selectedScenarioChoice?.resultText}
               </p>
             </div>
 
@@ -382,10 +360,11 @@ export default function GamePage() {
                   <p
                     className={`
         text-2xl md:text-3xl font-bold
-        ${isMoneyPositive ? "text-green-600" : "text-red-500"}
+        ${(selectedScenarioChoice?.moneyImpact ?? 0) > 0 ? "text-green-600" : "text-red-500"}
       `}
                   >
-                    {isMoneyPositive ? "+" : ""}${result.moneyChange}
+                    {(selectedScenarioChoice?.moneyImpact ?? 0) > 0 ? "+" : "-"}
+                    ${Math.abs(selectedScenarioChoice?.moneyImpact ?? 0)}
                   </p>
 
                   <Badge
@@ -394,7 +373,7 @@ export default function GamePage() {
     w-8 h-8 rounded-full
 
     ${
-      isMoneyPositive
+      (selectedScenarioChoice?.moneyImpact ?? 0) > 0
         ? "bg-green-100 text-green-700"
         : "bg-red-100 text-red-600"
     }
@@ -421,11 +400,13 @@ export default function GamePage() {
                   <p
                     className={`
         text-2xl md:text-3xl font-bold
-        ${isConfidencePositive ? "text-green-600" : "text-red-500"}
+        ${(selectedScenarioChoice?.confidenceImpact ?? 0) > 0 ? "text-green-600" : "text-red-500"}
       `}
                   >
-                    {isConfidencePositive ? "+" : ""}
-                    {result.confidenceChange}%
+                    {(selectedScenarioChoice?.confidenceImpact ?? 0) > 0
+                      ? "+"
+                      : "-"}
+                    {Math.abs(selectedScenarioChoice?.confidenceImpact ?? 0)}%
                   </p>
 
                   <Badge
@@ -434,7 +415,7 @@ export default function GamePage() {
     w-8 h-8 rounded-full
 
     ${
-      isConfidencePositive
+      (selectedScenarioChoice?.confidenceImpact ?? 0) > 0
         ? "bg-green-100 text-green-700"
         : "bg-red-100 text-red-600"
     }
@@ -485,6 +466,15 @@ export default function GamePage() {
       </StepCard>
     );
   }
+
+  const handleConfirm = () => {
+    if (!selectedScenarioChoice) return;
+
+    // Move to next step after confirming choice
+    setStep((current) => current + 1);
+
+    console.log("Confirmed choice:", selectedScenarioChoice.id);
+  };
 
   return (
     <main>
