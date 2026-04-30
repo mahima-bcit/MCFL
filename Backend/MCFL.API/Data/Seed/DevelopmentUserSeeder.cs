@@ -51,7 +51,7 @@ namespace MCFL.API.Data.Seed
                     Email = "harry@mcfl.local",
                     Password = "Demo123!",
                     Role = "User",
-                    IsActive = false,
+                    IsActive = true,
                     ParentConsentRequired = true,
                     ParentConsentReceived = true,
                     OnboardingCompleted = true
@@ -61,7 +61,7 @@ namespace MCFL.API.Data.Seed
                     Email = "amrit@mcfl.local",
                     Password = "Demo123!",
                     Role = "User",
-                    IsActive = false,
+                    IsActive = true,
                     ParentConsentRequired = false,
                     ParentConsentReceived = false,
                     OnboardingCompleted = false

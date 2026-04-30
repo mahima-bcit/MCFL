@@ -97,6 +97,7 @@ builder.Services.AddAuthentication(options =>
 {
     options.RequireHttpsMetadata = builder.Environment.IsProduction();
     options.SaveToken = true;
+    options.MapInboundClaims = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,

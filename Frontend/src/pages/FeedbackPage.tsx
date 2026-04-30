@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
+import DashboardLayout from "../components/layout/DashboardLayout";
 
 export default function FeedbackPage() {
   return (
-    <main className="min-h-screen bg-[#edf7f3] px-4 py-10 text-[#163d32] sm:px-6 lg:px-8">
+    <DashboardLayout>
+    <main className="bg-[#edf7f3] px-4 py-10 text-[#163d32] sm:px-6 lg:px-8">
       <section className="mx-auto max-w-3xl rounded-[28px] border border-[#d9e8e1] bg-white p-6 shadow-[0_14px_36px_rgba(18,63,50,0.08)] sm:p-8">
         <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-[#7b8f87]">
           User feedback
@@ -33,5 +35,6 @@ export default function FeedbackPage() {
         </div>
       </section>
     </main>
+    </DashboardLayout>
   );
 }

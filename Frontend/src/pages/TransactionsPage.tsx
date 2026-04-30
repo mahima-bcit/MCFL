@@ -11,23 +11,37 @@ export default function TransactionsPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    loadEntries();
-  }, []);
+    let isCurrent = true;
 
-  async function loadEntries() {
-    try {
-      setIsLoading(true);
-      setErrorMessage("");
+    async function loadEntries() {
+      try {
+        const data = await getRealMoneyEntries();
 
-      const data = await getRealMoneyEntries();
-      setEntries(data);
-    } catch (error) {
-      console.error("Could not load transactions.", error);
-      setErrorMessage("Could not load transactions. Please log in again.");
-    } finally {
-      setIsLoading(false);
+        if (!isCurrent) {
+          return;
+        }
+
+        setEntries(data);
+        setErrorMessage("");
+      } catch (error) {
+        console.error("Could not load transactions.", error);
+
+        if (isCurrent) {
+          setErrorMessage("Could not load transactions. Please log in again.");
+        }
+      } finally {
+        if (isCurrent) {
+          setIsLoading(false);
+        }
+      }
     }
-  }
+
+    void loadEntries();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
 
   const totals = useMemo(() => {
     const totalCashIn = entries
@@ -62,7 +76,7 @@ export default function TransactionsPage() {
 
             <div>
               <h1>Money Confidence for Life</h1>
-              <p>Build confidence with money</p>
+              <p>Level Up Your Future</p>
             </div>
           </Link>
 
@@ -126,12 +140,16 @@ export default function TransactionsPage() {
         <section className="transactions-summary-grid">
           <article className="transactions-card">
             <p>Total Cash In</p>
-            <strong className="cash-in">+${totals.totalCashIn.toFixed(2)}</strong>
+            <strong className="cash-in">
+              +${totals.totalCashIn.toFixed(2)}
+            </strong>
           </article>
 
           <article className="transactions-card">
             <p>Total Cash Out</p>
-            <strong className="cash-out">-${totals.totalCashOut.toFixed(2)}</strong>
+            <strong className="cash-out">
+              -${totals.totalCashOut.toFixed(2)}
+            </strong>
           </article>
 
           <article className="transactions-card">
@@ -196,30 +214,6 @@ export default function TransactionsPage() {
           </section>
         )}
       </main>
-
-      <footer className="money-app-footer">
-        <div className="money-app-footer-inner">
-          <Link to="/" className="money-app-footer-brand">
-            <img
-              src="/MCFL.png"
-              alt="Money Confidence for Life"
-              className="money-app-footer-logo"
-            />
-
-            <div>
-              <h3>Money Confidence for Life</h3>
-              <p>Build confidence with money</p>
-            </div>
-          </Link>
-
-          <nav className="money-app-footer-nav">
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/game-money">Game Money</Link>
-            <Link to="/real-money">Real Money</Link>
-            <Link to="/feedback">Share Feedback</Link>
-          </nav>
-        </div>
-      </footer>
     </div>
   );
 }

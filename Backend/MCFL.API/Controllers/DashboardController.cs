@@ -140,6 +140,7 @@ public class DashboardController : ControllerBase
             GoalCurrent = activeGoal?.CurrentSavedAmount ?? 0,
             GoalTarget = activeGoal?.TargetAmount ?? 0,
             GoalDueLabel = FormatGoalDate(activeGoal?.TargetDate),
+            GoalTitle = activeGoal?.GoalTitle ?? string.Empty,
 
             MonthlyNet = monthlyNet,
 
@@ -165,7 +166,7 @@ public class DashboardController : ControllerBase
                 Link = parentFeedbackUrl
             },
 
-            RecentScenario = recentPlay == null
+            RecentScenario = recentPlay == null || recentPlay.Scenario == null || recentPlay.ScenarioChoice == null
                 ? new RecentScenarioDto()
                 : new RecentScenarioDto
                 {
