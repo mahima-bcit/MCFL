@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
-import NavBar from "../components/layout/Navbar.tsx";
-import Footer from "../components/layout/Footer.tsx";
 
 import { apiFetch } from "../services/apiClient";
 
