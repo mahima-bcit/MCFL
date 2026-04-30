@@ -1,6 +1,6 @@
 using MCFL.API.Data;
 using MCFL.API.Models;
-using MCFL.API.Models.DTOs;
+using MCFL.API.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

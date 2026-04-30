@@ -1,7 +1,6 @@
 using MCFL.API.Data;
-using MCFL.API.DTOs.Admin.AdminSettings;
 using MCFL.API.Models;
-using MCFL.API.Models.DTOs;
+using MCFL.API.DTOs;
 using MCFL.API.Models.Identity;
 using MCFL.API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using MCFL.API.DTOs.Admin.AdminSettings;
 
 namespace MCFL.API.Controllers;
 

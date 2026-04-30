@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using MCFL.API.Models.DTOs;
+using MCFL.API.DTOs;
 using MCFL.API.Models.Identity;
 using MCFL.API.Services;
 using Microsoft.AspNetCore.Authorization;
