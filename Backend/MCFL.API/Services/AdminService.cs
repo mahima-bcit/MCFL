@@ -155,9 +155,9 @@ namespace MCFL.API.Services
             };
         }
 
-        public async Task<List<AdminUserListItemDto>> GetUsersAsync()
+        public async Task<List<AdminUserListItemDto>> GetUsersAsync(string? search)
         {
-            var rows = await _adminRepository.GetUserListAsync();
+            var rows = await _adminRepository.GetUserListAsync(search);
 
             return rows.Select(x => new AdminUserListItemDto
             {

@@ -97,7 +97,7 @@ namespace MCFL.API.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<AdminUserListProjection>> GetUserListAsync()
+        public async Task<List<AdminUserListProjection>> GetUserListAsync(string? search)
         {
             var goalRows = await _context.LearningSavingsGoals
                 .AsNoTracking()
@@ -125,7 +125,9 @@ namespace MCFL.API.Repositories
                     ScenariosCompleted = g.Count()
                 };
 
-            var users = await (
+            var searchTerm = search?.Trim().ToLowerInvariant();
+
+            var usersQuery =
                 from user in _context.Users.AsNoTracking()
                 join profile in _context.UserProfiles.AsNoTracking()
                     on user.Id equals profile.UserId
@@ -150,8 +152,16 @@ namespace MCFL.API.Repositories
                     Confidence = stat != null ? stat.CurrentConfidenceScore : 0,
                     GameMoney = stat != null ? stat.CurrentGameMoney : 0m,
                     ScenariosCompleted = scenario != null ? scenario.ScenariosCompleted : 0
-                })
-                .ToListAsync();
+                };
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                usersQuery = usersQuery.Where(user =>
+                    user.FullName.ToLower().Contains(searchTerm) ||
+                    user.Email.ToLower().Contains(searchTerm));
+            }
+
+            var users = await usersQuery.ToListAsync();
 
             return users.Select(user => new AdminUserListProjection
             {
