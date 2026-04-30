@@ -79,7 +79,7 @@ const UserFeedback: React.FC = () => {
     setSubmitError(null);
 
     try {
-      await apiFetch("/api/UserFeedback", {
+      await apiFetch("/UserFeedback", {
         method: "POST",
         body: JSON.stringify({
           feedbackType: formData.category,
