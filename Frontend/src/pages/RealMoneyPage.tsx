@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState, type FormEvent} from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { Link, useLocation } from "react-router-dom";
 import "../RealMoneyPage.css";
 import {
   createRealMoneyEntry,
@@ -30,18 +30,24 @@ const emptyRealMoneySummary: RealMoneySummary = {
 };
 
 export default function RealMoneyPage() {
+  const location = useLocation();
   const [entryType, setEntryType] = useState<EntryType>("cashIn");
   const [amount, setAmount] = useState("");
-  const [selectedCategory, setSelectedCategory] =
-    useState<CashInCategory | CashOutCategory>("Paycheck");
+  const [selectedCategory, setSelectedCategory] = useState<
+    CashInCategory | CashOutCategory
+  >("Paycheck");
   const [comment, setComment] = useState("");
   const [summary, setSummary] = useState<RealMoneySummary>(
-    emptyRealMoneySummary
+    emptyRealMoneySummary,
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [entryModal, setEntryModal] = useState<{
+    title: string;
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     loadRealMoneySummary();
@@ -87,6 +93,10 @@ export default function RealMoneyPage() {
     const numericAmount = Number(amount);
 
     if (!numericAmount || numericAmount <= 0) {
+      setEntryModal({
+        title: "Enter an amount",
+        message: "Please enter an amount greater than $0.",
+      });
       return;
     }
 
@@ -100,7 +110,13 @@ export default function RealMoneyPage() {
         comment,
       });
 
-      alert("You successfully added a new entry!");
+      setEntryModal({
+        title: "Entry added",
+        message:
+          entryType === "cashIn"
+            ? "You successfully added a new Cash In entry."
+            : "You successfully added a new Cash Out entry.",
+      });
 
       setAmount("");
       setComment("");
@@ -108,7 +124,10 @@ export default function RealMoneyPage() {
       await loadRealMoneySummary();
     } catch (error) {
       console.error("Could not save money entry.", error);
-      alert("Could not save entry. Please try again.");
+      setEntryModal({
+        title: "Could not save",
+        message: "Could not save entry. Please try again.",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -190,14 +209,17 @@ export default function RealMoneyPage() {
           </div>
 
           <div className="real-money-header-actions">
-          <Link to="/real-money/transactions" className="real-money-add-top-btn">
-            View All Transactions
-          </Link>
+            <Link
+              to="/real-money/transactions"
+              className="real-money-add-top-btn"
+            >
+              View All Transactions
+            </Link>
 
-          <a href="#add-entry" className="real-money-add-top-btn">
-            + Add Entry
-          </a>
-        </div>
+            <a href="#add-entry" className="real-money-add-top-btn">
+              + Add Entry
+            </a>
+          </div>
         </section>
 
         {isLoading && (
@@ -313,7 +335,7 @@ export default function RealMoneyPage() {
             </section>
 
             <section className="real-money-card">
-              <h2>Recent Entries</h2>
+              <h2>Latest Real Money Transactions</h2>
 
               <div className="recent-entry-list">
                 {summary.entries.slice(0, 5).map((entry: RealMoneyEntry) => (
@@ -344,29 +366,22 @@ export default function RealMoneyPage() {
         )}
       </main>
 
-      <footer className="money-app-footer">
-        <div className="money-app-footer-inner">
-          <Link to="/" className="money-app-footer-brand">
-            <img
-              src="/MCFL.png"
-              alt="Money Confidence for Life"
-              className="money-app-footer-logo"
-            />
+      {entryModal && (
+        <div className="money-modal-backdrop" role="dialog" aria-modal="true">
+          <div className="money-modal">
+            <h2>{entryModal.title}</h2>
+            <p>{entryModal.message}</p>
 
-            <div>
-              <h3>Money Confidence for Life</h3>
-              <p>Build confidence with money</p>
-            </div>
-          </Link>
-
-          <nav className="money-app-footer-nav">
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/game-money">Game Money</Link>
-            <Link to="/real-money">Real Money</Link>
-            <Link to="/feedback">Share Feedback</Link>
-          </nav>
+            <button
+              type="button"
+              className="money-modal-button"
+              onClick={() => setEntryModal(null)}
+            >
+              OK
+            </button>
+          </div>
         </div>
-      </footer>
+      )}
     </div>
   );
 }

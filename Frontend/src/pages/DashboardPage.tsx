@@ -116,12 +116,6 @@ export default function DashboardPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function openGameZoneTab() {
-    setActiveTab("gameZone");
-    setMobileMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
   function closeMobileMenu() {
     setMobileMenuOpen(false);
   }
@@ -599,52 +593,6 @@ export default function DashboardPage() {
           )}
         </div>
       </main>
-
-      <footer className="dashboard-footer">
-        <div className="dashboard-footer-inner">
-          <div className="footer-brand">
-            <div className="dashboard-brand-logo footer-logo-box">
-              {!logoBroken ? (
-                <img
-                  src={LOGO_SRC}
-                  alt="Money Confidence for Life"
-                  className="footer-brand-logo"
-                  onError={() => setLogoBroken(true)}
-                />
-              ) : (
-                <span className="dashboard-brand-logo-fallback">MC</span>
-              )}
-            </div>
-
-            <div className="footer-brand-text">
-              <h3>Money Confidence for Life</h3>
-              <p>Build confidence with money</p>
-            </div>
-          </div>
-
-          <div className="dashboard-footer-right">
-            <button
-              type="button"
-              onClick={openDashboardTab}
-              className="footer-link-button"
-            >
-              Dashboard
-            </button>
-
-            <Link to="/game-money" className="footer-link">
-              Game Money
-            </Link>
-
-            <Link to="/real-money" className="footer-link">
-              Real Money
-            </Link>
-
-            <Link to="/feedback" className="footer-link">
-              Share Feedback
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

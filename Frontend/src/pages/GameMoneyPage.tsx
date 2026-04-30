@@ -1,15 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "../GameMoneyPage.css";
 import {
   getGameMoneySummary,
   saveGameMoneyFeeling,
 } from "../services/gameMoneyApi";
-import type {
-  GameMoneyCategory,
-  GameMoneyItem,
-  GameMoneySummary,
-} from "../types/gameMoney";
+import type { GameMoneyCategory, GameMoneySummary } from "../types/gameMoney";
 
 type Feeling = "Good" | "Unsure" | "Worried";
 
@@ -63,43 +59,66 @@ const emptyGameMoneySummary: GameMoneySummary = {
 };
 
 export default function GameMoneyPage() {
+  const location = useLocation();
   const [feeling, setFeeling] = useState<Feeling | null>(null);
-  const [summary, setSummary] = useState<GameMoneySummary>(emptyGameMoneySummary);
+  const [summary, setSummary] = useState<GameMoneySummary>(
+    emptyGameMoneySummary,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [feedbackModal, setFeedbackModal] = useState<{
+    title: string;
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
-    loadGameMoneySummary();
-  }, []);
+    let isCurrent = true;
 
-  async function loadGameMoneySummary() {
-    try {
-      setIsLoading(true);
-      setErrorMessage("");
+    async function loadGameMoneySummary() {
+      try {
+        const data = await getGameMoneySummary();
 
-      const data = await getGameMoneySummary();
+        if (!isCurrent) {
+          return;
+        }
 
-      setSummary({
-        ...emptyGameMoneySummary,
-        ...data,
-        items: data.items?.length ? data.items : emptyGameMoneySummary.items,
-        totals: {
-          ...emptyGameMoneySummary.totals,
-          ...data.totals,
-        },
-        recentScenario: {
-          ...emptyGameMoneySummary.recentScenario,
-          ...data.recentScenario,
-        },
-      });
-    } catch (error) {
-      console.error("Could not load game money summary.", error);
-      setErrorMessage("Could not load game money data. Please log in again.");
-    } finally {
-      setIsLoading(false);
+        setSummary({
+          ...emptyGameMoneySummary,
+          ...data,
+          items: data.items?.length ? data.items : emptyGameMoneySummary.items,
+          totals: {
+            ...emptyGameMoneySummary.totals,
+            ...data.totals,
+          },
+          recentScenario: {
+            ...emptyGameMoneySummary.recentScenario,
+            ...data.recentScenario,
+          },
+        });
+
+        setErrorMessage("");
+      } catch (error) {
+        console.error("Could not load game money summary.", error);
+
+        if (isCurrent) {
+          setErrorMessage(
+            "Could not load game money data. Please log in again.",
+          );
+        }
+      } finally {
+        if (isCurrent) {
+          setIsLoading(false);
+        }
+      }
     }
-  }
+
+    void loadGameMoneySummary();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
 
   const categoryItems = useMemo(
     () => [
@@ -108,7 +127,7 @@ export default function GameMoneyPage() {
       { label: "Fun" as const, amount: summary.totals.fun },
       { label: "Save" as const, amount: summary.totals.save },
     ],
-    [summary]
+    [summary],
   );
 
   const maxAmount = Math.max(
@@ -116,12 +135,15 @@ export default function GameMoneyPage() {
     summary.totals.need,
     summary.totals.fun,
     summary.totals.save,
-    1
+    1,
   );
 
   async function handleSaveFeeling() {
     if (!feeling) {
-      alert("Please choose how you feel first.");
+      setFeedbackModal({
+        title: "Choose a feeling",
+        message: "Please choose how you feel first.",
+      });
       return;
     }
 
@@ -129,15 +151,29 @@ export default function GameMoneyPage() {
       await saveGameMoneyFeeling({ feeling });
 
       if (feeling === "Good") {
-        alert("Congratulations! You are moving on to the next level 🎉");
+        setFeedbackModal({
+          title: "Great job!",
+          message: "Congratulations! You are moving on to the next level 🎉",
+        });
       } else if (feeling === "Unsure") {
-        alert("That is okay. You are still learning, and every step helps you understand your money better.");
+        setFeedbackModal({
+          title: "That is okay",
+          message:
+            "You are still learning, and every step helps you understand your money better.",
+        });
       } else if (feeling === "Worried") {
-        alert("Thanks is okay. Take a breath and give it a second thought, review your money picture, and choose one small next step.");
+        setFeedbackModal({
+          title: "Take one small step",
+          message:
+            "That is okay. Take a breath, review your money picture, and choose one small next step.",
+        });
       }
     } catch (error) {
       console.error("Could not save feeling.", error);
-      alert("Could not save feeling. Please try again.");
+      setFeedbackModal({
+        title: "Could not save",
+        message: "Could not save feeling. Please try again.",
+      });
     }
   }
 
@@ -214,11 +250,8 @@ export default function GameMoneyPage() {
         <section className="game-money-header">
           <div>
             <h1>Game Money Picture</h1>
-            
           </div>
         </section>
-
-        
 
         {isLoading && (
           <section className="game-money-card">
@@ -241,9 +274,9 @@ export default function GameMoneyPage() {
                 <p>{summary.recentScenario.description}</p>
               </div>
 
-              <button type="button" className="game-money-hero-btn">
+              <Link to="/game" className="game-money-hero-btn">
                 Start Scenario
-              </button>
+              </Link>
             </section>
 
             <section className="game-money-top-grid">
@@ -339,7 +372,7 @@ export default function GameMoneyPage() {
               <h2>Recent Game Money Activity</h2>
 
               <div className="recent-game-list">
-                {summary.items.map((item) => (
+                {summary.items.slice(0, 5).map((item) => (
                   <div key={item.id} className="recent-game-entry">
                     <div>
                       <strong>{item.category}</strong>
@@ -355,35 +388,28 @@ export default function GameMoneyPage() {
         )}
       </main>
 
-      <footer className="money-app-footer">
-        <div className="money-app-footer-inner">
-          <Link to="/" className="money-app-footer-brand">
-            <img
-              src="/MCFL.png"
-              alt="Money Confidence for Life"
-              className="money-app-footer-logo"
-            />
+      {feedbackModal && (
+        <div className="money-modal-backdrop" role="dialog" aria-modal="true">
+          <div className="money-modal">
+            <h2>{feedbackModal.title}</h2>
+            <p>{feedbackModal.message}</p>
 
-            <div>
-              <h3>Money Confidence for Life</h3>
-              <p>Build confidence with money</p>
-            </div>
-          </Link>
-
-          <nav className="money-app-footer-nav">
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/game-money">Game Money</Link>
-            <Link to="/real-money">Real Money</Link>
-            <Link to="/feedback">Share Feedback</Link>
-          </nav>
+            <button
+              type="button"
+              className="money-modal-button"
+              onClick={() => setFeedbackModal(null)}
+            >
+              OK
+            </button>
+          </div>
         </div>
-      </footer>
+      )}
     </div>
   );
 }
 
 function getHighestCategory(
-  items: Array<{ label: GameMoneyCategory; amount: number }>
+  items: Array<{ label: GameMoneyCategory; amount: number }>,
 ) {
   const highest = items.reduce((currentHighest, item) => {
     return item.amount > currentHighest.amount ? item : currentHighest;
