@@ -37,7 +37,7 @@ namespace MCFL.API.Data.Seed
                     CreatedAt = DateTime.UtcNow.Date.AddDays(-24),
                     CurrentGameMoney = 150.00m,
                     CurrentConfidenceScore = 72,
-                    LearningGoalTitle = "Save $300 per month",
+                    LearningGoalTitle = "Save $300 for your future iPad",
                     LearningGoalTargetAmount = 300.00m
                 },
                 new
@@ -57,7 +57,7 @@ namespace MCFL.API.Data.Seed
                     CreatedAt = DateTime.UtcNow.Date.AddDays(-17),
                     CurrentGameMoney = 140.00m,
                     CurrentConfidenceScore = 68,
-                    LearningGoalTitle = "Save $300 per month",
+                    LearningGoalTitle = "Save $300 for your future iPad",
                     LearningGoalTargetAmount = 300.00m
                 },
                 new
@@ -77,7 +77,7 @@ namespace MCFL.API.Data.Seed
                     CreatedAt = DateTime.UtcNow.Date.AddDays(-11),
                     CurrentGameMoney = 100.00m,
                     CurrentConfidenceScore = 60,
-                    LearningGoalTitle = "Save $300 per month",
+                    LearningGoalTitle = "Save $300 for your future iPad",
                     LearningGoalTargetAmount = 300.00m
                 },
                 new
@@ -97,7 +97,7 @@ namespace MCFL.API.Data.Seed
                     CreatedAt = DateTime.UtcNow.Date.AddDays(-6),
                     CurrentGameMoney = 95.00m,
                     CurrentConfidenceScore = 58,
-                    LearningGoalTitle = "Save $300 per month",
+                    LearningGoalTitle = "Save $300 for your future iPad",
                     LearningGoalTargetAmount = 300.00m
                 },
                 new
@@ -117,7 +117,7 @@ namespace MCFL.API.Data.Seed
                     CreatedAt = DateTime.UtcNow.Date.AddDays(-2),
                     CurrentGameMoney = 165.00m,
                     CurrentConfidenceScore = 67,
-                    LearningGoalTitle = "Save $300 per month",
+                    LearningGoalTitle = "Save $300 for your future iPad",
                     LearningGoalTargetAmount = 300.00m
                 }
             };

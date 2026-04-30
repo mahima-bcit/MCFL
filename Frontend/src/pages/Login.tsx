@@ -9,6 +9,7 @@ import { apiFetch } from "../services/apiClient";
 type LoginResponse = {
   token: string;
   role: string;
+  mustChangePassword: boolean;
 };
 
 export default function Login() {
@@ -24,7 +25,7 @@ export default function Login() {
     setError("");
 
     try {
-      const data = await apiFetch<LoginResponse>("/account/login", {
+      const data = await apiFetch<LoginResponse>("account/login", {
         method: "POST",
         body: JSON.stringify({ email, password, rememberMe }),
       });
@@ -39,7 +40,9 @@ export default function Login() {
       storage.setItem("role", data.role);
 
       if (data.role === "Admin") {
-        navigate("/admin/overview");
+        navigate(
+          data.mustChangePassword ? "/admin/settings" : "/admin/overview",
+        );
       } else {
         navigate("/dashboard");
       }

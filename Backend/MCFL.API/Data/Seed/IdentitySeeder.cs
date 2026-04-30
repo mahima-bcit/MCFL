@@ -64,7 +64,6 @@ namespace MCFL.API.Data.Seed
                 adminUser.ParentConsentRequired = false;
                 adminUser.ParentConsentReceived = false;
                 adminUser.OnboardingCompleted = true;
-                adminUser.MustChangePassword = true;
 
                 var updateResult = await _userManager.UpdateAsync(adminUser);
 
