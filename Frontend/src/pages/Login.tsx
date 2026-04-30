@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
+
 import { apiFetch } from "../services/apiClient";
 
 type LoginResponse = {
@@ -67,8 +68,8 @@ export default function Login() {
                 Log in to continue your financial journey
               </p>
             </div>
-
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email Input */}
               <div>
                 <label
                   htmlFor="email"
@@ -87,6 +88,7 @@ export default function Login() {
                 />
               </div>
 
+              {/* Password Input */}
               <div>
                 <label
                   htmlFor="password"
@@ -111,6 +113,7 @@ export default function Login() {
                 </p>
               )}
 
+              {/* Remember Me & Forgot Password */}
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -132,6 +135,7 @@ export default function Login() {
                 </a>
               </div>
 
+              {/* Login Button */}
               <Button
                 type="submit"
                 variant="primary"
@@ -141,6 +145,7 @@ export default function Login() {
               </Button>
             </form>
 
+            {/* Sign Up Link */}
             <p className="text-center text-nav/70 text-sm mt-6">
               Don't have an account yet?{" "}
               <a
