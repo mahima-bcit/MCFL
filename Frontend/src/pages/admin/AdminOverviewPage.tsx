@@ -9,6 +9,9 @@ import type {
   OverviewRangeKey,
 } from "../../types/adminOverview";
 import UserGrowthChart from "../../components/admin/overview/UserGrowthChart";
+import TopScenariosChart from "../../components/admin/overview/TopScenariosChart";
+import { getAdminScenarios } from "../../services/adminScenariosApi";
+import type { AdminScenarios } from "../../types/adminScenarios";
 import { Download, Filter, Heart, Users, Wallet } from "lucide-react";
 
 const rangeOptions: { key: OverviewRangeKey; label: string }[] = [
@@ -36,6 +39,7 @@ export default function AdminOverviewPage() {
   const [data, setData] = useState<AdminOverview | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
+  const [scenariosData, setScenariosData] = useState<AdminScenarios | null>(null);
   const [selectedRange, setSelectedRange] = useState<OverviewRangeKey>("allTime");
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
@@ -71,14 +75,20 @@ export default function AdminOverviewPage() {
         setLoading(true);
         setFetchError("");
 
-        const result = await getAdminOverview({
+        const rangeParams = {
           range: selectedRange,
           startDate: selectedRange === "custom" ? customStartDate : undefined,
           endDate: selectedRange === "custom" ? customEndDate : undefined,
-        });
+        };
+
+        const [overviewResult, scenariosResult] = await Promise.all([
+          getAdminOverview(rangeParams),
+          getAdminScenarios(rangeParams),
+        ]);
 
         if (!isCancelled) {
-          setData(result);
+          setData(overviewResult);
+          setScenariosData(scenariosResult);
         }
       } catch {
         if (!isCancelled) {
@@ -255,7 +265,7 @@ export default function AdminOverviewPage() {
             />
 
             <StatCard
-              label="Avg Goal Progress"
+              label="Avg Savings"
               value={`$${data.avgSavings}`}
               icon={Wallet}
               iconBgClassName="bg-[#eafaf3]"
@@ -284,6 +294,19 @@ export default function AdminOverviewPage() {
                   barClassName="bg-indigo-500"
                 />
               </div>
+
+              {scenariosData && (
+                <>
+                  <div className="my-5 border-t border-[#e8eef8]" />
+                  <h3 className="mb-4 text-[18px] font-semibold text-slate-900 md:text-xl">
+                    Top Scenarios
+                  </h3>
+                  <TopScenariosChart
+                    scenarios={scenariosData.scenarios}
+                    totalCompletions={scenariosData.totalCompletions}
+                  />
+                </>
+              )}
             </AdminCard>
 
             <AdminCard className="p-3.5 md:p-6">
@@ -296,6 +319,7 @@ export default function AdminOverviewPage() {
               </div>
             </AdminCard>
           </div>
+
         </div>
       )}
     </AdminLayout>

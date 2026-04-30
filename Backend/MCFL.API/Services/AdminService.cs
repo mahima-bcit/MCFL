@@ -294,13 +294,93 @@ namespace MCFL.API.Services
             return true;
         }
 
-        public async Task<AdminScenariosDto> GetScenariosAsync()
+        public async Task<AdminScenariosDto> GetScenariosAsync(
+            string? range = "allTime",
+            DateTime? startDate = null,
+            DateTime? endDate = null)
         {
+            DateTime? dateFrom = null;
+            DateTime? dateTo = null;
+
+            var rangeKey = string.IsNullOrWhiteSpace(range) ? "allTime" : range;
+
+            if (rangeKey != "allTime")
+            {
+                var today = DateTime.UtcNow.Date;
+
+                DateTime resolvedFrom;
+                DateTime resolvedTo;
+
+                switch (rangeKey)
+                {
+                    case "today":
+                        resolvedFrom = today;
+                        resolvedTo = today;
+                        break;
+
+                    case "yesterday":
+                        resolvedFrom = today.AddDays(-1);
+                        resolvedTo = today.AddDays(-1);
+                        break;
+
+                    case "last7Days":
+                        resolvedFrom = today.AddDays(-6);
+                        resolvedTo = today;
+                        break;
+
+                    case "last30Days":
+                        resolvedFrom = today.AddDays(-29);
+                        resolvedTo = today;
+                        break;
+
+                    case "thisMonth":
+                        resolvedFrom = new DateTime(today.Year, today.Month, 1);
+                        resolvedTo = today;
+                        break;
+
+                    case "lastMonth":
+                        var firstOfThisMonth = new DateTime(today.Year, today.Month, 1);
+                        resolvedFrom = firstOfThisMonth.AddMonths(-1);
+                        resolvedTo = firstOfThisMonth.AddDays(-1);
+                        break;
+
+                    case "thisYear":
+                        resolvedFrom = new DateTime(today.Year, 1, 1);
+                        resolvedTo = today;
+                        break;
+
+                    case "custom":
+                        if (!startDate.HasValue || !endDate.HasValue)
+                            throw new ArgumentException("Custom range requires startDate and endDate.");
+
+                        var s = startDate.Value.Date;
+                        var e = endDate.Value.Date;
+
+                        if (e < s)
+                            throw new ArgumentException("Custom range requires endDate to be greater than or equal to startDate.");
+
+                        if (s > today || e > today)
+                            throw new ArgumentException("Custom range cannot include future dates.");
+
+                        resolvedFrom = s;
+                        resolvedTo = e;
+                        break;
+
+                    default:
+                        resolvedFrom = today.AddDays(-29);
+                        resolvedTo = today;
+                        break;
+                }
+
+                dateFrom = resolvedFrom;
+                dateTo = resolvedTo.AddDays(1); // exclusive upper bound
+            }
+
             var totalScenarios = await _adminRepository.CountActiveScenariosAsync();
-            var totalCompletions = await _adminRepository.CountScenarioCompletionsAsync();
-            var avgConfidenceGain = await _adminRepository.GetAverageScenarioConfidenceGainAsync();
-            var avgMoneyImpact = await _adminRepository.GetAverageScenarioMoneyImpactAsync();
-            var summaries = await _adminRepository.GetScenarioSummariesAsync();
+            var totalCompletions = await _adminRepository.CountScenarioCompletionsAsync(dateFrom, dateTo);
+            var avgConfidenceGain = await _adminRepository.GetAverageScenarioConfidenceGainAsync(dateFrom, dateTo);
+            var avgMoneyImpact = await _adminRepository.GetAverageScenarioMoneyImpactAsync(dateFrom, dateTo);
+            var summaries = await _adminRepository.GetScenarioSummariesAsync(dateFrom, dateTo);
 
             return new AdminScenariosDto
             {

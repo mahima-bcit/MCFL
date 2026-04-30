@@ -23,7 +23,7 @@ namespace MCFL.API.Services
         Task<AdminAllowedRegistrationEmailDto> AddAllowedRegistrationEmailAsync(AddAllowedRegistrationEmailRequest request);
         Task<bool> DeleteAllowedRegistrationEmailAsync(int id);
 
-        Task<AdminScenariosDto> GetScenariosAsync();
+        Task<AdminScenariosDto> GetScenariosAsync(string? range = "allTime", DateTime? startDate = null, DateTime? endDate = null);
 
         Task<List<AdminManageScenarioDto>> GetManageScenariosAsync();
         Task<AdminManageScenarioDto> CreateScenarioAsync(AdminUpsertScenarioRequestDto request);

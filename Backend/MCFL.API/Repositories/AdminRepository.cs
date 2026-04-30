@@ -418,34 +418,40 @@ namespace MCFL.API.Repositories
                 .CountAsync(x => x.IsActive);
         }
 
-        public async Task<int> CountScenarioCompletionsAsync()
+        public async Task<int> CountScenarioCompletionsAsync(DateTime? dateFrom = null, DateTime? dateTo = null)
         {
             return await _context.ScenarioPlays
                 .AsNoTracking()
+                .Where(x => (!dateFrom.HasValue || x.PlayedAt >= dateFrom) &&
+                            (!dateTo.HasValue   || x.PlayedAt < dateTo))
                 .CountAsync();
         }
 
-        public async Task<double> GetAverageScenarioConfidenceGainAsync()
+        public async Task<double> GetAverageScenarioConfidenceGainAsync(DateTime? dateFrom = null, DateTime? dateTo = null)
         {
             var average = await _context.ScenarioPlays
                 .AsNoTracking()
+                .Where(x => (!dateFrom.HasValue || x.PlayedAt >= dateFrom) &&
+                            (!dateTo.HasValue   || x.PlayedAt < dateTo))
                 .Select(x => (double?)x.ConfidenceImpactSnapshot)
                 .AverageAsync();
 
             return average.HasValue ? Math.Round(average.Value, 1) : 0;
         }
 
-        public async Task<decimal> GetAverageScenarioMoneyImpactAsync()
+        public async Task<decimal> GetAverageScenarioMoneyImpactAsync(DateTime? dateFrom = null, DateTime? dateTo = null)
         {
             var average = await _context.ScenarioPlays
                 .AsNoTracking()
+                .Where(x => (!dateFrom.HasValue || x.PlayedAt >= dateFrom) &&
+                            (!dateTo.HasValue   || x.PlayedAt < dateTo))
                 .Select(x => (double?)x.MoneyImpactSnapshot)
                 .AverageAsync();
 
             return average.HasValue ? Math.Round((decimal)average.Value, 2) : 0m;
         }
 
-        public async Task<List<AdminScenarioSummaryProjection>> GetScenarioSummariesAsync()
+        public async Task<List<AdminScenarioSummaryProjection>> GetScenarioSummariesAsync(DateTime? dateFrom = null, DateTime? dateTo = null)
         {
             var scenarios = await _context.Scenarios
                 .AsNoTracking()
@@ -466,7 +472,9 @@ namespace MCFL.API.Repositories
 
             var plays = await _context.ScenarioPlays
                 .AsNoTracking()
-                .Where(x => scenarioIds.Contains(x.ScenarioId))
+                .Where(x => scenarioIds.Contains(x.ScenarioId) &&
+                            (!dateFrom.HasValue || x.PlayedAt >= dateFrom) &&
+                            (!dateTo.HasValue   || x.PlayedAt < dateTo))
                 .Select(x => new
                 {
                     x.ScenarioId,

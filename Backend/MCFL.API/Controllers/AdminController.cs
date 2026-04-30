@@ -150,10 +150,20 @@ namespace MCFL.API.Controllers
         }
 
         [HttpGet("scenarios")]
-        public async Task<ActionResult<AdminScenariosDto>> GetScenarios()
+        public async Task<ActionResult<AdminScenariosDto>> GetScenarios(
+            [FromQuery] string? range = "allTime",
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
         {
-            var scenarios = await _adminService.GetScenariosAsync();
-            return Ok(scenarios);
+            try
+            {
+                var scenarios = await _adminService.GetScenariosAsync(range, startDate, endDate);
+                return Ok(scenarios);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("scenarios/manage")]
