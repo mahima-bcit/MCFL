@@ -20,19 +20,26 @@ export default function AdminHeader() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              className="hidden h-10 w-10 items-center justify-center rounded-full bg-[#f5f8fc] text-slate-600 transition hover:bg-[#edf3fd] lg:inline-flex"
+            <NavLink
+              to="/admin/settings"
+              className={({ isActive }) =>
+                [
+                  "hidden h-10 w-10 items-center justify-center rounded-full transition lg:inline-flex",
+                  isActive
+                    ? "bg-[#2563eb] text-white shadow-[0_6px_16px_rgba(37,99,235,0.22)]"
+                    : "bg-[#f5f8fc] text-slate-600 hover:bg-[#edf3fd]",
+                ].join(" ")
+              }
               aria-label="Settings"
             >
               <Settings size={18} />
-            </button>
+            </NavLink>
 
             <NavLink
               to="/"
               className="hidden items-center rounded-full border border-[#dbe6f5] bg-white px-4 py-2 text-[14px] font-semibold text-slate-700 transition hover:bg-[#f8fbff] sm:inline-flex"
             >
-              Back to Site
+              Logout
             </NavLink>
 
             <button
@@ -59,13 +66,28 @@ export default function AdminHeader() {
                 onNavigate={() => setMenuOpen(false)}
               />
 
-              <div className="mt-3 pt-3">
+              <div className="mt-3 space-y-2 pt-3">
+                <NavLink
+                  to="/admin/settings"
+                  onClick={() => setMenuOpen(false)}
+                  className={({ isActive }) =>
+                    [
+                      "inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[14px] font-semibold transition",
+                      isActive
+                        ? "bg-[#2563eb] text-white"
+                        : "border border-[#dbe6f5] bg-white text-slate-700 hover:bg-[#f8fbff]",
+                    ].join(" ")
+                  }
+                >
+                  <Settings size={16} />
+                  <span>Admin Settings</span>
+                </NavLink>
                 <NavLink
                   to="/"
                   onClick={() => setMenuOpen(false)}
                   className="inline-flex w-full items-center justify-center rounded-xl border border-[#dbe6f5] bg-white px-4 py-2.5 text-[14px] font-semibold text-slate-700 transition hover:bg-[#f8fbff]"
                 >
-                  Back to Site
+                  Logout
                 </NavLink>
               </div>
             </div>
