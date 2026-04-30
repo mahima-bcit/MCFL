@@ -12,11 +12,11 @@
 .money-app-header-inner {
   width: min(100%, 1440px);
   margin: 0 auto;
-  padding: 28px 48px;
+  padding: 22px 24px;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 36px;
+  text-align: left;
 }
 
 .money-app-brand,
@@ -29,61 +29,72 @@
 }
 
 .money-app-logo {
-  width: 70px;
-  height: 70px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
   background: white;
 }
 
 .money-app-brand h1 {
   margin: 0;
-  font-size: 30px;
+  font-size: 22px;
   line-height: 1.1;
   font-weight: 900;
   font-family: Georgia, "Times New Roman", serif;
 }
 
 .money-app-brand p {
-  margin: 8px 0 0;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 18px;
-  font-weight: 700;
+  display: none;
 }
 
 .money-app-nav,
 .money-app-footer-nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 26px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+  justify-items: center;
+  width: 100%;
+  padding: 0 24px 28px;
 }
 
 .money-app-nav a,
 .money-app-footer-nav a {
-  color: white;
+  display: inline-block;
+  width: fit-content;
+  color: rgba(255, 255, 255, 0.72);
   text-decoration: none;
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 900;
-  opacity: 0.9;
+  text-align: center;
 }
 
 .money-app-nav a.active {
+  color: white;
   border-bottom: 3px solid white;
   padding-bottom: 6px;
+  background: transparent;
   opacity: 1;
 }
 
 .money-app-logout {
-  color: white;
-  text-decoration: none;
-  font-size: 17px;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 28px 0 0;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  text-align: center;
+  font-size: 20px;
   font-weight: 900;
+  text-decoration: none;
 }
 
 .real-money-page {
   min-height: 100vh;
   background: #eef8f4;
-  padding: 32px 48px 56px;
+  padding: 20px 16px 40px;
   color: #1f336e;
   width: min(100%, 1440px);
   margin: 0 auto;
@@ -91,7 +102,8 @@
 
 .real-money-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  flex-direction: column;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 16px;
@@ -139,7 +151,7 @@
 
 .real-money-total-card {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 18px;
 }
 
@@ -327,11 +339,21 @@
 }
 
 .money-app-menu {
-  display: contents;
+  grid-column: 1 / -1;
+  display: none;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  margin-top: 22px;
+}
+
+.money-app-menu.open {
+  display: block;
 }
 
 .money-mobile-menu-button {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 2px solid rgba(255, 255, 255, 0.75);
   background: transparent;
   color: white;
@@ -344,114 +366,32 @@
   cursor: pointer;
 }
 
-@media (max-width: 900px) {
-  .money-app-header-inner {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    padding: 22px 24px;
-    text-align: left;
-  }
-
-  .money-app-brand {
-    justify-content: flex-start;
-  }
-
-  .money-app-logo {
-    width: 48px;
-    height: 48px;
-  }
-
-  .money-app-brand h1 {
-    font-size: 22px;
-    line-height: 1.1;
-  }
-
-  .money-app-brand p {
-    display: none;
-  }
-
-  .money-mobile-menu-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .money-app-menu {
-    grid-column: 1 / -1;
-    display: none;
-    padding-top: 28px;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    margin-top: 22px;
-  }
-
-  .money-app-menu.open {
-    display: block;
-  }
-
-  .money-app-nav {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 28px;
-    justify-items: center;
-    width: 100%;
-    padding: 0 24px 28px;
-  }
-
-  .money-app-nav a {
-    display: inline-block;
-    width: fit-content;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: rgba(255, 255, 255, 0.72);
-    text-align: center;
-    font-size: 20px;
-    font-weight: 900;
-    text-decoration: none;
-  }
-
-  .money-app-nav a.active {
-    color: white;
-    border-bottom: 3px solid white;
-    padding-bottom: 6px;
-    background: transparent;
-  }
-
-  .money-app-logout {
-    display: block;
-    width: 100%;
-    margin: 0;
-    padding: 28px 0 0;
-    border: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.18);
-    background: transparent;
-    color: rgba(255, 255, 255, 0.72);
-    text-align: center;
-    font-size: 20px;
-    font-weight: 900;
-    text-decoration: none;
-  }
-}
-
 .real-money-header-actions {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
-@media (max-width: 900px) {
-  .real-money-header-actions {
-    width: 100%;
-  }
-
-  .real-money-header-actions .real-money-add-top-btn {
-    text-align: center;
-  }
+.real-money-header-actions .real-money-add-top-btn {
+  text-align: center;
 }
 
 @media (min-width: 901px) {
+  .real-money-page {
+    padding: 32px 48px 56px;
+  }
+
+  .real-money-total-card {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .real-money-header {
+    align-items: center;
+    flex-direction: row;
+  }
+
   .money-app-header-inner {
     width: min(100%, 1440px);
     margin: 0 auto;
@@ -460,6 +400,28 @@
     grid-template-columns: auto 1fr;
     align-items: center;
     gap: 36px;
+    text-align: left;
+  }
+
+  .money-app-logo {
+    width: 70px;
+    height: 70px;
+  }
+
+  .money-app-brand h1 {
+    font-size: 30px;
+  }
+
+  .money-app-brand p {
+    display: block;
+    margin: 8px 0 0;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .money-mobile-menu-button {
+    display: none;
   }
 
   .money-app-menu {
@@ -467,6 +429,10 @@
     align-items: center;
     justify-content: flex-end;
     gap: 26px;
+    grid-column: auto;
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
   }
 
   .money-app-nav {
@@ -474,10 +440,41 @@
     align-items: center;
     justify-content: flex-end;
     gap: 26px;
+    grid-template-columns: none;
+    padding: 0;
+    width: auto;
+  }
+
+  .money-app-nav a {
+    font-size: 17px;
+    color: white;
+    opacity: 0.9;
+    width: auto;
+    text-align: left;
+  }
+
+  .money-app-nav a.active {
+    opacity: 1;
   }
 
   .money-app-logout {
+    display: inline;
+    width: auto;
+    padding: 0;
+    border: none;
+    border-top: none;
+    color: white;
+    text-align: left;
+    font-size: 17px;
     margin-left: 0;
+  }
+
+  .real-money-header-actions {
+    width: auto;
+  }
+
+  .real-money-header-actions .real-money-add-top-btn {
+    text-align: left;
   }
 }
 

@@ -25,7 +25,7 @@ export type GameMoneyRecentScenario = {
 export type GameMoneySummary = {
   items: GameMoneyItem[];
   totals: GameMoneyTotals;
-  recentScenario: GameMoneyRecentScenario;
+  recentScenario?: GameMoneyRecentScenario;
 };
 
 export type SaveGameMoneyFeelingRequest = {

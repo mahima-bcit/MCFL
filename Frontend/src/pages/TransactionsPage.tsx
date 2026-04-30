@@ -76,7 +76,7 @@ export default function TransactionsPage() {
 
             <div>
               <h1>Money Confidence for Life</h1>
-              <p>Build confidence with money</p>
+              <p>Level Up Your Future</p>
             </div>
           </Link>
 

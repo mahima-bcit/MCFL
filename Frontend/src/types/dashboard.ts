@@ -8,33 +8,11 @@ export type DashboardData = {
   goalCurrent: number;
   goalTarget: number;
   goalDueLabel: string;
-
-  monthlyNet: number;
-
-  gameMoneyPicture: {
-    want: number;
-    need: number;
-    fun: number;
-    save: number;
-  };
-
-  realMoneySnapshot: {
-    availableBalance: number;
-    monthlyIncome: number;
-    monthlyExpenses: number;
-    monthlyNet: number;
-  };
+  goalTitle: string;
 
   parentFeedback: {
     name: string;
-    token?: string;
     link: string;
   };
 
-  recentScenario: {
-    title: string;
-    description: string;
-    moneyImpact: number;
-    confidenceBoost: number;
-  };
 };

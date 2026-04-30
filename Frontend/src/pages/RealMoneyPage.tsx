@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "../RealMoneyPage.css";
+import DashboardLayout from "../components/layout/DashboardLayout";
 import {
   createRealMoneyEntry,
   getRealMoneySummary,
@@ -30,7 +31,6 @@ const emptyRealMoneySummary: RealMoneySummary = {
 };
 
 export default function RealMoneyPage() {
-  const location = useLocation();
   const [entryType, setEntryType] = useState<EntryType>("cashIn");
   const [amount, setAmount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<
@@ -43,7 +43,6 @@ export default function RealMoneyPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [entryModal, setEntryModal] = useState<{
     title: string;
     message: string;
@@ -134,73 +133,7 @@ export default function RealMoneyPage() {
   }
 
   return (
-    <div className="real-money-layout">
-      <header className="money-app-header">
-        <div className="money-app-header-inner">
-          <Link
-            to="/"
-            className="money-app-brand"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <img
-              src="/MCFL.png"
-              alt="Money Confidence for Life"
-              className="money-app-logo"
-            />
-
-            <div>
-              <h1>Money Confidence for Life</h1>
-              <p>Build confidence with money</p>
-            </div>
-          </Link>
-
-          <button
-            type="button"
-            className="money-mobile-menu-button"
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileMenuOpen}
-            onClick={() => setMobileMenuOpen((oldValue) => !oldValue)}
-          >
-            {mobileMenuOpen ? "×" : "☰"}
-          </button>
-
-          <div className={`money-app-menu ${mobileMenuOpen ? "open" : ""}`}>
-            <nav className="money-app-nav">
-              <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                Dashboard
-              </Link>
-
-              <Link
-                to="/game-money"
-                className={location.pathname === "/game-money" ? "active" : ""}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Game Money
-              </Link>
-
-              <Link
-                to="/real-money"
-                className={location.pathname === "/real-money" ? "active" : ""}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Real Money
-              </Link>
-              <Link to="/feedback" onClick={() => setMobileMenuOpen(false)}>
-                Share Feedback
-              </Link>
-            </nav>
-
-            <Link
-              to="/login"
-              className="money-app-logout"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Logout
-            </Link>
-          </div>
-        </div>
-      </header>
-
+    <DashboardLayout>
       <main className="real-money-page">
         <section className="real-money-header">
           <div>
@@ -382,7 +315,7 @@ export default function RealMoneyPage() {
           </div>
         </div>
       )}
-    </div>
+    </DashboardLayout>
   );
 }
 

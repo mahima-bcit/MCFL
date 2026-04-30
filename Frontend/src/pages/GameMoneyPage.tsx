@@ -1,6 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+﻿import { useEffect, useMemo, useState } from "react";
+import { ChevronRight, Frown, Gamepad2, Meh, Smile } from "lucide-react";
+import {
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 import "../GameMoneyPage.css";
+import DashboardLayout from "../components/layout/DashboardLayout";
+import { getDashboardSummary } from "../services/dashboardApi";
 import {
   getGameMoneySummary,
   saveGameMoneyFeeling,
@@ -16,33 +24,11 @@ const categoryColors: Record<GameMoneyCategory, string> = {
   Save: "#29c69b",
 };
 
+const IN_THE_RED_COLOR = "#dc2626";
+const HAVE_COLOR = "#0ea77d";
+
 const emptyGameMoneySummary: GameMoneySummary = {
-  items: [
-    {
-      id: 1,
-      category: "Want",
-      amount: 0,
-      note: "Money used for wants",
-    },
-    {
-      id: 2,
-      category: "Need",
-      amount: 0,
-      note: "Money used for needs",
-    },
-    {
-      id: 3,
-      category: "Fun",
-      amount: 0,
-      note: "Money used for fun",
-    },
-    {
-      id: 4,
-      category: "Save",
-      amount: 0,
-      note: "Money saved for later",
-    },
-  ],
+  items: [],
   totals: {
     want: 0,
     need: 0,
@@ -50,23 +36,18 @@ const emptyGameMoneySummary: GameMoneySummary = {
     save: 0,
     total: 0,
   },
-  recentScenario: {
-    title: "No scenario yet",
-    description: "Start a scenario to see your latest result.",
-    moneyImpact: 0,
-    confidenceBoost: 0,
-  },
 };
 
 export default function GameMoneyPage() {
-  const location = useLocation();
   const [feeling, setFeeling] = useState<Feeling | null>(null);
   const [summary, setSummary] = useState<GameMoneySummary>(
     emptyGameMoneySummary,
   );
+  const [gameBalance, setGameBalance] = useState(0);
+  const [confidence, setConfidence] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [feelingModalOpen, setFeelingModalOpen] = useState(false);
   const [feedbackModal, setFeedbackModal] = useState<{
     title: string;
     message: string;
@@ -77,7 +58,10 @@ export default function GameMoneyPage() {
 
     async function loadGameMoneySummary() {
       try {
-        const data = await getGameMoneySummary();
+        const [data, dashboard] = await Promise.all([
+          getGameMoneySummary(),
+          getDashboardSummary(),
+        ]);
 
         if (!isCurrent) {
           return;
@@ -86,17 +70,14 @@ export default function GameMoneyPage() {
         setSummary({
           ...emptyGameMoneySummary,
           ...data,
-          items: data.items?.length ? data.items : emptyGameMoneySummary.items,
           totals: {
             ...emptyGameMoneySummary.totals,
             ...data.totals,
           },
-          recentScenario: {
-            ...emptyGameMoneySummary.recentScenario,
-            ...data.recentScenario,
-          },
         });
 
+        setGameBalance(dashboard.gameBalance ?? 0);
+        setConfidence(dashboard.confidence ?? 0);
         setErrorMessage("");
       } catch (error) {
         console.error("Could not load game money summary.", error);
@@ -149,6 +130,8 @@ export default function GameMoneyPage() {
 
     try {
       await saveGameMoneyFeeling({ feeling });
+      setFeelingModalOpen(false);
+      setFeeling(null);
 
       if (feeling === "Good") {
         setFeedbackModal({
@@ -178,77 +161,11 @@ export default function GameMoneyPage() {
   }
 
   return (
-    <div className="game-money-layout">
-      <header className="money-app-header">
-        <div className="money-app-header-inner">
-          <Link
-            to="/"
-            className="money-app-brand"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <img
-              src="/MCFL.png"
-              alt="Money Confidence for Life"
-              className="money-app-logo"
-            />
-
-            <div>
-              <h1>Money Confidence for Life</h1>
-              <p>Build confidence with money</p>
-            </div>
-          </Link>
-
-          <button
-            type="button"
-            className="money-mobile-menu-button"
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileMenuOpen}
-            onClick={() => setMobileMenuOpen((oldValue) => !oldValue)}
-          >
-            {mobileMenuOpen ? "×" : "☰"}
-          </button>
-
-          <div className={`money-app-menu ${mobileMenuOpen ? "open" : ""}`}>
-            <nav className="money-app-nav">
-              <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                Dashboard
-              </Link>
-
-              <Link
-                to="/game-money"
-                className={location.pathname === "/game-money" ? "active" : ""}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Game Money
-              </Link>
-
-              <Link
-                to="/real-money"
-                className={location.pathname === "/real-money" ? "active" : ""}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Real Money
-              </Link>
-
-              <Link to="/feedback" onClick={() => setMobileMenuOpen(false)}>
-                Share Feedback
-              </Link>
-            </nav>
-
-            <Link
-              to="/login"
-              className="money-app-logout"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Logout
-            </Link>
-          </div>
-        </div>
-      </header>
-
+    <DashboardLayout>
       <main className="game-money-page">
         <section className="game-money-header">
-          <div>
+          <div className="game-money-header-title">
+            <Gamepad2 size={32} strokeWidth={2} />
             <h1>Game Money Picture</h1>
           </div>
         </section>
@@ -267,16 +184,34 @@ export default function GameMoneyPage() {
 
         {!isLoading && (
           <>
-            <section className="game-money-hero">
-              <div className="game-money-hero-copy">
-                <span className="game-money-badge">Recent Scenario</span>
-                <h2>Game Scenario</h2>
-                <p>{summary.recentScenario.description}</p>
+            <section className="game-money-card game-total-card">
+              <div className="game-total-stats">
+                <div>
+                  <p>Game Balance</p>
+                  <strong>${gameBalance.toFixed(2)}</strong>
+                </div>
+
+                <div>
+                  <p>Confidence</p>
+                  <strong>{confidence}</strong>
+                </div>
               </div>
 
-              <Link to="/game" className="game-money-hero-btn">
-                Start Scenario
-              </Link>
+              <div className="game-total-separator" />
+
+              <button
+                type="button"
+                className="game-total-feeling-trigger"
+                onClick={() => setFeelingModalOpen(true)}
+              >
+                <div className="feeling-trigger-icons">
+                  <Smile size={20} strokeWidth={2} />
+                  <Meh size={20} strokeWidth={2} />
+                  <Frown size={20} strokeWidth={2} />
+                </div>
+                <span>Share how you feel about your money picture today</span>
+                <ChevronRight size={18} strokeWidth={2} className="feeling-trigger-arrow" />
+              </button>
             </section>
 
             <section className="game-money-top-grid">
@@ -310,83 +245,185 @@ export default function GameMoneyPage() {
               </div>
             </section>
 
-            <section className="game-money-card game-total-card">
-              <div>
-                <p>Total Game Money</p>
-                <strong>${summary.totals.total.toFixed(2)}</strong>
-              </div>
-
-              <div>
-                <p>Highest Category</p>
-                <strong>{getHighestCategory(categoryItems)}</strong>
-              </div>
-
-              <div>
-                <p>Categories</p>
-                <strong>4</strong>
-              </div>
-            </section>
-
-            <section className="game-money-card">
-              <h2>How do you feel about your money picture?</h2>
-
-              <div className="feeling-grid">
-                <button
-                  type="button"
-                  onClick={() => setFeeling("Good")}
-                  className={feeling === "Good" ? "selected" : ""}
-                >
-                  <span>😊</span>
-                  Good
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setFeeling("Unsure")}
-                  className={feeling === "Unsure" ? "selected" : ""}
-                >
-                  <span>😐</span>
-                  Unsure
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setFeeling("Worried")}
-                  className={feeling === "Worried" ? "selected" : ""}
-                >
-                  <span>😟</span>
-                  Worried
-                </button>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleSaveFeeling}
-                className="save-feeling-btn"
-              >
-                Save Feeling
-              </button>
-            </section>
-
-            <section className="game-money-card">
-              <h2>Recent Game Money Activity</h2>
-
-              <div className="recent-game-list">
-                {summary.items.slice(0, 5).map((item) => (
-                  <div key={item.id} className="recent-game-entry">
-                    <div>
-                      <strong>{item.category}</strong>
-                      <span>{item.note}</span>
+            {(() => {
+              const overage = summary.totals.need - gameBalance;
+              const inTheRed = overage > 0;
+              const maxBar = Math.max(gameBalance, summary.totals.need, 1);
+              return (
+                <section className="game-money-card money-overview-card">
+                  <div className="money-overview-grid">
+                    <div className="total-money-section">
+                      <h2>Total Money</h2>
+                      <HorizontalBar
+                        label="Have"
+                        amount={gameBalance}
+                        maxAmount={maxBar}
+                        color={HAVE_COLOR}
+                      />
+                      <HorizontalBar
+                        label="Need"
+                        amount={summary.totals.need}
+                        maxAmount={maxBar}
+                        color={inTheRed ? IN_THE_RED_COLOR : categoryColors["Need"]}
+                      />
+                      {inTheRed && (
+                        <div className="h-bar-balance h-bar-balance--red">
+                          <span className="h-bar-balance-label">
+                            Needs exceed Have by
+                          </span>
+                          <span className="h-bar-balance-amount">
+                            -${overage.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    <strong>${item.amount.toFixed(2)}</strong>
+                    <div className="money-allocation-section">
+                      <h2>Money Allocation</h2>
+                      {summary.totals.total > 0 ? (
+                        <div className="donut-chart-row">
+                          <div className="donut-wrapper">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                <Pie
+                                  data={categoryItems.map((i) => ({
+                                    name: i.label,
+                                    value: i.amount,
+                                    fill:
+                                      i.label === "Need" && inTheRed
+                                        ? IN_THE_RED_COLOR
+                                        : categoryColors[i.label],
+                                  }))}
+                                  dataKey="value"
+                                  cx="50%"
+                                  cy="50%"
+                                  innerRadius="45%"
+                                  outerRadius="68%"
+                                  paddingAngle={3}
+                                />
+                                <Tooltip
+                                  formatter={(value, name) => [
+                                    `$${Number(value).toFixed(2)}`,
+                                    String(name),
+                                  ]}
+                                  wrapperStyle={{ zIndex: 50 }}
+                                  contentStyle={{
+                                    borderRadius: 10,
+                                    border: "1px solid #d1ece2",
+                                    background: "#f0faf5",
+                                    boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+                                    fontSize: 13,
+                                    fontWeight: 700,
+                                    padding: "8px 14px",
+                                  }}
+                                />
+                              </PieChart>
+                            </ResponsiveContainer>
+                            {inTheRed && (
+                              <div className="donut-center-label">
+                                <span>In the</span>
+                                <span>Red</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="donut-legend">
+                            {categoryItems.map((item) => {
+                              const pct =
+                                summary.totals.total > 0
+                                  ? (
+                                      (item.amount / summary.totals.total) *
+                                      100
+                                    ).toFixed(0)
+                                  : "0";
+                              const color =
+                                item.label === "Need" && inTheRed
+                                  ? IN_THE_RED_COLOR
+                                  : categoryColors[item.label];
+                              return (
+                                <div
+                                  key={item.label}
+                                  className="donut-legend-item"
+                                >
+                                  <span
+                                    className="donut-legend-dot"
+                                    style={{ background: color }}
+                                  />
+                                  <span className="donut-legend-text">
+                                    {item.label} ${item.amount.toFixed(2)}{" "}
+                                    {pct}%
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="no-data-note">No spending data yet.</p>
+                      )}
+                    </div>
                   </div>
-                ))}
-              </div>
-            </section>
+                </section>
+              );
+            })()}
+
+
           </>
         )}
       </main>
+
+      {feelingModalOpen && (
+        <div className="money-modal-backdrop" role="dialog" aria-modal="true">
+          <div className="money-modal">
+            <h2>How do you feel?</h2>
+            <p className="feeling-modal-subtitle">Share how you feel about your money picture today</p>
+
+            <div className="feeling-grid">
+              <button
+                type="button"
+                onClick={() => setFeeling("Good")}
+                className={feeling === "Good" ? "selected" : ""}
+              >
+                <Smile size={28} strokeWidth={2} />
+                Good
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFeeling("Unsure")}
+                className={feeling === "Unsure" ? "selected" : ""}
+              >
+                <Meh size={28} strokeWidth={2} />
+                Unsure
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFeeling("Worried")}
+                className={feeling === "Worried" ? "selected" : ""}
+              >
+                <Frown size={28} strokeWidth={2} />
+                Worried
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSaveFeeling}
+              className="save-feeling-btn"
+            >
+              Save Feeling
+            </button>
+
+            <button
+              type="button"
+              className="money-modal-cancel"
+              onClick={() => { setFeelingModalOpen(false); setFeeling(null); }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {feedbackModal && (
         <div className="money-modal-backdrop" role="dialog" aria-modal="true">
@@ -404,18 +441,8 @@ export default function GameMoneyPage() {
           </div>
         </div>
       )}
-    </div>
+    </DashboardLayout>
   );
-}
-
-function getHighestCategory(
-  items: Array<{ label: GameMoneyCategory; amount: number }>,
-) {
-  const highest = items.reduce((currentHighest, item) => {
-    return item.amount > currentHighest.amount ? item : currentHighest;
-  }, items[0]);
-
-  return highest.label;
 }
 
 function CategoryRow({
@@ -436,6 +463,29 @@ function CategoryRow({
       </div>
 
       <strong>${amount.toFixed(2)}</strong>
+    </div>
+  );
+}
+
+function HorizontalBar({
+  label,
+  amount,
+  maxAmount,
+  color,
+}: {
+  label: string;
+  amount: number;
+  maxAmount: number;
+  color: string;
+}) {
+  const pct = maxAmount > 0 ? Math.max(4, Math.round((amount / maxAmount) * 100)) : 4;
+  return (
+    <div className="h-bar-row">
+      <span className="h-bar-label">{label}</span>
+      <div className="h-bar-track">
+        <div className="h-bar-fill" style={{ width: `${pct}%`, background: color }} />
+      </div>
+      <span className="h-bar-amount">${amount.toFixed(2)}</span>
     </div>
   );
 }
