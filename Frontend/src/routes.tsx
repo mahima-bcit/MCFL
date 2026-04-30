@@ -33,6 +33,7 @@ export default [
             { path: "login", element: <Login /> },
             { path: "signup", element: <Signup /> },
             { path: "profile-setup", element: <ProfileSetupFlow /> },
+            { path: "profile-setup-flow", element: <ProfileSetupFlow /> },
             { path: "parentFeedback", element: <ParentsFeedback /> },
         ],
     },
@@ -41,11 +42,11 @@ export default [
     { path: "/game", element: <GamePage /> },
     { path: "/money", element: <MoneyPage /> },
     { path: "/feedback", element: <FeedbackPage /> },
+    { path: "/userFeedback", element: <UserFeedback /> },
     { path: "/moneyPicture", element: <MoneyPicture /> },
     { path: "/game-money", element: <GameMoneyPage /> },
     { path: "/real-money", element: <RealMoneyPage /> },
     { path: "/real-money/transactions", element: <TransactionPage /> },
-    { path: "/userFeedback", element: <UserFeedback /> },
 
     {
         path: "/admin",
