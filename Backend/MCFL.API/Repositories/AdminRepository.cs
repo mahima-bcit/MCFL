@@ -736,6 +736,68 @@ namespace MCFL.API.Repositories
             return true;
         }
 
+        public async Task<List<AdminMoneyFeelingProjection>> GetMoneyFeelingsAsync(
+            string? feeling,
+            string? email,
+            DateTime? startDate,
+            DateTime? endDate)
+        {
+            var query =
+                from submission in _context.MoneyFeelingSubmissions.AsNoTracking()
+                join user in _context.Users.AsNoTracking()
+                    on submission.UserId equals user.Id
+                join profile in _context.UserProfiles.AsNoTracking()
+                    on user.Id equals profile.UserId into profileGroup
+                from profile in profileGroup.DefaultIfEmpty()
+                select new
+                {
+                    Submission = submission,
+                    User = user,
+                    Profile = profile
+                };
+
+            if (!string.IsNullOrWhiteSpace(feeling))
+            {
+                var trimmedFeeling = feeling.Trim();
+                query = query.Where(x => x.Submission.Feeling == trimmedFeeling);
+            }
+
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                var emailSearch = $"%{email.Trim()}%";
+                query = query.Where(x =>
+                    x.User.Email != null &&
+                    EF.Functions.Like(x.User.Email, emailSearch));
+            }
+
+            if (startDate.HasValue)
+            {
+                var fromDate = startDate.Value.Date;
+                query = query.Where(x => x.Submission.SubmittedAt >= fromDate);
+            }
+
+            if (endDate.HasValue)
+            {
+                var toDateExclusive = endDate.Value.Date.AddDays(1);
+                query = query.Where(x => x.Submission.SubmittedAt < toDateExclusive);
+            }
+
+            return await query
+                .OrderByDescending(x => x.Submission.SubmittedAt)
+                .Select(x => new AdminMoneyFeelingProjection
+                {
+                    MoneyFeelingSubmissionId = x.Submission.MoneyFeelingSubmissionId,
+                    UserId = x.User.Id,
+                    FullName = x.Profile != null
+                        ? x.Profile.FullName
+                        : x.User.UserName ?? "Unknown user",
+                    Email = x.User.Email ?? "",
+                    Feeling = x.Submission.Feeling,
+                    SubmittedAt = x.Submission.SubmittedAt
+                })
+                .ToListAsync();
+        }
+
         private static AdminManageScenarioProjection MapManageScenarioProjection(Scenario scenario)
         {
             return new AdminManageScenarioProjection

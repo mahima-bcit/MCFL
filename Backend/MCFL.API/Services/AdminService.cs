@@ -1,5 +1,6 @@
 ﻿using MCFL.API.DTOs.Admin.AccessControl;
 using MCFL.API.DTOs.Admin.Feedbacks;
+using MCFL.API.DTOs.Admin.Feelings;
 using MCFL.API.DTOs.Admin.Overview;
 using MCFL.API.DTOs.Admin.Scenarios;
 using MCFL.API.DTOs.Admin.Users;
@@ -574,6 +575,23 @@ namespace MCFL.API.Services
         public async Task<List<string>> GetUserFeedbackTypesAsync()
         {
             return await _adminRepository.GetUserFeedbackTypesAsync();
+        }
+
+        public async Task<List<AdminMoneyFeelingDto>> GetMoneyFeelingsAsync(
+            string? feeling, string? email, DateTime? startDate, DateTime? endDate)
+        {
+            var rows = await _adminRepository.GetMoneyFeelingsAsync(
+                feeling, email, startDate, endDate);
+
+            return rows.Select(x => new AdminMoneyFeelingDto
+            {
+                MoneyFeelingSubmissionId = x.MoneyFeelingSubmissionId,
+                UserId = x.UserId,
+                FullName = x.FullName,
+                Email = x.Email,
+                Feeling = x.Feeling,
+                SubmittedDate = x.SubmittedAt.ToString("yyyy-MM-ddTHH:mm:ssZ")
+            }).ToList();
         }
     }
 }

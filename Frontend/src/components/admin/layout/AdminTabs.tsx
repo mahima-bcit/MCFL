@@ -4,6 +4,7 @@ import {
     MessageSquare,
     MessageSquareText,
     ShieldCheck,
+    SmilePlus,
     Target,
     Users,
 } from "lucide-react";
@@ -18,6 +19,7 @@ const tabs = [
     { label: "Users", to: "/admin/users", icon: Users },
     { label: "User Feedback", to: "/admin/user-feedback", icon: MessageSquareText },
     { label: "Parent Feedback", to: "/admin/parent-feedback", icon: MessageSquare },
+    { label: "Money Feelings", to: "/admin/money-feelings", icon: SmilePlus },
     { label: "Scenarios", to: "/admin/scenarios", icon: Target },
     { label: "Access Control", to: "/admin/access-control", icon: ShieldCheck },
 ];

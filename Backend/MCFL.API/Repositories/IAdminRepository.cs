@@ -46,5 +46,11 @@ namespace MCFL.API.Repositories
             AdminUpsertScenarioRequestDto request);
         Task<bool> ActivateScenarioAsync(int scenarioId);
         Task<bool> DeactivateScenarioAsync(int scenarioId);
+
+        Task<List<AdminMoneyFeelingProjection>> GetMoneyFeelingsAsync(
+            string? feeling,
+            string? email,
+            DateTime? startDate,
+            DateTime? endDate);
     }
 }

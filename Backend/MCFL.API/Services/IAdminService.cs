@@ -1,5 +1,6 @@
 ﻿using MCFL.API.DTOs.Admin.AccessControl;
 using MCFL.API.DTOs.Admin.Feedbacks;
+using MCFL.API.DTOs.Admin.Feelings;
 using MCFL.API.DTOs.Admin.Overview;
 using MCFL.API.DTOs.Admin.Scenarios;
 using MCFL.API.DTOs.Admin.Users;
@@ -30,6 +31,8 @@ namespace MCFL.API.Services
         Task<AdminManageScenarioDto?> UpdateScenarioAsync(int scenarioId, AdminUpsertScenarioRequestDto request);
         Task<bool> ActivateScenarioAsync(int scenarioId);
         Task<bool> DeactivateScenarioAsync(int scenarioId);
-        
+
+        Task<List<AdminMoneyFeelingDto>> GetMoneyFeelingsAsync(
+            string? feeling, string? email, DateTime? startDate, DateTime? endDate);
     }
 }

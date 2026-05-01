@@ -16,7 +16,7 @@ export default function TopScenariosChart({ scenarios, totalCompletions }: Props
   return (
     <div className="flex flex-col items-center gap-5 sm:flex-row sm:justify-center sm:gap-6">
       {/* Donut */}
-      <div className="relative shrink-0" style={{ width: 160, height: 160 }}>
+      <div className="relative h-40 w-40 shrink-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
