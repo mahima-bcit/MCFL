@@ -113,6 +113,10 @@ builder.Services.AddAuthentication(options =>
 // Register application services
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IGameScenarioService, GameScenarioService>();
+builder.Services.AddScoped<IGameScenarioRepository, GameScenarioRepository>();
+builder.Services.AddScoped<IUserGameStatRepository, UserGameStatRepository>();
+builder.Services.AddScoped<GameService>();
 builder.Services.AddOptions<BrevoOptions>()
     .Bind(configuration.GetSection("Brevo"))
     .Validate(options => !string.IsNullOrWhiteSpace(options.ApiKey), "Brevo:ApiKey is required.")

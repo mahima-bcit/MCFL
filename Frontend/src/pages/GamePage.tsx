@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Button from "../components/ui/Button";
@@ -29,15 +29,23 @@ type ScenarioChoice = {
 function StepCard({
   children,
   className = "",
+  userStats,
 }: {
   children: React.ReactNode;
   className?: string;
+  userStats: {
+    money: number;
+    confidence: number;
+  };
 }) {
   return (
     <div
       className={`rounded-[28px] border border-[#edf1f6] bg-white p-5 shadow-[0_14px_34px_rgba(23,42,79,0.07)] md:p-7 ${className}`}
     >
-      <MoneyScenarioHeader />
+      <MoneyScenarioHeader
+        money={userStats.money}
+        confidence={userStats.confidence}
+      />
       {children}
     </div>
   );
@@ -55,63 +63,32 @@ const setupSteps: StepDefinition[] = [
   },
 ];
 
-const generateScenario: () => Scenario = () => {
-  return {
-    id: 0,
-    title: "Scenario Title",
-    description:
-      "This is where the scenario description will go from the backend.",
-    choices: [
-      {
-        id: 1,
-        optionText: "Choice One",
-        resultText: "result for option one.",
-        moneyImpact: 100,
-        confidenceImpact: 5,
-      },
-      {
-        id: 2,
-        optionText: "Choice Two",
-        resultText: "result for option two.",
-        moneyImpact: -50,
-        confidenceImpact: 2,
-      },
-      {
-        id: 3,
-        optionText: "Choice Three",
-        resultText: "result for option three.",
-        moneyImpact: 200,
-        confidenceImpact: 15,
-      },
-    ],
-  };
-};
-
-const getScenarios: () => Scenario[] = () => {
-  const itemCount = 6;
-  let scenarios = [];
-  for (let i = 0; i < itemCount; i++) {
-    let scenario = generateScenario();
-    scenario.id = i;
-    scenario.title = `Scenario ${i + 1}`;
-    scenarios.push(scenario);
-  }
-  return scenarios;
-};
-
 export default function GamePage() {
   const navigate = useNavigate();
   const [step, setStep] = useState<number>(0);
   const currentStepDefinition = setupSteps[step] ?? setupSteps[0];
 
-  const [scenarios, setScenarios] = useState<Scenario[]>(getScenarios());
-  let spun = false;
+  const [allScenarios, setAllScenarios] = useState<Scenario[]>([]);
+  const [playedScenarioIds, setPlayedScenarioIds] = useState<number[]>([]);
+
+  const availableScenarios = allScenarios.filter(
+    (s) => !playedScenarioIds.includes(s.id),
+  );
+
+  const visibleScenarios = availableScenarios.slice(0, 6);
+
+  const [spun, setSpun] = useState(false);
 
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(
     null,
   );
   const [selectedScenarioChoice, setSelectedScenarioChoice] =
     useState<ScenarioChoice | null>(null);
+
+  const [userStats, setUserStats] = useState({
+    money: 0,
+    confidence: 0,
+  });
 
   function renderCurrentStep() {
     switch (currentStepDefinition.key) {
@@ -128,7 +105,7 @@ export default function GamePage() {
 
   function renderSpinTheWheelStep() {
     return (
-      <StepCard>
+      <StepCard userStats={userStats}>
         <div className="flex flex-col items-center px-4 py-10 relative">
           <div className="absolute inset-0 pointer-events-none">
             <div className="sparkle sparkle1"></div>
@@ -138,7 +115,7 @@ export default function GamePage() {
 
           <div className="wheel-of-scenarios flex flex-col items-center gap-8 w-full max-w-md md:max-w-lg lg:max-w-xl m-4">
             <ul className="w-full aspect-square max-w-xs md:max-w-sm lg:max-w-md z-20 rounded-full border-4 border-primary shadow-2xl flex items-center justify-center text-center text-nav font-semibold">
-              {scenarios.map((scenario) => (
+              {visibleScenarios.map((scenario) => (
                 <li key={scenario.id} className="text-nav/70 text-base">
                   {scenario.title}
                 </li>
@@ -165,19 +142,22 @@ export default function GamePage() {
              animate-pulse-slow
              hover:scale-105 active:scale-95"
             onClick={() => {
+              if (visibleScenarios.length === 0) return;
               const node = document.querySelector(".wheel-of-scenarios")!;
               const wheel = node.querySelector("ul")!;
               let animation: Animation;
               let previousEndDegree = 0;
               if (spun) return;
-              spun = true;
+              setSpun(true);
 
               const spinDegrees = Math.random() * 360 + 1800;
               let selectedScenarioIndex = Math.floor(
-                (spinDegrees % 360) / (360 / scenarios.length),
+                (spinDegrees % 360) / (360 / visibleScenarios.length),
               );
-              setSelectedScenario(scenarios[selectedScenarioIndex]);
-              console.log(selectedScenario);
+              const selected = visibleScenarios[selectedScenarioIndex];
+
+              setSelectedScenario(selected);
+              setPlayedScenarioIds((prev) => [...prev, selected.id]);
 
               animation = wheel.animate(
                 [
@@ -225,9 +205,8 @@ export default function GamePage() {
 
   function renderScenarioSelectionStep() {
     return (
-      <StepCard>
+      <StepCard userStats={userStats}>
         <div className="max-w-5xl mx-auto px-4 py-10 flex flex-col items-center gap-10">
-          {/* 🎯 Scenario Card */}
           <div
             className="
           w-full max-w-2xl text-center
@@ -251,7 +230,6 @@ export default function GamePage() {
             </p>
           </div>
 
-          {/* 🧩 Choices */}
           <div className="w-full grid gap-4 md:gap-6">
             {selectedScenario?.choices.map((choice) => {
               const isSelected = selectedScenarioChoice?.id === choice.id;
@@ -286,7 +264,6 @@ export default function GamePage() {
             })}
           </div>
 
-          {/* ✅ Confirm */}
           <div className="flex flex-col items-center gap-3">
             <Button
               onClick={handleConfirm}
@@ -317,7 +294,7 @@ export default function GamePage() {
 
   function renderScenarioResultStep() {
     return (
-      <StepCard>
+      <StepCard userStats={userStats}>
         <div className="min-h-screen bg-linear-to-br from-mint via-white to-mint font-body">
           <div className="max-w-5xl mx-auto px-4 py-10 flex flex-col items-center gap-10">
             <div
@@ -342,9 +319,7 @@ export default function GamePage() {
               </p>
             </div>
 
-            {/* 💰 Results Grid */}
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Money */}
               <div
                 className="
     rounded-2xl border border-nav/20
@@ -446,7 +421,7 @@ export default function GamePage() {
                 variant="primary"
                 onClick={() => {
                   setStep(0);
-                  spun = false;
+                  setSpun(false);
                 }}
               >
                 Play Again
@@ -467,14 +442,82 @@ export default function GamePage() {
     );
   }
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!selectedScenarioChoice) return;
 
-    // Move to next step after confirming choice
-    setStep((current) => current + 1);
+    try {
+      const response = await fetch("https://localhost:7211/api/Game/choice", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: "e37702dc-1111-400f-b4f8-1c5eeb9989e1",
+          scenarioChoiceId: selectedScenarioChoice.id,
+        }),
+      });
 
-    console.log("Confirmed choice:", selectedScenarioChoice.id);
+      const data = await response.json();
+
+      // updates the header stats w new values
+      setUserStats({
+        money: data.money,
+        confidence: data.confidence,
+      });
+
+      setSelectedScenarioChoice({
+        ...selectedScenarioChoice,
+        resultText: data.resultText,
+        moneyImpact: data.money - userStats.money,
+        confidenceImpact: data.confidence - userStats.confidence,
+      });
+
+      setStep((current) => current + 1);
+    } catch (err) {
+      console.error("Error applying choice", err);
+    }
   };
+
+  const fetchScenarios = async () => {
+    try {
+      const res = await fetch(
+        "https://localhost:7211/api/GameScenario/random?count=10",
+      );
+
+      const data = await res.json();
+
+      setAllScenarios((prev) => [...prev, ...data]);
+    } catch (err) {
+      console.error("Failed to load scenarios", err);
+    }
+  };
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch(
+          "https://localhost:7211/api/UserGameStat/current?userId=e37702dc-1111-400f-b4f8-1c5eeb9989e1",
+        );
+
+        const data = await res.json();
+
+        setUserStats({
+          money: data.currentGameMoney,
+          confidence: data.currentConfidenceScore,
+        });
+      } catch (err) {
+        console.error("Failed to load user stats", err);
+      }
+    };
+
+    fetchStats();
+    fetchScenarios();
+  }, []);
+
+  useEffect(() => {
+    if (availableScenarios.length < 6) {
+      fetchScenarios();
+    }
+  }, [availableScenarios.length]);
 
   return (
     <main>
