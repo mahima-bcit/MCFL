@@ -1,5 +1,6 @@
 using MCFL.API.Data;
 using MCFL.API.DTOs.Admin.AdminSettings;
+using MCFL.API.Models;
 using MCFL.API.Models.DTOs;
 using MCFL.API.Models.Identity;
 using MCFL.API.Services;
@@ -36,11 +37,44 @@ public class AccountController : ControllerBase
         _logger = logger;
     }
 
+    [HttpGet("validate-registration-email")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ValidateRegistrationEmail([FromQuery] string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return BadRequest(new { error = "Email is required." });
+        }
+
+        var normalizedEmail = email.Trim().ToLowerInvariant();
+
+        var isAllowed = await _context.RegistrationAllowLists
+            .AsNoTracking()
+            .AnyAsync(x => x.Email.ToLower() == normalizedEmail);
+
+        if (!isAllowed)
+        {
+            return BadRequest(new { error = "This email is not approved for registration." });
+        }
+
+        var existing = await _userManager.FindByEmailAsync(normalizedEmail);
+
+        if (existing != null)
+        {
+            return BadRequest(new { error = "Email already registered" });
+        }
+
+        return Ok(new { allowed = true });
+    }
+
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterRequest model)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
         var email = model.Email.Trim().ToLowerInvariant();
 
@@ -54,7 +88,22 @@ public class AccountController : ControllerBase
         }
 
         var existing = await _userManager.FindByEmailAsync(email);
-        if (existing != null) return BadRequest(new { error = "Email already registered" });
+
+        if (existing != null)
+        {
+            return BadRequest(new { error = "Email already registered" });
+        }
+
+        if (model.RequiresParentConsent)
+        {
+            if (model.ParentAuthorization is null ||
+                !model.ParentAuthorization.Authorized ||
+                string.IsNullOrWhiteSpace(model.ParentAuthorization.ParentGuardianName) ||
+                string.IsNullOrWhiteSpace(model.ParentAuthorization.ParentGuardianEmail))
+            {
+                return BadRequest(new { error = "Parent or guardian authorization is required." });
+            }
+        }
 
         var user = new ApplicationUser
         {
@@ -62,11 +111,18 @@ public class AccountController : ControllerBase
             Email = email,
             FullName = string.IsNullOrWhiteSpace(model.FullName) ? null : model.FullName.Trim(),
             IsActive = true,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            ParentConsentRequired = model.RequiresParentConsent,
+            ParentConsentReceived = model.RequiresParentConsent && model.ParentAuthorization?.Authorized == true,
+            OnboardingCompleted = true
         };
 
         var result = await _userManager.CreateAsync(user, model.Password);
-        if (!result.Succeeded) return BadRequest(result.Errors);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors);
+        }
 
         const string defaultRole = "User";
 
@@ -89,7 +145,84 @@ public class AccountController : ControllerBase
                 new { error = "Registration failed while assigning the default role." });
         }
 
+        try
+        {
+            var profile = new UserProfile
+            {
+                FullName = model.FullName.Trim(),
+                NickName = string.IsNullOrWhiteSpace(model.Nickname) ? null : model.Nickname.Trim(),
+                DateOfBirth = model.DateOfBirth,
+                HasBankAccount = model.ProfileSetup.BankAccount.Equals("yes", StringComparison.OrdinalIgnoreCase),
+                EarnsMoneyAnswer = NormalizeAnswer(model.ProfileSetup.EarnMoney),
+                HasSavingsAnswer = NormalizeAnswer(model.ProfileSetup.HaveSavings),
+                PaysBillsAnswer = NormalizeAnswer(model.ProfileSetup.PayBills),
+                SpendsOnWantsAnswer = NormalizeAnswer(model.ProfileSetup.SpendOnWants),
+                ParentTeachingsAnswer = string.IsNullOrWhiteSpace(model.ProfileSetup.ParentsTaughtMoney)
+                    ? null
+                    : model.ProfileSetup.ParentsTaughtMoney.Trim(),
+                LearningComments = string.IsNullOrWhiteSpace(model.ProfileSetup.LearningGoalText)
+                    ? null
+                    : model.ProfileSetup.LearningGoalText.Trim(),
+                UserId = user.Id,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.UserProfiles.Add(profile);
+
+            if (model.RequiresParentConsent && model.ParentAuthorization is not null)
+            {
+                _context.ParentConsents.Add(new ParentConsent
+                {
+                    ParentName = model.ParentAuthorization.ParentGuardianName.Trim(),
+                    ParentEmail = model.ParentAuthorization.ParentGuardianEmail.Trim().ToLowerInvariant(),
+                    ConsentGiven = model.ParentAuthorization.Authorized,
+                    ConsentGivenAt = model.ParentAuthorization.Authorized ? DateTime.UtcNow : null,
+                    UserId = user.Id,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+
+            await _context.SaveChangesAsync();
+
+            var selectedLearningGoals = model.ProfileSetup.LearningGoals
+                .Where(goal => !string.IsNullOrWhiteSpace(goal))
+                .Select(goal => goal.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (selectedLearningGoals.Count > 0)
+            {
+                var learningTopics = await _context.LearningTopics
+                    .Where(topic => selectedLearningGoals.Contains(topic.TopicName))
+                    .ToListAsync();
+
+                foreach (var topic in learningTopics)
+                {
+                    _context.UserLearningPreferences.Add(new UserLearningPreference
+                    {
+                        UserProfileId = profile.UserProfileId,
+                        LearningTopicId = topic.LearningTopicId,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save profile setup for user {UserId}", user.Id);
+
+            await _userManager.DeleteAsync(user);
+
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new { error = "Registration failed while saving profile setup." });
+        }
+
         var token = await _tokenService.CreateTokenAsync(user);
+
         return Ok(new
         {
             token,
@@ -101,19 +234,29 @@ public class AccountController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest model)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
         var email = model.Email.Trim().ToLowerInvariant();
+
         var user = await _userManager.FindByEmailAsync(email);
-        if (user == null) return Unauthorized(new { error = "Invalid credentials" });
+
+        if (user == null)
+        {
+            return Unauthorized(new { error = "Invalid credentials" });
+        }
 
         var result = await _signInManager.CheckPasswordSignInAsync(
             user,
             model.Password,
-            lockoutOnFailure: false
-        );
+            lockoutOnFailure: false);
 
-        if (!result.Succeeded) return Unauthorized(new { error = "Invalid credentials" });
+        if (!result.Succeeded)
+        {
+            return Unauthorized(new { error = "Invalid credentials" });
+        }
 
         var token = await _tokenService.CreateTokenAsync(user, model.RememberMe);
         var roles = await _userManager.GetRolesAsync(user);
@@ -184,6 +327,7 @@ public class AccountController : ControllerBase
         }
 
         user.MustChangePassword = false;
+
         await _userManager.UpdateAsync(user);
 
         return NoContent();
@@ -201,5 +345,10 @@ public class AccountController : ControllerBase
         }
 
         return await _userManager.FindByIdAsync(userId);
+    }
+
+    private static string NormalizeAnswer(string answer)
+    {
+        return answer.Trim().ToLowerInvariant();
     }
 }

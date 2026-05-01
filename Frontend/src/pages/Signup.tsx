@@ -1,195 +1,337 @@
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent, type ReactNode, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Button from "../components/ui/Button";
 
 type SignupFormData = {
-  fullName: string;
-  nickname: string;
-  dateOfBirth: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
+    fullName: string;
+    nickname: string;
+    dateOfBirth: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
 };
 
+type SignupFormErrors = Partial<Record<keyof SignupFormData, string>>;
+
 const initialFormData: SignupFormData = {
-  fullName: "",
-  nickname: "",
-  dateOfBirth: "",
-  email: "",
-  password: "",
-  confirmPassword: "",
+    fullName: "",
+    nickname: "",
+    dateOfBirth: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
 };
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function calculateAge(dateOfBirth: string) {
-  if (!dateOfBirth) return null;
+    if (!dateOfBirth) return null;
 
-  const birthDate = new Date(`${dateOfBirth}T00:00:00`);
-  if (Number.isNaN(birthDate.getTime())) return null;
+    const birthDate = new Date(`${dateOfBirth}T00:00:00`);
+    if (Number.isNaN(birthDate.getTime())) return null;
 
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDifference = today.getMonth() - birthDate.getMonth();
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
 
-  if (
-    monthDifference < 0 ||
-    (monthDifference === 0 && today.getDate() < birthDate.getDate())
-  ) {
-    age -= 1;
-  }
+    if (
+        monthDifference < 0 ||
+        (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
+        age -= 1;
+    }
 
-  return age;
+    return age;
+}
+
+function FieldLabel({ children }: { children: ReactNode }) {
+    return (
+        <label className="mb-2 block font-sans text-xs font-bold text-black">
+            {children}
+        </label>
+    );
+}
+
+function FieldError({ message }: { message?: string }) {
+    if (!message) return null;
+
+    return <p className="mt-2 text-xs font-semibold text-[#c53030]">{message}</p>;
+}
+
+function TextInput({
+    type = "text",
+    value,
+    placeholder,
+    max,
+    onChange,
+}: {
+    type?: string;
+    value: string;
+    placeholder: string;
+    max?: string;
+    onChange: (value: string) => void;
+}) {
+    return (
+        <input
+            type={type}
+            value={value}
+            placeholder={placeholder}
+            max={max}
+            onChange={(event) => onChange(event.target.value)}
+            className="h-12 w-full rounded-2xl border border-[#dce6ef] bg-[#f7fbff] px-4 font-sans text-sm text-[#1f3a60] outline-none transition-all placeholder:text-[#9aa9bc] focus:border-[#21A879] focus:bg-white focus:ring-4 focus:ring-[#21A879]/15"
+        />
+    );
 }
 
 export default function Signup() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState<SignupFormData>(initialFormData);
+    const navigate = useNavigate();
 
-  const age = useMemo(() => calculateAge(formData.dateOfBirth), [formData.dateOfBirth]);
-  const requiresParentConsent = age !== null && age <= 17;
+    const [formData, setFormData] = useState<SignupFormData>(initialFormData);
+    const [formErrors, setFormErrors] = useState<SignupFormErrors>({});
+    const [isCheckingEmail, setIsCheckingEmail] = useState(false);
 
-  const formIsValid =
-    formData.fullName.trim().length > 0 &&
-    formData.nickname.trim().length > 0 &&
-    age !== null &&
-    age >= 13 &&
-    emailPattern.test(formData.email) &&
-    formData.password.length >= 6 &&
-    formData.password === formData.confirmPassword;
-
-  function updateField<K extends keyof SignupFormData>(key: K, value: SignupFormData[K]) {
-    setFormData((current) => ({ ...current, [key]: value }));
-  }
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!formIsValid) return;
-    localStorage.setItem(
-      "mcflRegistrationDraft",
-      JSON.stringify({ ...formData, age, requiresParentConsent }),
+    const age = useMemo(
+        () => calculateAge(formData.dateOfBirth),
+        [formData.dateOfBirth],
     );
-    navigate("/profile-setup");
-  }
 
-  const inputClass = "w-full px-4 py-3 rounded-lg border-2 border-nav/20 text-nav placeholder-nav/40 focus:outline-none focus:border-primary transition-colors";
-  const labelClass = "block text-sm font-semibold text-nav mb-1.5";
+    const requiresParentConsent = age !== null && age <= 17;
 
-  return (
-    <main>
-      <section className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-4 py-6">
-        <div className="w-full max-w-lg animate-fade-up">
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <div className="text-center mb-6">
-              <h1 className="font-display text-3xl font-bold text-nav mb-1.5">
-                Create your account
-              </h1>
-              <p className="text-nav/60 text-base">
-                Start your journey to financial confidence
-              </p>
-            </div>
+    const today = new Date();
+    const todayDateOnly = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+    );
+    const maxDateOfBirth = todayDateOnly.toISOString().split("T")[0];
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Full Name + Nickname */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClass}>Full Name</label>
-                  <input
-                    type="text"
-                    value={formData.fullName}
-                    placeholder="Your legal name"
-                    onChange={(e) => updateField("fullName", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>Nickname</label>
-                  <input
-                    type="text"
-                    value={formData.nickname}
-                    placeholder="What we call you"
-                    onChange={(e) => updateField("nickname", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-              </div>
+    function validateForm() {
+        const errors: SignupFormErrors = {};
 
-              {/* Date of Birth */}
-              <div>
-                <label className={labelClass}>Date of Birth</label>
-                <input
-                  type="date"
-                  value={formData.dateOfBirth}
-                  onChange={(e) => updateField("dateOfBirth", e.target.value)}
-                  className={inputClass}
-                />
-                {age !== null && age < 13 && (
-                  <p className="mt-2 rounded-lg bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700">
-                    This prototype is currently intended for users age 13 and older.
-                  </p>
-                )}
-              </div>
+        if (formData.fullName.trim().length === 0) {
+            errors.fullName = "Full name is required.";
+        }
 
-              {/* Email */}
-              <div>
-                <label className={labelClass}>Email</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  placeholder="your@email.com"
-                  onChange={(e) => updateField("email", e.target.value)}
-                  className={inputClass}
-                />
-              </div>
+        if (formData.nickname.trim().length === 0) {
+            errors.nickname = "Nickname is required.";
+        }
 
-              {/* Password + Confirm Password */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClass}>Password</label>
-                  <input
-                    type="password"
-                    value={formData.password}
-                    placeholder="••••••••"
-                    onChange={(e) => updateField("password", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>Confirm Password</label>
-                  <input
-                    type="password"
-                    value={formData.confirmPassword}
-                    placeholder="••••••••"
-                    onChange={(e) => updateField("confirmPassword", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-              </div>
+        if (!formData.dateOfBirth) {
+            errors.dateOfBirth = "Date of birth is required.";
+        } else {
+            const selectedBirthDate = new Date(`${formData.dateOfBirth}T00:00:00`);
 
-              {requiresParentConsent && (
-                <p className="rounded-lg bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-700">
-                  Because you are age 17 or under, the next step will explain the parent/guardian consent requirement.
+            if (age === null || Number.isNaN(selectedBirthDate.getTime())) {
+                errors.dateOfBirth = "Please enter a valid date of birth.";
+            } else if (selectedBirthDate > todayDateOnly) {
+                errors.dateOfBirth = "Date of birth cannot be in the future.";
+            } else if (age < 13) {
+                errors.dateOfBirth =
+                    "This prototype is currently intended for users age 13 and older.";
+            }
+        }
+
+        if (formData.email.trim().length === 0) {
+            errors.email = "Email is required.";
+        } else if (!emailPattern.test(formData.email.trim())) {
+            errors.email = "Please enter a valid email address.";
+        }
+
+        if (formData.password.length === 0) {
+            errors.password = "Password is required.";
+        } else if (formData.password.length < 6) {
+            errors.password = "Password must be at least 6 characters.";
+        } else if (!/[A-Z]/.test(formData.password)) {
+            errors.password = "Password must include at least one uppercase letter.";
+        } else if (!/[a-z]/.test(formData.password)) {
+            errors.password = "Password must include at least one lowercase letter.";
+        } else if (!/\d/.test(formData.password)) {
+            errors.password = "Password must include at least one number.";
+        } else if (!/[^A-Za-z0-9]/.test(formData.password)) {
+            errors.password = "Password must include at least one special character.";
+        }
+
+        if (formData.confirmPassword.length === 0) {
+            errors.confirmPassword = "Please confirm your password.";
+        } else if (formData.password !== formData.confirmPassword) {
+            errors.confirmPassword = "Confirm password must match password.";
+        }
+
+        return errors;
+    }
+
+    function updateField<K extends keyof SignupFormData>(
+        key: K,
+        value: SignupFormData[K],
+    ) {
+        setFormData((current) => ({ ...current, [key]: value }));
+
+        setFormErrors((current) => ({
+            ...current,
+            [key]: undefined,
+        }));
+    }
+
+    async function validateRegistrationEmail() {
+        const response = await fetch(
+            `/api/account/validate-registration-email?email=${encodeURIComponent(
+                formData.email.trim(),
+            )}`,
+        );
+
+        const responseBody = await response.json().catch(() => null);
+
+        if (!response.ok) {
+            throw new Error(responseBody?.error ?? "Unable to validate email.");
+        }
+    }
+
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+
+        const errors = validateForm();
+        setFormErrors(errors);
+
+        if (Object.keys(errors).length > 0) {
+            return;
+        }
+
+        try {
+            setIsCheckingEmail(true);
+
+            await validateRegistrationEmail();
+
+            localStorage.setItem(
+                "mcflRegistrationDraft",
+                JSON.stringify({
+                    ...formData,
+                    fullName: formData.fullName.trim(),
+                    nickname: formData.nickname.trim(),
+                    email: formData.email.trim(),
+                    age,
+                    requiresParentConsent,
+                }),
+            );
+
+            navigate("/profile-setup");
+        } catch (error) {
+            setFormErrors((current) => ({
+                ...current,
+                email:
+                    error instanceof Error
+                        ? error.message
+                        : "Unable to validate email.",
+            }));
+        } finally {
+            setIsCheckingEmail(false);
+        }
+    }
+
+    return (
+        <section className="mx-auto max-w-3xl px-5 py-10 font-sans md:px-8 md:py-12">
+            <header className="mb-7">
+                <h1 className="font-sans text-[1.55rem] font-black leading-tight tracking-[-0.04em] text-black md:text-[2rem]">
+                    Create your account
+                </h1>
+                <p className="mt-2 font-sans text-sm text-[#7c90aa]">
+                    Start your journey to financial confidence
                 </p>
-              )}
+            </header>
 
-              <p className="text-center text-nav/70 text-sm pt-1">
-                Already have an account?{" "}
-                <Link to="/login" className="font-semibold text-primary hover:text-primary-dark transition-colors">
-                  Log in
-                </Link>
-              </p>
+            <form
+                id="signup-form"
+                onSubmit={handleSubmit}
+                className="rounded-[28px] border border-[#edf1f6] bg-white p-5 shadow-[0_14px_34px_rgba(23,42,79,0.07)] md:p-7"
+            >
+                <div className="space-y-5">
+                    <div>
+                        <FieldLabel>Full Name</FieldLabel>
+                        <TextInput
+                            value={formData.fullName}
+                            placeholder="Your full legal name"
+                            onChange={(value) => updateField("fullName", value)}
+                        />
+                        <FieldError message={formErrors.fullName} />
+                    </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                className="w-full text-base py-3 justify-center"
-              >
-                Next →
-              </Button>
+                    <div>
+                        <FieldLabel>Nickname</FieldLabel>
+                        <TextInput
+                            value={formData.nickname}
+                            placeholder="What should we call you in the app?"
+                            onChange={(value) => updateField("nickname", value)}
+                        />
+                        <FieldError message={formErrors.nickname} />
+                    </div>
+
+                    <div>
+                        <FieldLabel>Date of Birth</FieldLabel>
+                        <TextInput
+                            type="date"
+                            value={formData.dateOfBirth}
+                            placeholder="yyyy-mm-dd"
+                            max={maxDateOfBirth}
+                            onChange={(value) => updateField("dateOfBirth", value)}
+                        />
+                        <FieldError message={formErrors.dateOfBirth} />
+                    </div>
+
+                    <div>
+                        <FieldLabel>Email</FieldLabel>
+                        <TextInput
+                            type="email"
+                            value={formData.email}
+                            placeholder="your@email.com"
+                            onChange={(value) => updateField("email", value)}
+                        />
+                        <FieldError message={formErrors.email} />
+                    </div>
+
+                    <div>
+                        <FieldLabel>Password</FieldLabel>
+                        <TextInput
+                            type="password"
+                            value={formData.password}
+                            placeholder="••••••••"
+                            onChange={(value) => updateField("password", value)}
+                        />
+                        <FieldError message={formErrors.password} />
+                    </div>
+
+                    <div>
+                        <FieldLabel>Confirm Password</FieldLabel>
+                        <TextInput
+                            type="password"
+                            value={formData.confirmPassword}
+                            placeholder="••••••••"
+                            onChange={(value) => updateField("confirmPassword", value)}
+                        />
+                        <FieldError message={formErrors.confirmPassword} />
+                    </div>
+                </div>
+
+                {requiresParentConsent && (
+                    <div className="mt-6 rounded-2xl border border-[#f2e6b5] bg-[#fff8e6] px-4 py-3 font-sans text-sm leading-6 text-[#8d6a22]">
+                        Because you are age 17 or under, the next step will explain the
+                        parent/guardian consent requirement.
+                    </div>
+                )}
+
+                <p className="mt-7 text-center font-sans text-xs text-[#7c90aa]">
+                    Already have an account?{" "}
+                    <Link to="/login" className="font-bold text-[#295cff] hover:underline">
+                        Log in
+                    </Link>
+                </p>
             </form>
-          </div>
-        </div>
-      </section>
-    </main>
-  );
+
+            <button
+                type="submit"
+                form="signup-form"
+                disabled={isCheckingEmail}
+                className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#21A879] px-8 py-4 font-sans text-sm font-semibold text-white shadow-[0_10px_24px_rgba(33,168,121,0.24)] transition-all hover:bg-[#1c9169] disabled:cursor-not-allowed disabled:opacity-60 md:text-base"
+            >
+                {isCheckingEmail ? "Checking email..." : "Next →"}
+            </button>
+        </section>
+    );
 }
