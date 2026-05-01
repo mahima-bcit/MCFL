@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LogOut, Menu, Moon, Sun, X } from "lucide-react";
+import { clearAuthStorage } from "../../utils/auth";
 import DashboardTabs from "./DashboardTabs";
 import { useTheme } from "../../context/ThemeContext";
 import "../../DashboardPage.css";
@@ -11,6 +12,12 @@ export default function DashboardHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [logoBroken, setLogoBroken] = useState(false);
   const { isDark, toggle } = useTheme();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    clearAuthStorage();
+    navigate("/login");
+  }
 
   return (
     <header className="dashboard-header">
@@ -51,15 +58,16 @@ export default function DashboardHeader() {
               {isDark ? <Sun size={15} strokeWidth={2.2} /> : <Moon size={15} strokeWidth={2.2} />}
             </button>
 
-            <Link
-              to="/login"
+            <button
+              type="button"
+              onClick={handleLogout}
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/20 lg:w-auto lg:gap-2 lg:px-4 lg:py-2"
             >
               <LogOut size={15} strokeWidth={2.2} />
               <span className="hidden lg:inline text-[14px] font-semibold">
                 Logout
               </span>
-            </Link>
+            </button>
 
             <button
               type="button"
@@ -88,14 +96,14 @@ export default function DashboardHeader() {
               />
 
               <div className="mt-2 border-t border-white/15 pt-2">
-                <Link
-                  to="/login"
-                  onClick={() => setMobileMenuOpen(false)}
+                <button
+                  type="button"
+                  onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-4 py-2.5 text-[14px] font-semibold text-white transition-all duration-200 hover:bg-white/20"
                 >
                   <LogOut size={15} strokeWidth={2.2} />
                   Logout
-                </Link>
+                </button>
               </div>
             </div>
           </div>

@@ -1,96 +1,116 @@
-import Button from '../ui/Button'
-import Badge from '../ui/Badge'
-import FeatureCard from '../ui/FeatureCard'
+import { Link } from 'react-router-dom'
+import { ArrowRight, Target, TrendingUp, Wallet } from 'lucide-react'
 
-const SpinIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="3" />
-    <line x1="12" y1="2" x2="12" y2="5" /><line x1="12" y1="19" x2="12" y2="22" />
-    <line x1="2" y1="12" x2="5" y2="12" /><line x1="19" y1="12" x2="22" y2="12" />
-  </svg>
-)
-
-const AwardIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="8" r="6" />
-    <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11" />
-  </svg>
-)
-
-const TrendUpIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4A017" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-    <polyline points="16 7 22 7 22 13" />
-  </svg>
-)
-
-const UserIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-  </svg>
-)
-
-const ArrowRightIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
-  </svg>
-)
+const features = [
+  {
+    icon: Target,
+    title: 'Spin & Learn',
+    description: 'Spin the wheel, pick your move - rent, groceries, first job, unexpected bills',
+    iconColor: 'text-emerald-400',
+    iconBg: 'bg-emerald-400/15',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Track Progress',
+    description: 'Your confidence score updates after every scenario and watch it climb',
+    iconColor: 'text-sky-400',
+    iconBg: 'bg-sky-400/15',
+  },
+  {
+    icon: Wallet,
+    title: 'Build Your Picture',
+    description: 'Map out where your money goes - no spreadsheets, no jargon',
+    iconColor: 'text-amber-400',
+    iconBg: 'bg-amber-400/15',
+  },
+]
 
 export default function Hero() {
   return (
-    <section className="max-w-6xl mx-auto px-4 md:px-6 pt-12 md:pt-20 pb-16 md:pb-28">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
+    <section className="flex min-h-[calc(100vh-5rem)] flex-col bg-nav px-4 py-8 md:px-6 md:py-10">
+      <div className="mx-auto flex w-full flex-1 flex-col" style={{ maxWidth: '72rem' }}>
+        <div className="grid flex-1 grid-cols-1 items-center gap-8 md:grid-cols-2 md:gap-12">
 
-        {/* ── Left: Text content ── */}
-        <div className="animate-fade-up text-center md:text-left">
-          <div className="flex justify-center md:justify-start">
-            <Badge icon={<UserIcon />}>Level Up Your Future</Badge>
-          </div>
+          {/* Left: text */}
+          <div className="animate-fade-up flex flex-col text-center md:text-left">
+            <span className="inline-flex items-center gap-1.5 self-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/80 md:self-start">
+              Made for young Canadians
+            </span>
 
-          {/* Heading: smaller on mobile, larger on desktop */}
-          <h1 className="font-display text-4xl sm:text-5xl font-bold text-nav leading-[1.1] mt-5 mb-4">
-            Learn money skills<br />
-            that actually stick
-          </h1>
+            <h1 className="font-display mb-3 mt-4 text-4xl font-bold leading-[1.1] text-white sm:text-5xl md:text-[48px] lg:text-[56px]">
+              Learn money skills<br />
+              <span className="text-emerald-400">that actually stick</span>
+            </h1>
 
-          <p className="text-nav/60 text-base md:text-lg leading-relaxed mb-6 md:mb-8 max-w-md mx-auto md:mx-0">
-            A fun, judgment-free way to explore financial decisions and build the
-            confidence you need for real life. Made for teens and young adults in Canada.
-          </p>
-
-          {/* CTAs — stacked on mobile, side-by-side on desktop */}
-          <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
-            <Button variant="primary" className="w-full sm:w-auto text-base px-7 py-3">
-              Get Started <ArrowRightIcon />
-            </Button>
-            <Button variant="outline" className="w-full sm:w-auto text-base px-7 py-3">
-              How it works
-            </Button>
-          </div>
-
-          {/* Social proof */}
-          <div className="flex items-center justify-center md:justify-start gap-3 mt-8">
-            <div className="flex -space-x-2">
-              {['#1D9E75', '#0F6E56', '#D4A017', '#1A3C2E'].map((c, i) => (
-                <div key={i} className="w-7 h-7 md:w-8 md:h-8 rounded-full border-2 border-mint" style={{ background: c }} />
-              ))}
-            </div>
-            <p className="text-nav/50 text-xs md:text-sm">
-              <span className="text-nav font-semibold">2,400+</span> young Canadians building confidence
+            <p className="mx-auto mb-2 max-w-md text-base leading-relaxed text-white/65 md:mx-0">
+              A fun, judgment-free way to explore financial decisions and build the
+              confidence you need for real life.
             </p>
+            <p className="mx-auto mb-6 max-w-md text-sm leading-relaxed text-white/45 md:mx-0">
+              Learn by doing, not reading. Pick a scenario, make a call, see what happens.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row md:justify-start">
+              <Link
+                to="/signup"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[#17875f] hover:shadow-xl sm:w-auto"
+              >
+                Get Started <ArrowRight size={16} />
+              </Link>
+              <a
+                href="#how-it-works"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/20 sm:w-auto"
+              >
+                How it works
+              </a>
+            </div>
+
+            {/* Social proof */}
+            <div className="mt-6 flex flex-col items-center gap-2 md:items-start">
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-2">
+                  {['#1D9E75', '#0F6E56', '#34d399', '#1A3C2E'].map((c, i) => (
+                    <div
+                      key={i}
+                      className="h-7 w-7 rounded-full border-2 border-nav"
+                      style={{ background: c }}
+                    />
+                  ))}
+                </div>
+                <p className="text-sm text-white/50">
+                  <span className="font-semibold text-white/80">2,400+</span> young Canadians building confidence
+                </p>
+              </div>
+              <p className="text-xs text-white/30">
+                No credit card. No financial experience needed.
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* ── Right: Feature cards ── */}
-        <div id="features" className="flex flex-col gap-3 md:gap-4">
-          <FeatureCard icon={<SpinIcon />} title="Spin & Learn"
-            description="Play real-world money scenarios through our interactive wheel game" delay="100ms" />
-          <FeatureCard icon={<AwardIcon />} title="Track Progress"
-            description="See your money confidence grow with every decision you make" delay="200ms" />
-          <FeatureCard icon={<TrendUpIcon />} title="Build Your Picture"
-            description="Create a simple money plan with Have, Need, Fun, and Save" delay="300ms" />
-        </div>
+          {/* Right: feature cards */}
+          <div id="features" className="flex flex-col gap-3">
+            {features.map((f, i) => {
+              const Icon = f.icon
+              return (
+                <div
+                  key={f.title}
+                  className="animate-slide-in flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition-all duration-300 hover:border-white/20 hover:bg-white/10 md:p-5"
+                  style={{ animationDelay: `${(i + 1) * 100}ms` }}
+                >
+                  <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${f.iconBg}`}>
+                    <Icon size={20} className={f.iconColor} />
+                  </div>
+                  <div>
+                    <h3 className="font-display mb-1 text-[15px] font-semibold text-white">{f.title}</h3>
+                    <p className="text-sm leading-relaxed text-white/55">{f.description}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
 
+        </div>
       </div>
     </section>
   )

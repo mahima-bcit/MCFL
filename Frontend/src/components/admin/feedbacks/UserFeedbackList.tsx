@@ -394,6 +394,7 @@ export default function UserFeedbackList({
           </div>
 
           <div className="hidden overflow-hidden rounded-[24px] border border-[#dbe6f5] md:block">
+            <div className="overflow-x-auto">
             <table className="w-full border-collapse bg-white text-left">
               <thead className="bg-[#f8fbff]">
                 <tr className="border-b border-[#dbe6f5]">
@@ -451,6 +452,7 @@ export default function UserFeedbackList({
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </>
       )}
