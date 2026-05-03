@@ -24,6 +24,7 @@ import type {
   AdminUpsertScenarioRequest,
 } from "../../types/adminScenarios";
 import { Link } from "react-router-dom";
+import { downloadCsv, formatDateTimeForCsv } from "../../utils/csvExport";
 
 type ScenarioFormState = {
   title: string;
@@ -113,8 +114,15 @@ export default function AdminManageScenariosPage() {
   const [pendingStatusAction, setPendingStatusAction] =
     useState<PendingStatusAction>(null);
   const [form, setForm] = useState<ScenarioFormState>(createEmptyForm());
+  const [successMessage, setSuccessMessage] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    if (!successMessage) return;
+    const timer = setTimeout(() => setSuccessMessage(""), 4000);
+    return () => clearTimeout(timer);
+  }, [successMessage]);
 
   async function loadScenarios() {
     try {
@@ -161,6 +169,7 @@ export default function AdminManageScenariosPage() {
     setPendingStatusAction(null);
     setForm(createEmptyForm());
     setError("");
+    setSuccessMessage("");
   }
 
   function startEdit(scenario: AdminManageScenario) {
@@ -169,6 +178,7 @@ export default function AdminManageScenariosPage() {
     setPendingStatusAction(null);
     setForm(mapScenarioToForm(scenario));
     setError("");
+    setSuccessMessage("");
   }
 
   function updateChoiceField(
@@ -220,7 +230,9 @@ export default function AdminManageScenariosPage() {
       setError("");
       setPendingStatusAction(null);
 
-      if (view === "edit" && editingScenarioId) {
+      const isEdit = view === "edit" && editingScenarioId;
+
+      if (isEdit) {
         await updateAdminScenario(editingScenarioId, payload);
       } else {
         await createAdminScenario(payload);
@@ -230,6 +242,11 @@ export default function AdminManageScenariosPage() {
       setView("list");
       setEditingScenarioId(null);
       setForm(createEmptyForm());
+      setSuccessMessage(
+        isEdit
+          ? `"${payload.title}" has been updated successfully.`
+          : `"${payload.title}" has been created successfully.`,
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save scenario.");
     } finally {
@@ -240,28 +257,37 @@ export default function AdminManageScenariosPage() {
   function requestActivate(scenario: AdminManageScenario) {
     setPendingStatusAction({ mode: "activate", scenario });
     setError("");
+    setSuccessMessage("");
   }
 
   function requestDeactivate(scenario: AdminManageScenario) {
     setPendingStatusAction({ mode: "deactivate", scenario });
     setError("");
+    setSuccessMessage("");
   }
 
   async function confirmStatusAction() {
     if (!pendingStatusAction) return;
 
+    const { mode, scenario } = pendingStatusAction;
+
     try {
       setStatusUpdating(true);
       setError("");
 
-      if (pendingStatusAction.mode === "activate") {
-        await activateAdminScenario(pendingStatusAction.scenario.scenarioId);
+      if (mode === "activate") {
+        await activateAdminScenario(scenario.scenarioId);
       } else {
-        await deactivateAdminScenario(pendingStatusAction.scenario.scenarioId);
+        await deactivateAdminScenario(scenario.scenarioId);
       }
 
       await loadScenarios();
       setPendingStatusAction(null);
+      setSuccessMessage(
+        mode === "activate"
+          ? `"${scenario.title}" has been set to active.`
+          : `"${scenario.title}" has been set to inactive.`,
+      );
     } catch (err) {
       setError(
         err instanceof Error
@@ -276,6 +302,40 @@ export default function AdminManageScenariosPage() {
   function closeStatusModal() {
     if (statusUpdating) return;
     setPendingStatusAction(null);
+  }
+
+  function handleExport() {
+    const headers = [
+      "Scenario Title",
+      "Scenario Active",
+      "Choice #",
+      "Choice Text",
+      "Result Text",
+      "Lesson Text",
+      "Choice Active",
+      "Money Impact",
+      "Confidence Impact",
+      "Created At",
+      "Last Updated",
+    ];
+    const rows = filteredScenarios.flatMap((scenario) =>
+      [...scenario.choices]
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map((choice, index) => [
+          scenario.title,
+          scenario.isActive ? "Yes" : "No",
+          index + 1,
+          choice.optionText,
+          choice.resultText,
+          choice.lessonText ?? "",
+          choice.isActive ? "Yes" : "No",
+          choice.moneyImpact,
+          choice.confidenceImpact,
+          formatDateTimeForCsv(scenario.createdAt),
+          formatDateTimeForCsv(scenario.updatedAt),
+        ]),
+    );
+    downloadCsv("scenarios-export.csv", headers, rows);
   }
 
   function handleScenarioSearch(event: FormEvent<HTMLFormElement>) {
@@ -299,12 +359,6 @@ export default function AdminManageScenariosPage() {
   return (
     <AdminLayout>
       <div className="space-y-4 md:space-y-6">
-        {error ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-[14px] text-red-600">
-            {error}
-          </div>
-        ) : null}
-
         {view === "list" ? (
           <AdminCard className="p-4 md:p-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -358,6 +412,15 @@ export default function AdminManageScenariosPage() {
 
                 <button
                   type="button"
+                  onClick={handleExport}
+                  disabled={loading || filteredScenarios.length === 0}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#dbe6f5] bg-white px-4 py-2.5 text-[14px] font-semibold text-slate-700 shadow-sm transition hover:bg-[#f8fbff] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                >
+                  Export All Scenarios
+                </button>
+
+                <button
+                  type="button"
                   onClick={startCreate}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#5a00e8] px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#4c00c7] sm:w-auto"
                 >
@@ -366,6 +429,18 @@ export default function AdminManageScenariosPage() {
                 </button>
               </div>
             </div>
+
+            {error ? (
+              <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-[14px] text-red-600">
+                {error}
+              </div>
+            ) : null}
+
+            {successMessage ? (
+              <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[14px] font-medium text-emerald-700">
+                {successMessage}
+              </div>
+            ) : null}
 
             <div className="mt-6">
               {loading ? (
@@ -461,6 +536,14 @@ export default function AdminManageScenariosPage() {
                                   <p className="text-[14px] leading-6 text-[#334155] md:text-[15px]">
                                     {choice.optionText}
                                   </p>
+                                  <p className="mt-0.5 text-[12px] leading-5 text-slate-500">
+                                    Result: {choice.resultText}
+                                  </p>
+                                  {choice.lessonText ? (
+                                    <p className="mt-0.5 text-[12px] leading-5 italic text-slate-400">
+                                      Lesson: {choice.lessonText}
+                                    </p>
+                                  ) : null}
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-2 md:justify-end">
@@ -490,7 +573,7 @@ export default function AdminManageScenariosPage() {
 
                       <div className="mt-3 flex justify-end pr-1">
                         <p className="text-[12px] text-slate-400">
-                          Updated: {scenario.updatedAt}
+                          Updated: {formatDateTimeForCsv(scenario.updatedAt)}
                         </p>
                       </div>
                     </AdminCard>
@@ -654,6 +737,12 @@ export default function AdminManageScenariosPage() {
                   ))}
                 </div>
               </div>
+
+              {error ? (
+                <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-[14px] text-red-600">
+                  {error}
+                </div>
+              ) : null}
 
               <div className="flex flex-col gap-2 border-t border-[#e6edf8] pt-4 sm:flex-row sm:items-center sm:justify-end">
                 <button

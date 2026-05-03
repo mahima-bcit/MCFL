@@ -32,6 +32,7 @@ export type AdminManageScenario = {
   title: string;
   description: string;
   isActive: boolean;
+  createdAt: string;
   updatedAt: string;
   choices: AdminManageScenarioChoice[];
 };

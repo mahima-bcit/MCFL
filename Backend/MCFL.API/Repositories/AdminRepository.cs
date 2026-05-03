@@ -806,6 +806,7 @@ namespace MCFL.API.Repositories
                 Title = scenario.Title,
                 Description = scenario.Description,
                 IsActive = scenario.IsActive,
+                CreatedAt = scenario.CreatedAt,
                 UpdatedAt = scenario.UpdatedAt,
                 Choices = scenario.ScenarioChoices
                     .OrderBy(x => x.SortOrder)

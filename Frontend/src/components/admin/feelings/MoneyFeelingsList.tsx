@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import {
   CalendarDays,
   ChevronDown,
@@ -18,6 +18,7 @@ import type { AdminMoneyFeelingItem } from "../../../types/adminMoneyFeelings";
 import type { AdminMoneyFeelingsFilters } from "../../../services/adminMoneyFeelingsApi";
 import AdminCard from "../ui/AdminCard";
 import CompactScenarioStatCard from "../scenarios/CompactScenarioStatCard";
+import { downloadCsv, formatDateTimeForCsv } from "../../../utils/csvExport";
 
 type Props = {
   feelings: AdminMoneyFeelingItem[];
@@ -57,11 +58,6 @@ function getFeelingEmoji(feeling: string) {
   }
 }
 
-function escapeCsvValue(value: string | number) {
-  const text = String(value ?? "");
-  return `"${text.replace(/"/g, '""')}"`;
-}
-
 function formatLocalDate(iso: string) {
   const date = new Date(iso);
   return date.toLocaleDateString(undefined, {
@@ -98,10 +94,12 @@ export default function MoneyFeelingsList({
 }: Props) {
   const PAGE_SIZE = 10;
   const [currentPage, setCurrentPage] = useState(1);
+  const [prevFeelingsLength, setPrevFeelingsLength] = useState(feelings.length);
 
-  useEffect(() => {
+  if (feelings.length !== prevFeelingsLength) {
+    setPrevFeelingsLength(feelings.length);
     setCurrentPage(1);
-  }, [feelings]);
+  }
 
   const totalPages = Math.max(1, Math.ceil(feelings.length / PAGE_SIZE));
   const pagedFeelings = feelings.slice(
@@ -128,25 +126,13 @@ export default function MoneyFeelingsList({
     if (feelings.length === 0) return;
 
     const headers = ["Name", "Email", "Feeling", "Submitted Date"];
-
     const rows = feelings.map((item) => [
       item.fullName,
       item.email,
       item.feeling,
-      item.submittedDate,
+      formatDateTimeForCsv(item.submittedDate),
     ]);
-
-    const csvContent = [headers, ...rows]
-      .map((row) => row.map(escapeCsvValue).join(","))
-      .join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "money-feelings.csv";
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadCsv("money-feelings.csv", headers, rows);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {

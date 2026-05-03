@@ -13,6 +13,7 @@ import TopScenariosChart from "../../components/admin/overview/TopScenariosChart
 import { getAdminScenarios } from "../../services/adminScenariosApi";
 import type { AdminScenarios } from "../../types/adminScenarios";
 import { Download, Filter, Heart, Users, Wallet } from "lucide-react";
+import { escapeCsvValue } from "../../utils/csvExport";
 
 const rangeOptions: { key: OverviewRangeKey; label: string }[] = [
   { key: "today", label: "Today" },
@@ -114,6 +115,68 @@ export default function AdminOverviewPage() {
     isCustomRangeInvalid,
   ]);
 
+  function handleExport() {
+    if (!data) return;
+
+    const selectedLabel =
+      rangeOptions.find((o) => o.key === selectedRange)?.label ?? selectedRange;
+
+    const summarySection = [
+      [
+        "Date Range", "Date From", "Date To",
+        "Total Users", "Avg Confidence (%)", "Avg Savings ($)",
+        "Scenarios Completed", "Decision Quality (%)",
+      ],
+      [
+        selectedLabel, data.dateFrom, data.dateTo,
+        data.totalUsers, data.avgConfidence, data.avgSavings,
+        data.scenariosCompleted, data.decisionQuality,
+      ],
+    ]
+      .map((row) => row.map(escapeCsvValue).join(","))
+      .join("\n");
+
+    const growthSection = [
+      ["Period", "New Users"],
+      ...data.userGrowthSeries.map((point) => [point.label, point.value]),
+    ]
+      .map((row) => row.map(escapeCsvValue).join(","))
+      .join("\n");
+
+    const top3 = scenariosData
+      ? [...scenariosData.scenarios]
+          .sort((a, b) => b.completions - a.completions)
+          .slice(0, 3)
+      : null;
+
+    const scenariosSection = top3
+      ? [
+          ["Scenario Name", "Completions", "% of All Plays", "Avg Confidence Gain"],
+          ...top3.map((s) => [
+            s.title,
+            s.completions,
+            `${s.percentageOfTotal.toFixed(1)}%`,
+            `+${s.avgConfidenceGain.toFixed(1)}%`,
+          ]),
+        ]
+          .map((row) => row.map(escapeCsvValue).join(","))
+          .join("\n")
+      : null;
+
+    const sections = [summarySection, growthSection, scenariosSection].filter(Boolean);
+    const csvContent = sections.join("\n\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `overview-${selectedRange}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <AdminLayout>
       {loading && <p className="text-slate-600">Loading overview...</p>}
@@ -144,7 +207,9 @@ export default function AdminOverviewPage() {
 
                   <button
                     type="button"
-                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#10b981] px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#0ea56f]"
+                    onClick={handleExport}
+                    disabled={!data || loading}
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#10b981] px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#0ea56f] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Download size={16} />
                     <span>Export</span>
@@ -239,7 +304,9 @@ export default function AdminOverviewPage() {
               {/* Desktop export button */}
               <button
                 type="button"
-                className="hidden items-center justify-center gap-2 rounded-full bg-[#10b981] px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#0ea56f] md:inline-flex"
+                onClick={handleExport}
+                disabled={!data || loading}
+                className="hidden items-center justify-center gap-2 rounded-full bg-[#10b981] px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#0ea56f] disabled:cursor-not-allowed disabled:opacity-60 md:inline-flex"
               >
                 <Download size={16} />
                 <span>Export Data</span>

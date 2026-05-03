@@ -9,6 +9,7 @@ import {
   X,
 } from "lucide-react";
 import AdminCard from "../ui/AdminCard";
+import { formatDateTimeForCsv } from "../../../utils/csvExport";
 import {
   createAdminScenario,
   deactivateAdminScenario,
@@ -362,7 +363,7 @@ export default function ManageScenariosModal({
                               </p>
 
                               <p className="mt-2 text-[12px] text-slate-400">
-                                Updated: {scenario.updatedAt}
+                                Updated: {formatDateTimeForCsv(scenario.updatedAt)}
                               </p>
                             </div>
 

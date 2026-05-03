@@ -11,6 +11,7 @@ import {
 import AdminCard from "../ui/AdminCard";
 import type { AdminParentFeedback } from "../../../types/adminParentFeedback";
 import type { AdminParentFeedbackFilters } from "../../../services/adminParentFeedbackApi";
+import { downloadCsv, formatDateTimeForCsv } from "../../../utils/csvExport";
 
 type ParentFeedbackListProps = {
   feedback: AdminParentFeedback[];
@@ -21,11 +22,6 @@ type ParentFeedbackListProps = {
   onClearFilters: () => void;
 };
 
-function escapeCsvValue(value: string | number) {
-  const text = String(value ?? "");
-  return `"${text.replace(/"/g, '""')}"`;
-}
-
 function exportFeedbacksCsv(feedback: AdminParentFeedback[]) {
   const headers = [
     "Child Name",
@@ -35,29 +31,15 @@ function exportFeedbacksCsv(feedback: AdminParentFeedback[]) {
     "What Child Should Learn",
     "Submitted At",
   ];
-
   const rows = feedback.map((item) => [
     item.childName,
     item.parentName,
     item.parentEmail,
     item.moneyStory,
     item.whatChildShouldLearn,
-    item.submittedAt,
+    formatDateTimeForCsv(item.submittedAt),
   ]);
-
-  const csv = [headers, ...rows]
-    .map((row) => row.map(escapeCsvValue).join(","))
-    .join("\n");
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = "parent-feedback.csv";
-  link.click();
-
-  URL.revokeObjectURL(url);
+  downloadCsv("parent-feedback.csv", headers, rows);
 }
 
 export default function ParentFeedbackList({
@@ -269,7 +251,7 @@ export default function ParentFeedbackList({
                   </p>
                   <div className="mt-2 inline-flex items-center gap-2 py-1.5 text-[13px] font-medium text-slate-600">
                     <CalendarDays size={14} />
-                    <span>{item.submittedAt}</span>
+                    <span>{formatDateTimeForCsv(item.submittedAt)}</span>
                   </div>
                 </div>
               </div>

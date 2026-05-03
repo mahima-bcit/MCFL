@@ -168,7 +168,7 @@ namespace MCFL.API.Services
                 ParentGuardianName = x.ParentGuardianName,
                 ParentGuardianEmail = x.ParentGuardianEmail,
                 DobAge = $"{x.DateOfBirth:MMM dd, yyyy} ({CalculateAge(x.DateOfBirth)} years)",
-                JoinDate = x.CreatedAt.ToString("yyyy-MM-dd"),
+                JoinDate = x.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ssZ"),
                 Confidence = x.Confidence,
                 GameMoney = x.GameMoney,
                 GoalProgress = x.GoalProgress,
@@ -193,7 +193,7 @@ namespace MCFL.API.Services
                 ParentGuardianName = data.ParentGuardianName,
                 ParentGuardianEmail = data.ParentGuardianEmail,
                 DobAge = $"{data.DateOfBirth:MMM dd, yyyy} ({CalculateAge(data.DateOfBirth)} years)",
-                JoinDate = data.CreatedAt.ToString("yyyy-MM-dd"),
+                JoinDate = data.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ssZ"),
                 Confidence = data.Confidence,
                 GameMoney = data.GameMoney,
                 GoalProgress = data.GoalProgress,
@@ -249,7 +249,7 @@ namespace MCFL.API.Services
                 ParentEmail = x.ParentEmail,
                 MoneyStory = x.MoneyStory,
                 WhatChildShouldLearn = x.WhatChildShouldLearn,
-                SubmittedAt = x.SubmittedAt.ToString("yyyy-MM-dd")
+                SubmittedAt = x.SubmittedAt.ToString("yyyy-MM-ddTHH:mm:ssZ")
             }).ToList();
         }
 
@@ -460,7 +460,8 @@ namespace MCFL.API.Services
                 Title = scenario.Title,
                 Description = scenario.Description,
                 IsActive = scenario.IsActive,
-                UpdatedAt = scenario.UpdatedAt.ToString("yyyy-MM-dd"),
+                CreatedAt = scenario.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                UpdatedAt = scenario.UpdatedAt.ToString("yyyy-MM-ddTHH:mm:ssZ"),
                 Choices = scenario.Choices
                     .OrderBy(x => x.SortOrder)
                     .Select(x => new AdminManageScenarioChoiceDto
@@ -568,7 +569,7 @@ namespace MCFL.API.Services
                 Email = x.Email,
                 FeedbackType = x.FeedbackType,
                 Comment = x.Comment,
-                SubmittedDate = x.SubmittedAt.ToString("yyyy-MM-dd")
+                SubmittedDate = x.SubmittedAt.ToString("yyyy-MM-ddTHH:mm:ssZ")
             }).ToList();
         }
 

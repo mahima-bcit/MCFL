@@ -12,6 +12,8 @@ import {
 import type { AdminUserFeedbackItem } from "../../../types/adminUserFeedback";
 import type { AdminUserFeedbackFilters } from "../../../services/adminUserFeedbackApi";
 import AdminCard from "../ui/AdminCard";
+import { downloadCsv, formatDateTimeForCsv } from "../../../utils/csvExport";
+
 
 type Props = {
   feedback: AdminUserFeedbackItem[];
@@ -23,11 +25,6 @@ type Props = {
   onApplyFilters: () => void;
   onClearFilters: () => void;
 };
-
-function escapeCsvValue(value: string | number) {
-  const text = String(value ?? "");
-  return `"${text.replace(/"/g, '""')}"`;
-}
 
 export default function UserFeedbackList({
   feedback,
@@ -57,38 +54,16 @@ export default function UserFeedbackList({
   function handleExport() {
     if (feedback.length === 0) return;
 
-    const headers = [
-      "Name",
-      "Email",
-      "Feedback Type",
-      "Comment",
-      "Submitted Date",
-    ];
-
+    const headers = ["Name", "Email", "Feedback Type", "Comment", "Submitted Date"];
     const rows = feedback.map((item) => [
       item.fullName,
       item.email,
       item.feedbackType,
       item.comment,
-      item.submittedDate,
+      formatDateTimeForCsv(item.submittedDate),
     ]);
 
-    const csvContent = [headers, ...rows]
-      .map((row) => row.map(escapeCsvValue).join(","))
-      .join("\n");
-
-    const blob = new Blob([csvContent], {
-      type: "text/csv;charset=utf-8;",
-    });
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = "user-feedback.csv";
-    link.click();
-
-    URL.revokeObjectURL(url);
+    downloadCsv("user-feedback.csv", headers, rows);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -382,7 +357,7 @@ export default function UserFeedbackList({
                       size={14}
                       className="shrink-0 text-slate-400"
                     />
-                    <span>{item.submittedDate}</span>
+                    <span>{formatDateTimeForCsv(item.submittedDate)}</span>
                   </div>
                 </div>
 
@@ -429,7 +404,7 @@ export default function UserFeedbackList({
                     </td>
 
                     <td className="whitespace-nowrap px-5 py-4 align-top text-[14px] font-medium text-slate-600">
-                      {item.submittedDate}
+                      {formatDateTimeForCsv(item.submittedDate)}
                     </td>
 
                     <td className="px-5 py-4 align-top">

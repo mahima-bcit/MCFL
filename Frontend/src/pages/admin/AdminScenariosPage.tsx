@@ -16,6 +16,7 @@ import CompactScenarioStatCard from "../../components/admin/scenarios/CompactSce
 import { getAdminScenarios } from "../../services/adminScenariosApi";
 import type { AdminScenarios } from "../../types/adminScenarios";
 import { Link } from "react-router-dom";
+import { downloadCsv } from "../../utils/csvExport";
 
 type DirectionFilter = "all" | "positive" | "negative";
 
@@ -48,6 +49,29 @@ export default function AdminScenariosPage() {
 
   const hasActiveFilters =
     nameSearch !== "" || confidenceFilter !== "all" || moneyFilter !== "all";
+
+  function handleExport() {
+    if (filteredScenarios.length === 0) return;
+
+    const headers = [
+      "Scenario Name",
+      "Most Chosen Option",
+      "Times Played",
+      "Avg Confidence Change",
+      "Avg Money Change",
+      "% of All Plays",
+    ];
+    const rows = filteredScenarios.map((s) => [
+      s.title,
+      s.mostPopularChoice,
+      s.completions,
+      formatSignedPercent(s.avgConfidenceGain),
+      formatSignedMoney(s.avgMoneyImpact),
+      `${s.percentageOfTotal.toFixed(1)}%`,
+    ]);
+
+    downloadCsv("scenarios.csv", headers, rows);
+  }
 
   useEffect(() => {
     async function load() {
@@ -117,7 +141,9 @@ const scenarioCountText = data
               </Link>
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-full bg-[#10b981] px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#0ea56f]"
+                onClick={handleExport}
+                disabled={loading || filteredScenarios.length === 0}
+                className="inline-flex items-center gap-2 rounded-full bg-[#10b981] px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#0ea56f] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Download size={16} />
                 <span>Export Scenarios</span>
@@ -137,7 +163,9 @@ const scenarioCountText = data
           </Link>
           <button
             type="button"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#10b981] px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#0ea56f]"
+            onClick={handleExport}
+            disabled={loading || filteredScenarios.length === 0}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#10b981] px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#0ea56f] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Download size={16} />
             <span className="md:hidden">Export</span>
