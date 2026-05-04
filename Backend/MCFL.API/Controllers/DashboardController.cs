@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using MCFL.API.Data;
 using MCFL.API.DTOs.Dashboard;
+using MCFL.API.Models;
 using MCFL.API.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -130,7 +131,21 @@ public class DashboardController : ControllerBase
             .OrderByDescending(x => x.CreatedAt)
             .FirstOrDefaultAsync();
 
-        var parentFeedbackUrl = BuildParentFeedbackUrl(userName, parentAccessLink?.Token);
+        if (parentAccessLink == null)
+        {
+            parentAccessLink = new ParentAccessLink
+            {
+                Token = Guid.NewGuid().ToString("N"),
+                IsActive = true,
+                ExpiresAt = null,
+                UserId = user.Id,
+                CreatedAt = DateTime.UtcNow,
+            };
+            _context.ParentAccessLinks.Add(parentAccessLink);
+            await _context.SaveChangesAsync();
+        }
+
+        var parentFeedbackUrl = BuildParentFeedbackUrl(userName, parentAccessLink.Token);
 
         var result = new DashboardSummaryDto
         {
