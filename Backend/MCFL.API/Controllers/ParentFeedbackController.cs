@@ -18,6 +18,31 @@ public class ParentFeedbackController : ControllerBase
         _db = db;
     }
 
+    [HttpGet("info")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetInfo([FromQuery] string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            return BadRequest(new { error = "Token is required." });
+
+        var accessLink = await _db.ParentAccessLinks
+            .FirstOrDefaultAsync(l => l.Token == token && l.IsActive);
+
+        if (accessLink == null)
+            return BadRequest(new { error = "Invalid or expired access link." });
+
+        if (accessLink.ExpiresAt.HasValue && accessLink.ExpiresAt < DateTime.UtcNow)
+            return BadRequest(new { error = "This access link has expired." });
+
+        var profile = await _db.UserProfiles
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.UserId == accessLink.UserId);
+
+        var childName = profile?.FullName ?? "your child";
+
+        return Ok(new { childName });
+    }
+
     [HttpPost]
     [AllowAnonymous]
     public async Task<IActionResult> Submit([FromBody] ParentFeedbackRequestDto dto)
