@@ -1,10 +1,10 @@
-import React, { useState, type FormEvent } from "react";
+import React, { useEffect, useState } from "react";
 import { apiFetch } from "../services/apiClient";
+import { resolveParentFeedbackToken } from "../services/parentFeedbackApi";
 
 interface FormData {
   email: string;
   parentName: string;
-  childName: string;
   moneyStory: string;
   hopesForLearning: string;
 }
@@ -12,18 +12,20 @@ interface FormData {
 interface FormErrors {
   email?: string;
   parentName?: string;
-  childName?: string;
   moneyStory?: string;
   hopesForLearning?: string;
 }
 
 const ParentsFeedback: React.FC = () => {
-  const token = new URLSearchParams(window.location.search).get("token") ?? "test-token";
+  const token = new URLSearchParams(window.location.search).get("token") ?? "";
+
+  const [childName, setChildName] = useState("");
+  const [isLoadingToken, setIsLoadingToken] = useState(true);
+  const [tokenError, setTokenError] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
     parentName: "",
-    childName: "",
     moneyStory: "",
     hopesForLearning: "",
   });
@@ -33,6 +35,23 @@ const ParentsFeedback: React.FC = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!token) {
+      setTokenError(true);
+      setIsLoadingToken(false);
+      return;
+    }
+
+    resolveParentFeedbackToken(token)
+      .then((info) => {
+        setChildName(info.childName);
+        setIsLoadingToken(false);
+      })
+      .catch(() => {
+        setTokenError(true);
+        setIsLoadingToken(false);
+      });
+  }, [token]);
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
@@ -45,10 +64,6 @@ const ParentsFeedback: React.FC = () => {
 
     if (!formData.parentName.trim()) {
       newErrors.parentName = "Parent's name is required.";
-    }
-
-    if (!formData.childName.trim()) {
-      newErrors.childName = "Child's name is required.";
     }
 
     if (!formData.moneyStory.trim()) {
@@ -77,7 +92,7 @@ const ParentsFeedback: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
@@ -103,6 +118,69 @@ const ParentsFeedback: React.FC = () => {
     }
   };
 
+  // ── Loading state ──────────────────────────────────────────────────────────
+  if (isLoadingToken) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-mint px-4">
+        <div className="flex flex-col items-center gap-4 text-nav">
+          <svg
+            className="animate-spin w-10 h-10 text-primary"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+          <p className="font-body text-gray-500">Loading feedback form…</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Invalid / expired token ────────────────────────────────────────────────
+  if (tokenError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-mint px-4">
+        <div className="max-w-lg w-full bg-white rounded-2xl shadow-lg p-10 text-center">
+          <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg
+              className="w-10 h-10 text-error"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+              />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-display font-bold text-nav mb-3">
+            Invalid or Expired Link
+          </h2>
+          <p className="text-gray-600 font-body leading-relaxed">
+            This feedback link is invalid or has expired. Please ask your child
+            to share a new link from their dashboard.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Success state ──────────────────────────────────────────────────────────
   if (submitSuccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-mint px-4">
@@ -127,47 +205,33 @@ const ParentsFeedback: React.FC = () => {
           </h2>
           <p className="text-gray-600 font-body leading-relaxed">
             Your insights will help us build a stronger money learning journey
-            for {formData.childName || "your child"}. We truly appreciate you
-            taking the time to share.
+            for {childName}. We truly appreciate you taking the time to share.
           </p>
-          <button
-            onClick={() => {
-              setSubmitSuccess(false);
-              setFormData({
-                email: "",
-                parentName: "",
-                childName: "",
-                moneyStory: "",
-                hopesForLearning: "",
-              });
-            }}
-            className="mt-8 inline-block text-primary font-body font-medium hover:text-primary-dark transition-colors underline underline-offset-4"
-          >
-            Submit another response
-          </button>
         </div>
       </div>
     );
   }
 
+  // ── Form ───────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-mint py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
-        {/* ---------- Header ---------- */}
+        {/* Header */}
         <div className="text-center mb-10 animate-fade-up">
-          
           <h1 className="text-3xl sm:text-4xl font-display font-bold text-primary leading-tight">
-             Parent Feedback
+            Parent Feedback
           </h1>
           <p className="mt-4 text-gray-600 font-body text-lg max-w-xl mx-auto">
-            Help us understand your child's money learning journey
+            Help us understand{" "}
+            <span className="font-semibold text-nav">{childName}'s</span> money
+            learning journey
           </p>
         </div>
 
-        {/* ---------- Why we're asking ---------- */}
+        {/* Why we're asking */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 mb-8 animate-fade-up [animation-delay:150ms]">
           <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+            <div className="shrink-0 w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
               <svg
                 className="w-5 h-5 text-primary"
                 fill="none"
@@ -189,20 +253,20 @@ const ParentsFeedback: React.FC = () => {
               <p className="text-gray-600 font-body leading-relaxed">
                 Your perspective as a parent is invaluable. We want to
                 understand the money lessons and values you're already sharing
-                with your child, so we can build on that foundation and support
+                with {childName}, so we can build on that foundation and support
                 their learning journey.
               </p>
             </div>
           </div>
         </div>
 
-        {/* ---------- Form ---------- */}
+        {/* Form */}
         <form
           onSubmit={handleSubmit}
           className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-7 animate-fade-up [animation-delay:300ms]"
           noValidate
         >
-          {/* --- Email --- */}
+          {/* Email */}
           <fieldset>
             <legend className="text-sm font-mono tracking-wide uppercase text-nav/70 mb-1.5">
               Your Contact Information
@@ -226,23 +290,18 @@ const ParentsFeedback: React.FC = () => {
             />
             {errors.email && (
               <p className="mt-1.5 text-sm text-error font-body flex items-center gap-1.5">
-                <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <ErrorIcon />
                 {errors.email}
               </p>
             )}
           </fieldset>
 
-          {/* --- Parent's Name --- */}
+          {/* Parent Name + Child Name (read-only) */}
           <fieldset>
             <legend className="text-sm font-mono tracking-wide uppercase text-nav/70 mb-1.5">
               About You &amp; Your Child
             </legend>
+
             <label
               htmlFor="parentName"
               className="block text-sm font-body font-medium text-nav mb-1.5"
@@ -264,50 +323,49 @@ const ParentsFeedback: React.FC = () => {
             />
             {errors.parentName && (
               <p className="mt-1.5 text-sm text-error font-body flex items-center gap-1.5">
-                <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <ErrorIcon />
                 {errors.parentName}
               </p>
             )}
+
+            {/* Child name — auto-filled, read-only */}
             <label
               htmlFor="childName"
               className="block text-sm font-body font-medium text-nav mb-1.5 mt-4"
             >
-              Child's Name <span className="text-error">*</span>
+              Child's Name
             </label>
-            <input
-              type="text"
-              id="childName"
-              name="childName"
-              value={formData.childName}
-              onChange={handleChange}
-              placeholder="Alex Rivera"
-              className={`w-full px-4 py-3 rounded-xl border font-body text-nav placeholder:text-gray-400 bg-gray-50/50 focus:bg-white transition-colors outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
-                errors.childName
-                  ? "border-error ring-2 ring-error/20"
-                  : "border-gray-200"
-              }`}
-            />
-            {errors.childName && (
-              <p className="mt-1.5 text-sm text-error font-body flex items-center gap-1.5">
-                <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <div className="relative">
+              <input
+                type="text"
+                id="childName"
+                name="childName"
+                value={childName}
+                readOnly
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 font-body text-nav bg-gray-100 cursor-not-allowed select-none pr-10"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                <svg
+                  className="w-4 h-4 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
                   <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clipRule="evenodd"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
                   />
                 </svg>
-                {errors.childName}
-              </p>
-            )}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-gray-400 font-body">
+              Filled automatically from the shared link
+            </p>
           </fieldset>
 
-          {/* --- Money Story --- */}
+          {/* Money Story */}
           <fieldset>
             <legend className="text-sm font-mono tracking-wide uppercase text-nav/70 mb-1.5">
               Share a Money Story
@@ -326,7 +384,7 @@ const ParentsFeedback: React.FC = () => {
               value={formData.moneyStory}
               onChange={handleChange}
               placeholder="For example: I remember when I got my first paycheck and spent it all in one weekend. I wish someone had taught me about saving a portion first..."
-              className={`w-full px-4 py-3 rounded-xl border font-body text-nav placeholder:text-gray-400 bg-gray-50/50 focus:bg-white transition-colors outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-y min-h-[120px] ${
+              className={`w-full px-4 py-3 rounded-xl border font-body text-nav placeholder:text-gray-400 bg-gray-50/50 focus:bg-white transition-colors outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-y min-h-30 ${
                 errors.moneyStory
                   ? "border-error ring-2 ring-error/20"
                   : "border-gray-200"
@@ -335,13 +393,7 @@ const ParentsFeedback: React.FC = () => {
             <div className="flex justify-between items-center mt-1.5">
               {errors.moneyStory ? (
                 <p className="text-sm text-error font-body flex items-center gap-1.5">
-                  <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <ErrorIcon />
                   {errors.moneyStory}
                 </p>
               ) : (
@@ -353,7 +405,7 @@ const ParentsFeedback: React.FC = () => {
             </div>
           </fieldset>
 
-          {/* --- Hopes for Learning --- */}
+          {/* Hopes for Learning */}
           <fieldset>
             <legend className="text-sm font-mono tracking-wide uppercase text-nav/70 mb-1.5">
               Your Hopes for Their Learning
@@ -362,7 +414,7 @@ const ParentsFeedback: React.FC = () => {
               htmlFor="hopesForLearning"
               className="block text-sm font-body font-medium text-nav mb-1.5"
             >
-              What do you most want your child to learn about money?{" "}
+              What do you most want {childName} to learn about money?{" "}
               <span className="text-error">*</span>
             </label>
             <textarea
@@ -372,7 +424,7 @@ const ParentsFeedback: React.FC = () => {
               value={formData.hopesForLearning}
               onChange={handleChange}
               placeholder="For example: I want them to understand that money is a tool, not a measure of worth. I want them to feel confident making financial decisions without fear..."
-              className={`w-full px-4 py-3 rounded-xl border font-body text-nav placeholder:text-gray-400 bg-gray-50/50 focus:bg-white transition-colors outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-y min-h-[120px] ${
+              className={`w-full px-4 py-3 rounded-xl border font-body text-nav placeholder:text-gray-400 bg-gray-50/50 focus:bg-white transition-colors outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-y min-h-30 ${
                 errors.hopesForLearning
                   ? "border-error ring-2 ring-error/20"
                   : "border-gray-200"
@@ -381,13 +433,7 @@ const ParentsFeedback: React.FC = () => {
             <div className="flex justify-between items-center mt-1.5">
               {errors.hopesForLearning ? (
                 <p className="text-sm text-error font-body flex items-center gap-1.5">
-                  <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <ErrorIcon />
                   {errors.hopesForLearning}
                 </p>
               ) : (
@@ -399,17 +445,11 @@ const ParentsFeedback: React.FC = () => {
             </div>
           </fieldset>
 
-          {/* --- Submit --- */}
+          {/* Submit */}
           <div className="pt-2">
             {submitError && (
               <p className="mb-4 text-sm text-error font-body flex items-center gap-1.5">
-                <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <ErrorIcon />
                 {submitError}
               </p>
             )}
@@ -439,7 +479,7 @@ const ParentsFeedback: React.FC = () => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Submitting...
+                  Submitting…
                 </>
               ) : (
                 <>
@@ -463,7 +503,6 @@ const ParentsFeedback: React.FC = () => {
           </div>
         </form>
 
-        {/* ---------- Footer note ---------- */}
         <p className="text-center text-sm text-gray-400 font-body mt-6 animate-fade-in [animation-delay:600ms]">
           Your responses help us shape a better financial education — thank you
           for contributing.
@@ -472,5 +511,17 @@ const ParentsFeedback: React.FC = () => {
     </div>
   );
 };
+
+function ErrorIcon() {
+  return (
+    <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+      <path
+        fillRule="evenodd"
+        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+}
 
 export default ParentsFeedback;
