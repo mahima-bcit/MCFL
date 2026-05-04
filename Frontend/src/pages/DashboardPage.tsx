@@ -14,6 +14,7 @@ import {
 import "../DashboardPage.css";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import { getDashboardSummary } from "../services/dashboardApi";
+import { regenerateParentFeedbackToken } from "../services/parentFeedbackApi";
 import type { DashboardData } from "../types/dashboard";
 
 const sampleDashboardData: DashboardData = {
@@ -76,6 +77,7 @@ function StarRating({ score }: { score: number }) {
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   useEffect(() => {
     let isCancelled = false;
@@ -127,6 +129,19 @@ export default function DashboardPage() {
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
     });
+  }
+
+  async function regenerateLink() {
+    setIsRegenerating(true);
+    try {
+      await regenerateParentFeedbackToken();
+      const fresh = await getDashboardSummary();
+      setDashboardData(mergeDashboardData(fresh));
+    } catch (err) {
+      console.error("Failed to regenerate parent feedback link.", err);
+    } finally {
+      setIsRegenerating(false);
+    }
   }
 
   return (
@@ -259,6 +274,14 @@ export default function DashboardPage() {
               onClick={copyLink}
             >
               {linkCopied ? "Copied!" : "Copy Link"}
+            </button>
+            <button
+              type="button"
+              className="feedback-copy-btn"
+              onClick={regenerateLink}
+              disabled={isRegenerating}
+            >
+              {isRegenerating ? "Regenerating…" : "Regenerate Link"}
             </button>
           </article>
 
