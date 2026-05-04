@@ -1,10 +1,17 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import AdminTabs from "./AdminTabs";
 import { Menu, Settings, X } from "lucide-react";
+import { clearAuthStorage } from "../../../utils/auth";
 
 export default function AdminHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    clearAuthStorage();
+    navigate("/login");
+  }
 
   return (
     <header className="border-b border-[#dbe6f5] bg-white/95 backdrop-blur lg:sticky lg:top-0 lg:z-40">
@@ -35,12 +42,13 @@ export default function AdminHeader() {
               <Settings size={18} />
             </NavLink>
 
-            <NavLink
-              to="/"
+            <button
+              type="button"
+              onClick={handleLogout}
               className="hidden items-center rounded-full border border-[#dbe6f5] bg-white px-4 py-2 text-[14px] font-semibold text-slate-700 transition hover:bg-[#f8fbff] sm:inline-flex"
             >
               Logout
-            </NavLink>
+            </button>
 
             <button
               type="button"
@@ -82,13 +90,13 @@ export default function AdminHeader() {
                   <Settings size={16} />
                   <span>Admin Settings</span>
                 </NavLink>
-                <NavLink
-                  to="/"
-                  onClick={() => setMenuOpen(false)}
+                <button
+                  type="button"
+                  onClick={() => { setMenuOpen(false); handleLogout(); }}
                   className="inline-flex w-full items-center justify-center rounded-xl border border-[#dbe6f5] bg-white px-4 py-2.5 text-[14px] font-semibold text-slate-700 transition hover:bg-[#f8fbff]"
                 >
                   Logout
-                </NavLink>
+                </button>
               </div>
             </div>
           </div>

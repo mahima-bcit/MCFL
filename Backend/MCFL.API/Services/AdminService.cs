@@ -1,5 +1,6 @@
 ﻿using MCFL.API.DTOs.Admin.AccessControl;
 using MCFL.API.DTOs.Admin.Feedbacks;
+using MCFL.API.DTOs.Admin.Feelings;
 using MCFL.API.DTOs.Admin.Overview;
 using MCFL.API.DTOs.Admin.Scenarios;
 using MCFL.API.DTOs.Admin.Users;
@@ -167,7 +168,7 @@ namespace MCFL.API.Services
                 ParentGuardianName = x.ParentGuardianName,
                 ParentGuardianEmail = x.ParentGuardianEmail,
                 DobAge = $"{x.DateOfBirth:MMM dd, yyyy} ({CalculateAge(x.DateOfBirth)} years)",
-                JoinDate = x.CreatedAt.ToString("yyyy-MM-dd"),
+                JoinDate = x.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ssZ"),
                 Confidence = x.Confidence,
                 GameMoney = x.GameMoney,
                 GoalProgress = x.GoalProgress,
@@ -192,7 +193,7 @@ namespace MCFL.API.Services
                 ParentGuardianName = data.ParentGuardianName,
                 ParentGuardianEmail = data.ParentGuardianEmail,
                 DobAge = $"{data.DateOfBirth:MMM dd, yyyy} ({CalculateAge(data.DateOfBirth)} years)",
-                JoinDate = data.CreatedAt.ToString("yyyy-MM-dd"),
+                JoinDate = data.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ssZ"),
                 Confidence = data.Confidence,
                 GameMoney = data.GameMoney,
                 GoalProgress = data.GoalProgress,
@@ -248,7 +249,7 @@ namespace MCFL.API.Services
                 ParentEmail = x.ParentEmail,
                 MoneyStory = x.MoneyStory,
                 WhatChildShouldLearn = x.WhatChildShouldLearn,
-                SubmittedAt = x.SubmittedAt.ToString("yyyy-MM-dd")
+                SubmittedAt = x.SubmittedAt.ToString("yyyy-MM-ddTHH:mm:ssZ")
             }).ToList();
         }
 
@@ -294,13 +295,93 @@ namespace MCFL.API.Services
             return true;
         }
 
-        public async Task<AdminScenariosDto> GetScenariosAsync()
+        public async Task<AdminScenariosDto> GetScenariosAsync(
+            string? range = "allTime",
+            DateTime? startDate = null,
+            DateTime? endDate = null)
         {
+            DateTime? dateFrom = null;
+            DateTime? dateTo = null;
+
+            var rangeKey = string.IsNullOrWhiteSpace(range) ? "allTime" : range;
+
+            if (rangeKey != "allTime")
+            {
+                var today = DateTime.UtcNow.Date;
+
+                DateTime resolvedFrom;
+                DateTime resolvedTo;
+
+                switch (rangeKey)
+                {
+                    case "today":
+                        resolvedFrom = today;
+                        resolvedTo = today;
+                        break;
+
+                    case "yesterday":
+                        resolvedFrom = today.AddDays(-1);
+                        resolvedTo = today.AddDays(-1);
+                        break;
+
+                    case "last7Days":
+                        resolvedFrom = today.AddDays(-6);
+                        resolvedTo = today;
+                        break;
+
+                    case "last30Days":
+                        resolvedFrom = today.AddDays(-29);
+                        resolvedTo = today;
+                        break;
+
+                    case "thisMonth":
+                        resolvedFrom = new DateTime(today.Year, today.Month, 1);
+                        resolvedTo = today;
+                        break;
+
+                    case "lastMonth":
+                        var firstOfThisMonth = new DateTime(today.Year, today.Month, 1);
+                        resolvedFrom = firstOfThisMonth.AddMonths(-1);
+                        resolvedTo = firstOfThisMonth.AddDays(-1);
+                        break;
+
+                    case "thisYear":
+                        resolvedFrom = new DateTime(today.Year, 1, 1);
+                        resolvedTo = today;
+                        break;
+
+                    case "custom":
+                        if (!startDate.HasValue || !endDate.HasValue)
+                            throw new ArgumentException("Custom range requires startDate and endDate.");
+
+                        var s = startDate.Value.Date;
+                        var e = endDate.Value.Date;
+
+                        if (e < s)
+                            throw new ArgumentException("Custom range requires endDate to be greater than or equal to startDate.");
+
+                        if (s > today || e > today)
+                            throw new ArgumentException("Custom range cannot include future dates.");
+
+                        resolvedFrom = s;
+                        resolvedTo = e;
+                        break;
+
+                    default:
+                        resolvedFrom = today.AddDays(-29);
+                        resolvedTo = today;
+                        break;
+                }
+
+                dateFrom = resolvedFrom;
+                dateTo = resolvedTo.AddDays(1); // exclusive upper bound
+            }
+
             var totalScenarios = await _adminRepository.CountActiveScenariosAsync();
-            var totalCompletions = await _adminRepository.CountScenarioCompletionsAsync();
-            var avgConfidenceGain = await _adminRepository.GetAverageScenarioConfidenceGainAsync();
-            var avgMoneyImpact = await _adminRepository.GetAverageScenarioMoneyImpactAsync();
-            var summaries = await _adminRepository.GetScenarioSummariesAsync();
+            var totalCompletions = await _adminRepository.CountScenarioCompletionsAsync(dateFrom, dateTo);
+            var avgConfidenceGain = await _adminRepository.GetAverageScenarioConfidenceGainAsync(dateFrom, dateTo);
+            var avgMoneyImpact = await _adminRepository.GetAverageScenarioMoneyImpactAsync(dateFrom, dateTo);
+            var summaries = await _adminRepository.GetScenarioSummariesAsync(dateFrom, dateTo);
 
             return new AdminScenariosDto
             {
@@ -379,7 +460,8 @@ namespace MCFL.API.Services
                 Title = scenario.Title,
                 Description = scenario.Description,
                 IsActive = scenario.IsActive,
-                UpdatedAt = scenario.UpdatedAt.ToString("yyyy-MM-dd"),
+                CreatedAt = scenario.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                UpdatedAt = scenario.UpdatedAt.ToString("yyyy-MM-ddTHH:mm:ssZ"),
                 Choices = scenario.Choices
                     .OrderBy(x => x.SortOrder)
                     .Select(x => new AdminManageScenarioChoiceDto
@@ -487,13 +569,30 @@ namespace MCFL.API.Services
                 Email = x.Email,
                 FeedbackType = x.FeedbackType,
                 Comment = x.Comment,
-                SubmittedDate = x.SubmittedAt.ToString("yyyy-MM-dd")
+                SubmittedDate = x.SubmittedAt.ToString("yyyy-MM-ddTHH:mm:ssZ")
             }).ToList();
         }
 
         public async Task<List<string>> GetUserFeedbackTypesAsync()
         {
             return await _adminRepository.GetUserFeedbackTypesAsync();
+        }
+
+        public async Task<List<AdminMoneyFeelingDto>> GetMoneyFeelingsAsync(
+            string? feeling, string? email, DateTime? startDate, DateTime? endDate)
+        {
+            var rows = await _adminRepository.GetMoneyFeelingsAsync(
+                feeling, email, startDate, endDate);
+
+            return rows.Select(x => new AdminMoneyFeelingDto
+            {
+                MoneyFeelingSubmissionId = x.MoneyFeelingSubmissionId,
+                UserId = x.UserId,
+                FullName = x.FullName,
+                Email = x.Email,
+                Feeling = x.Feeling,
+                SubmittedDate = x.SubmittedAt.ToString("yyyy-MM-ddTHH:mm:ssZ")
+            }).ToList();
         }
     }
 }

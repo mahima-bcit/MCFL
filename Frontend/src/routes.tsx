@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 import RootLayout from "./components/layout/RootLayout";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -23,6 +24,7 @@ import AdminScenariosPage from "./pages/admin/AdminScenariosPage";
 import AdminManageScenariosPage from "./pages/admin/AdminManageScenariosPage";
 import AdminAccessControlPage from "./pages/admin/AdminAccessControlPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
+import AdminMoneyFeelingsPage from "./pages/admin/AdminMoneyFeelingsPage";
 
 export default [
     {
@@ -38,28 +40,29 @@ export default [
         ],
     },
 
-    { path: "/dashboard", element: <DashboardPage /> },
-    { path: "/game", element: <GamePage /> },
-    { path: "/money", element: <MoneyPage /> },
-    { path: "/feedback", element: <FeedbackPage /> },
-    { path: "/userFeedback", element: <UserFeedback /> },
-    { path: "/moneyPicture", element: <MoneyPicture /> },
-    { path: "/game-money", element: <GameMoneyPage /> },
-    { path: "/real-money", element: <RealMoneyPage /> },
-    { path: "/real-money/transactions", element: <TransactionPage /> },
+    { path: "/dashboard", element: <ProtectedRoute requiredRole="User"><DashboardPage /></ProtectedRoute> },
+    { path: "/game", element: <ProtectedRoute requiredRole="User"><GamePage /></ProtectedRoute> },
+    { path: "/money", element: <ProtectedRoute requiredRole="User"><MoneyPage /></ProtectedRoute> },
+    { path: "/feedback", element: <ProtectedRoute requiredRole="User"><FeedbackPage /></ProtectedRoute> },
+    { path: "/userFeedback", element: <ProtectedRoute requiredRole="User"><UserFeedback /></ProtectedRoute> },
+    { path: "/moneyPicture", element: <ProtectedRoute requiredRole="User"><MoneyPicture /></ProtectedRoute> },
+    { path: "/game-money", element: <ProtectedRoute requiredRole="User"><GameMoneyPage /></ProtectedRoute> },
+    { path: "/real-money", element: <ProtectedRoute requiredRole="User"><RealMoneyPage /></ProtectedRoute> },
+    { path: "/real-money/transactions", element: <ProtectedRoute requiredRole="User"><TransactionPage /></ProtectedRoute> },
 
     {
         path: "/admin",
         children: [
             { index: true, element: <Navigate to="/admin/overview" replace /> },
-            { path: "overview", element: <AdminOverviewPage /> },
-            { path: "users", element: <AdminUsersPage /> },
-            { path: "user-feedback", element: <AdminUserFeedbackPage /> },
-            { path: "parent-feedback", element: <AdminParentFeedbackPage /> },
-            { path: "scenarios", element: <AdminScenariosPage /> },
-            { path: "scenarios/manage", element: <AdminManageScenariosPage /> },
-            { path: "access-control", element: <AdminAccessControlPage /> },
-            { path: "settings", element: <AdminSettingsPage /> },
+            { path: "overview", element: <ProtectedRoute requiredRole="Admin"><AdminOverviewPage /></ProtectedRoute> },
+            { path: "users", element: <ProtectedRoute requiredRole="Admin"><AdminUsersPage /></ProtectedRoute> },
+            { path: "user-feedback", element: <ProtectedRoute requiredRole="Admin"><AdminUserFeedbackPage /></ProtectedRoute> },
+            { path: "parent-feedback", element: <ProtectedRoute requiredRole="Admin"><AdminParentFeedbackPage /></ProtectedRoute> },
+            { path: "money-feelings", element: <ProtectedRoute requiredRole="Admin"><AdminMoneyFeelingsPage /></ProtectedRoute> },
+            { path: "scenarios", element: <ProtectedRoute requiredRole="Admin"><AdminScenariosPage /></ProtectedRoute> },
+            { path: "scenarios/manage", element: <ProtectedRoute requiredRole="Admin"><AdminManageScenariosPage /></ProtectedRoute> },
+            { path: "access-control", element: <ProtectedRoute requiredRole="Admin"><AdminAccessControlPage /></ProtectedRoute> },
+            { path: "settings", element: <ProtectedRoute requiredRole="Admin"><AdminSettingsPage /></ProtectedRoute> },
         ],
     },
 ];

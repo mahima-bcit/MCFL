@@ -6,6 +6,7 @@
         public string Title { get; set; } = "";
         public string Description { get; set; } = "";
         public bool IsActive { get; set; }
+        public string CreatedAt { get; set; } = "";
         public string UpdatedAt { get; set; } = "";
         public List<AdminManageScenarioChoiceDto> Choices { get; set; } = new();
     }

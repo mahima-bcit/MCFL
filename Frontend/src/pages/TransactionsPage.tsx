@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { clearAuthStorage } from "../utils/auth";
 import "../TransactionPage.css";
 import { getRealMoneyEntries } from "../services/realMoneyApi";
 import type { RealMoneyEntry } from "../types/realMoney";
@@ -9,6 +10,12 @@ export default function TransactionsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    clearAuthStorage();
+    navigate("/login");
+  }
 
   useEffect(() => {
     let isCurrent = true;
@@ -113,13 +120,13 @@ export default function TransactionsPage() {
               </Link>
             </nav>
 
-            <Link
-              to="/login"
+            <button
+              type="button"
               className="money-app-logout"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
             >
               Logout
-            </Link>
+            </button>
           </div>
         </div>
       </header>

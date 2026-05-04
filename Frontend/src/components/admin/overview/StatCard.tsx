@@ -19,18 +19,19 @@ export default function StatCard({
   className = "",
 }: Props) {
   return (
-    <AdminCard className={`p-3.5 md:p-6 ${className}`}>
-      <div
-        className={`mb-2.5 flex h-8 w-8 items-center justify-center rounded-xl md:mb-4 md:h-11 md:w-11 md:rounded-2xl ${iconBgClassName}`}
-      >
-        <Icon size={16} className={iconTextClassName} />
+    <AdminCard className={`p-3.5 md:p-5 ${className}`}>
+      <div className="mb-3 flex items-center gap-2">
+        <div
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg md:h-8 md:w-8 md:rounded-xl ${iconBgClassName}`}
+        >
+          <Icon size={14} className={`md:size-4 ${iconTextClassName}`} />
+        </div>
+        <p className="text-[12px] font-medium text-slate-500 md:text-[13px]">
+          {label}
+        </p>
       </div>
 
-      <p className="text-[12px] font-medium text-slate-500 md:text-[14px]">
-        {label}
-      </p>
-
-      <p className="mt-2 text-[18px] font-bold leading-none text-[#0f172a] md:mt-4 md:text-[30px]">
+      <p className="text-[22px] font-bold leading-none text-[#0f172a] md:text-[28px]">
         {value}
       </p>
     </AdminCard>

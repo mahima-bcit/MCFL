@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
+
 type Step = {
   number: string
   title: string
@@ -24,58 +27,59 @@ const steps: Step[] = [
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="bg-white py-16 md:py-24">
-      <div className="max-w-6xl mx-auto px-4 md:px-6">
+    <section id="how-it-works" className="bg-mint py-16 md:py-24">
+      <div className="mx-auto max-w-6xl px-4 md:px-6">
 
         {/* Heading */}
-        <div className="text-center mb-10 md:mb-16 animate-fade-up">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-nav mb-3 md:mb-4">
+        <div className="mb-10 animate-fade-up text-center md:mb-16">
+          <h2 className="font-display mb-3 text-3xl font-bold text-nav md:mb-4 md:text-4xl">
             How it works
           </h2>
-          <p className="text-nav/55 text-base md:text-lg max-w-md mx-auto">
+          <p className="mx-auto max-w-md text-base text-nav/55 md:text-lg">
             Three simple steps to start building your financial confidence
           </p>
         </div>
 
-        {/* Steps: vertical on mobile, horizontal on desktop */}
-        <div className="flex flex-col md:grid md:grid-cols-3 gap-8 md:gap-6 relative">
+        {/* Steps */}
+        <div className="relative flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-6">
 
           {/* Connector line — desktop only */}
-          <div className="hidden md:block absolute top-8 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-px bg-primary/20 z-0" />
+          <div className="absolute left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] top-8 z-0 hidden h-px bg-primary/20 md:block" />
 
           {steps.map((step, i) => (
             <div
               key={step.number}
-              className="relative z-10 flex md:flex-col items-start md:items-center gap-5 md:gap-0 md:text-center animate-fade-up"
+              className="animate-fade-up relative z-10"
               style={{ animationDelay: `${i * 150}ms` }}
             >
-              {/* Number + vertical connector for mobile */}
-              <div className="flex flex-col items-center flex-shrink-0">
-                <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-primary flex items-center justify-center shadow-md hover:bg-gold transition-colors duration-300 md:mb-6">
-                  <span className="font-display font-bold text-white text-base md:text-lg">{step.number}</span>
+              {/* Mobile: horizontal layout */}
+              <div className="flex items-start gap-5 md:flex-col md:items-center md:gap-0 md:text-center">
+                <div className="flex shrink-0 flex-col items-center">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-nav shadow-md transition-colors duration-300 hover:bg-primary md:mb-6 md:h-16 md:w-16">
+                    <span className="font-display text-base font-bold text-white md:text-lg">{step.number}</span>
+                  </div>
+                  {i < steps.length - 1 && (
+                    <div className="mt-2 h-8 w-px bg-primary/20 md:hidden" />
+                  )}
                 </div>
-                {/* Vertical line between steps on mobile */}
-                {i < steps.length - 1 && (
-                  <div className="md:hidden w-px h-8 bg-primary/20 mt-2" />
-                )}
-              </div>
 
-              <div className="pb-2 md:pb-0">
-                <h3 className="font-display font-semibold text-nav text-lg md:text-xl mb-2">{step.title}</h3>
-                <p className="text-nav/55 text-sm leading-relaxed max-w-xs">{step.description}</p>
+                <div className="rounded-2xl border border-primary/10 bg-white p-4 shadow-sm md:mt-0 md:w-full md:p-5">
+                  <h3 className="font-display mb-2 text-lg font-semibold text-nav md:text-xl">{step.title}</h3>
+                  <p className="max-w-xs text-sm leading-relaxed text-nav/55">{step.description}</p>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
         {/* CTA */}
-        <div className="text-center mt-10 md:mt-16">
-          <a href="#" className="inline-flex items-center gap-2 text-primary font-medium text-sm hover:text-gold transition-colors duration-200">
-            Ready to start?
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
-            </svg>
-          </a>
+        <div className="mt-10 text-center md:mt-16">
+          <Link
+            to="/signup"
+            className="inline-flex items-center gap-2 rounded-full bg-nav px-7 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-primary hover:shadow-md"
+          >
+            Get started now <ArrowRight size={15} />
+          </Link>
         </div>
 
       </div>

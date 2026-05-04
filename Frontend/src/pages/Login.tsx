@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
-
 import { apiFetch } from "../services/apiClient";
 
 type LoginResponse = {
@@ -18,7 +17,7 @@ export default function Login() {
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -57,24 +56,20 @@ export default function Login() {
 
   return (
     <main>
-      <section className="min-h-screen flex items-center justify-center px-4 py-12">
+      <section className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-4 py-6">
         <div className="w-full max-w-md animate-fade-up">
-          <div className="bg-white rounded-2xl shadow-lg p-8">
-            <div className="text-center mb-8">
-              <h1 className="font-display text-3xl font-bold text-nav mb-2">
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="text-center mb-6">
+              <h1 className="font-display text-3xl font-bold text-nav mb-1.5">
                 Welcome Back
               </h1>
               <p className="text-nav/60 text-base">
                 Log in to continue your financial journey
               </p>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email Input */}
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-semibold text-nav mb-2"
-                >
+                <label htmlFor="email" className="block text-sm font-semibold text-nav mb-1.5">
                   Email
                 </label>
                 <input
@@ -88,12 +83,8 @@ export default function Login() {
                 />
               </div>
 
-              {/* Password Input */}
               <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-semibold text-nav mb-2"
-                >
+                <label htmlFor="password" className="block text-sm font-semibold text-nav mb-1.5">
                   Password
                 </label>
                 <input
@@ -113,7 +104,6 @@ export default function Login() {
                 </p>
               )}
 
-              {/* Remember Me & Forgot Password */}
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -122,36 +112,21 @@ export default function Login() {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-4 h-4 rounded border-2 border-nav/30 text-primary accent-primary cursor-pointer"
                   />
-                  <span className="text-sm text-nav/70 font-medium">
-                    Remember me
-                  </span>
+                  <span className="text-sm text-nav/70 font-medium">Remember me</span>
                 </label>
-
-                <a
-                  href="/forgot-password"
-                  className="text-sm font-semibold text-primary hover:text-primary-dark transition-colors"
-                >
+                <a href="/forgot-password" className="text-sm font-semibold text-primary hover:text-primary-dark transition-colors">
                   Forgot password?
                 </a>
               </div>
 
-              {/* Login Button */}
-              <Button
-                type="submit"
-                variant="primary"
-                className="w-full text-base py-4 justify-center"
-              >
+              <Button type="submit" variant="primary" className="w-full text-base py-3 justify-center">
                 Log in
               </Button>
             </form>
 
-            {/* Sign Up Link */}
-            <p className="text-center text-nav/70 text-sm mt-6">
+            <p className="text-center text-nav/70 text-sm mt-4">
               Don't have an account yet?{" "}
-              <a
-                href="/signup"
-                className="font-semibold text-primary hover:text-primary-dark transition-colors"
-              >
+              <a href="/signup" className="font-semibold text-primary hover:text-primary-dark transition-colors">
                 Sign up
               </a>
             </p>
