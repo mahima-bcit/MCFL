@@ -30,6 +30,7 @@ export async function apiFetch<T>(
 
   const response = await fetch(`${API_BASE}${normalizedPath}`, {
     ...options,
+    cache: "no-store",
     headers: finalHeaders,
     credentials: "include",
   });

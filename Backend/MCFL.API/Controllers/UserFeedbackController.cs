@@ -1,26 +1,23 @@
 using MCFL.API.Data;
 using MCFL.API.Models;
 using MCFL.API.Models.DTOs;
-using MCFL.API.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace MCFL.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Roles = "User")]
 public class UserFeedbackController : ControllerBase
 {
     private readonly AppDbContext _db;
-    private readonly UserManager<ApplicationUser> _userManager;
 
-    public UserFeedbackController(AppDbContext db, UserManager<ApplicationUser> userManager)
+    public UserFeedbackController(AppDbContext db)
     {
         _db = db;
-        _userManager = userManager;
     }
 
     [HttpPost]
@@ -29,7 +26,8 @@ public class UserFeedbackController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var userId = _userManager.GetUserId(User);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue("sub");
 
         if (string.IsNullOrWhiteSpace(userId))
             return Unauthorized(new { error = "Authenticated user not found." });

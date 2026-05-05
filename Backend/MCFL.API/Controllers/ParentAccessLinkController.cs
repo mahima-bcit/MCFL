@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using MCFL.API.Data;
 using MCFL.API.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +20,40 @@ public class ParentAccessLinkController : ControllerBase
     {
         _db = db;
         _userManager = userManager;
+    }
+
+    // Child regenerates their own parent feedback link
+    [HttpPost("regenerate")]
+    [Authorize]
+    public async Task<IActionResult> Regenerate()
+    {
+        var user = await _userManager.GetUserAsync(User)
+            ?? await _userManager.FindByIdAsync(
+                User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "");
+
+        if (user == null)
+            return Unauthorized(new { error = "User not found." });
+
+        var existing = await _db.ParentAccessLinks
+            .Where(l => l.UserId == user.Id && l.IsActive)
+            .ToListAsync();
+
+        foreach (var link in existing)
+            link.IsActive = false;
+
+        var token = Guid.NewGuid().ToString("N");
+        _db.ParentAccessLinks.Add(new ParentAccessLink
+        {
+            Token = token,
+            IsActive = true,
+            ExpiresAt = null,
+            UserId = user.Id,
+            CreatedAt = DateTime.UtcNow,
+        });
+
+        await _db.SaveChangesAsync();
+
+        return Ok(new { token });
     }
 
     // Admin creates an access link for a given user (child account)

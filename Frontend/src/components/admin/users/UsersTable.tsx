@@ -8,6 +8,8 @@ import type { AdminUsersFilters } from "../../../services/adminUsersApi";
 import UserDetailsPanel from "./UserDetailsPanel";
 import UserDetailsSheet from "./UserDetailsSheet";
 import AdminCard from "../ui/AdminCard";
+import { downloadCsv, formatDateTimeForCsv } from "../../../utils/csvExport";
+
 import {
   CalendarDays,
   ChevronDown,
@@ -42,9 +44,100 @@ export default function UsersTable({
   const [details, setDetails] = useState<Record<string, AdminUserDetail>>({});
   const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
   const [detailErrors, setDetailErrors] = useState<Record<string, string>>({});
+  const [exportLoading, setExportLoading] = useState(false);
 
   const hasActiveFilters = Boolean(filters.search?.trim());
   const mobileSearchTimeoutRef = useRef<number | null>(null);
+
+  async function handleExport() {
+    if (users.length === 0) return;
+    setExportLoading(true);
+
+    try {
+      const missing = users.filter((u) => !details[u.userId]);
+      const fetched: Record<string, AdminUserDetail> = {};
+
+      await Promise.all(
+        missing.map(async (u) => {
+          try {
+            fetched[u.userId] = await getAdminUserById(u.userId);
+          } catch {
+            // skip — detail columns will be empty for this user
+          }
+        }),
+      );
+
+      const allDetails = { ...details, ...fetched };
+      if (Object.keys(fetched).length > 0) {
+        setDetails(allDetails);
+      }
+
+      const headers = [
+        // Table basics
+        "Name",
+        "Email",
+        "Parent / Guardian Name",
+        "Parent / Guardian Email",
+        "DOB / Age",
+        "Join Date",
+        // Learning Savings Goal
+        "Learning Goal Title",
+        "Learning Goal Progress (%)",
+        "Learning Goal Target Amount ($)",
+        "Learning Goal Target Date",
+        // Game Progress
+        "Scenarios Completed",
+        "Game Money ($)",
+        "Confidence (%)",
+        // Financial Stuff
+        "Has Bank Account",
+        "Earns Money",
+        "Has Savings",
+        "Pays Bills",
+        "Spends On Wants",
+        // Learning Preferences
+        "Selected Topics",
+        "Learning Comments",
+        // Parent Teachings
+        "Parent Teachings",
+      ];
+
+      const rows = users.map((u) => {
+        const d = allDetails[u.userId];
+        return [
+          u.fullName,
+          u.email,
+          u.parentGuardianName,
+          u.parentGuardianEmail,
+          u.dobAge,
+          formatDateTimeForCsv(u.joinDate),
+          d?.learningGoalTitle ?? "",
+          d?.learningGoalProgress ?? "",
+          d?.learningGoalTargetAmount ?? "",
+          d?.learningGoalTargetDate ?? "",
+          u.scenariosCompleted,
+          u.gameMoney,
+          u.confidence,
+          d?.financialStuff?.["Has Bank Account"] ?? "",
+          d?.financialStuff?.["Earns Money"] ?? "",
+          d?.financialStuff?.["Has Savings"] ?? "",
+          d?.financialStuff?.["Pays Bills"] ?? "",
+          d?.financialStuff?.["Spends On Wants"] ?? "",
+          d?.learningPreferences?.["Selected Topics"] ?? "",
+          d?.learningPreferences?.["Learning Comments"] ?? "",
+          d?.parentTeachings ?? "",
+        ];
+      });
+
+      downloadCsv(
+        hasActiveFilters ? "users-filtered.csv" : "users.csv",
+        headers,
+        rows,
+      );
+    } finally {
+      setExportLoading(false);
+    }
+  }
 
   function isMobileView() {
     return typeof window !== "undefined"
@@ -169,11 +262,17 @@ export default function UsersTable({
 
             <button
               type="button"
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#10b981] px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#0ea56f]"
+              onClick={handleExport}
+              disabled={users.length === 0 || loading || exportLoading}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#10b981] px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#0ea56f] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Download size={16} />
-              <span className="hidden sm:inline">Export Users</span>
-              <span className="sm:hidden">Export</span>
+              <span className="hidden sm:inline">
+                {exportLoading ? "Exporting..." : "Export Users"}
+              </span>
+              <span className="sm:hidden">
+                {exportLoading ? "..." : "Export"}
+              </span>
             </button>
           </div>
         </div>
@@ -327,7 +426,7 @@ export default function UsersTable({
                               size={15}
                               className="text-slate-400"
                             />
-                            <span>{user.joinDate}</span>
+                            <span>{formatDateTimeForCsv(user.joinDate)}</span>
                           </div>
                         </div>
 

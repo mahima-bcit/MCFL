@@ -1,5 +1,6 @@
 ﻿using MCFL.API.DTOs.Admin.AccessControl;
 using MCFL.API.DTOs.Admin.Feedbacks;
+using MCFL.API.DTOs.Admin.Feelings;
 using MCFL.API.DTOs.Admin.Overview;
 using MCFL.API.DTOs.Admin.Scenarios;
 using MCFL.API.DTOs.Admin.Users;
@@ -150,10 +151,20 @@ namespace MCFL.API.Controllers
         }
 
         [HttpGet("scenarios")]
-        public async Task<ActionResult<AdminScenariosDto>> GetScenarios()
+        public async Task<ActionResult<AdminScenariosDto>> GetScenarios(
+            [FromQuery] string? range = "allTime",
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
         {
-            var scenarios = await _adminService.GetScenariosAsync();
-            return Ok(scenarios);
+            try
+            {
+                var scenarios = await _adminService.GetScenariosAsync(range, startDate, endDate);
+                return Ok(scenarios);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("scenarios/manage")]
@@ -234,6 +245,37 @@ namespace MCFL.API.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpGet("money-feelings")]
+        public async Task<ActionResult<List<AdminMoneyFeelingDto>>> GetMoneyFeelings(
+            [FromQuery] string? feeling,
+            [FromQuery] string? email,
+            [FromQuery] DateTime? startDate,
+            [FromQuery] DateTime? endDate)
+        {
+            var today = DateTime.Today;
+
+            if (startDate.HasValue && startDate.Value.Date > today)
+            {
+                return BadRequest("From date cannot be after today's date.");
+            }
+
+            if (endDate.HasValue && endDate.Value.Date > today)
+            {
+                return BadRequest("To date cannot be after today's date.");
+            }
+
+            if (startDate.HasValue &&
+                endDate.HasValue &&
+                startDate.Value.Date > endDate.Value.Date)
+            {
+                return BadRequest("From date cannot be after To date.");
+            }
+
+            var result = await _adminService.GetMoneyFeelingsAsync(feeling, email, startDate, endDate);
+
+            return Ok(result);
         }
     }
 }

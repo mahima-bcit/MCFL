@@ -18,8 +18,15 @@ export default function AdminAccessControlPage() {
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [emailToDelete, setEmailToDelete] =
     useState<AllowedRegistrationEmail | null>(null);
+
+  useEffect(() => {
+    if (!successMessage) return;
+    const timer = setTimeout(() => setSuccessMessage(""), 4000);
+    return () => clearTimeout(timer);
+  }, [successMessage]);
 
   useEffect(() => {
     async function loadEmails() {
@@ -48,13 +55,14 @@ export default function AdminAccessControlPage() {
 
     setSaving(true);
     setError("");
+    setSuccessMessage("");
 
     try {
       const created = await addAllowedRegistrationEmail(email);
 
       setEmails((current) => [created, ...current]);
-
       setEmailInput("");
+      setSuccessMessage(`${email} has been added to the allow list.`);
     } catch (err) {
       setError(getErrorMessage(err, "Failed to add email."));
     } finally {
@@ -67,8 +75,11 @@ export default function AdminAccessControlPage() {
 
     setDeletingId(emailToDelete.id);
     setError("");
+    setSuccessMessage("");
 
     try {
+      const deletedEmail = emailToDelete.email;
+
       await deleteAllowedRegistrationEmail(emailToDelete.id);
 
       setEmails((current) =>
@@ -76,6 +87,7 @@ export default function AdminAccessControlPage() {
       );
 
       setEmailToDelete(null);
+      setSuccessMessage(`${deletedEmail} has been removed from the allow list.`);
     } catch (err) {
       setError(getErrorMessage(err, "Failed to delete email."));
     } finally {
@@ -176,6 +188,12 @@ export default function AdminAccessControlPage() {
         {error && (
           <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-[14px] font-medium text-red-700">
             {error}
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[14px] font-medium text-emerald-700">
+            {successMessage}
           </div>
         )}
 

@@ -34,10 +34,10 @@ namespace MCFL.API.Repositories
         Task DeleteAllowedRegistrationEmailAsync(RegistrationAllowList allowedEmail);
 
         Task<int> CountActiveScenariosAsync();
-        Task<int> CountScenarioCompletionsAsync();
-        Task<double> GetAverageScenarioConfidenceGainAsync();
-        Task<decimal> GetAverageScenarioMoneyImpactAsync();
-        Task<List<AdminScenarioSummaryProjection>> GetScenarioSummariesAsync();
+        Task<int> CountScenarioCompletionsAsync(DateTime? dateFrom = null, DateTime? dateTo = null);
+        Task<double> GetAverageScenarioConfidenceGainAsync(DateTime? dateFrom = null, DateTime? dateTo = null);
+        Task<decimal> GetAverageScenarioMoneyImpactAsync(DateTime? dateFrom = null, DateTime? dateTo = null);
+        Task<List<AdminScenarioSummaryProjection>> GetScenarioSummariesAsync(DateTime? dateFrom = null, DateTime? dateTo = null);
 
         Task<List<AdminManageScenarioProjection>> GetManageScenariosAsync();
         Task<AdminManageScenarioProjection> CreateScenarioAsync(AdminUpsertScenarioRequestDto request);
@@ -46,5 +46,11 @@ namespace MCFL.API.Repositories
             AdminUpsertScenarioRequestDto request);
         Task<bool> ActivateScenarioAsync(int scenarioId);
         Task<bool> DeactivateScenarioAsync(int scenarioId);
+
+        Task<List<AdminMoneyFeelingProjection>> GetMoneyFeelingsAsync(
+            string? feeling,
+            string? email,
+            DateTime? startDate,
+            DateTime? endDate);
     }
 }
