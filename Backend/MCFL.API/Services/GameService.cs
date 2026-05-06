@@ -16,14 +16,13 @@ namespace MCFL.API.Services
             _statRepo = statRepo;
         }
 
-        // 👇 YOUR METHOD GOES HERE
+
         public async Task<object> ApplyChoice(string userId, int choiceId)
         {
             var choice = await _scenarioRepo.GetChoiceById(choiceId);
             var stat = await _statRepo.GetByUserId(userId);
 
             if (stat == null)
-            //throw new Exception("User game stat not found");
             {
                 stat = new UserGameStat
                 {
@@ -33,7 +32,7 @@ namespace MCFL.API.Services
                     UpdatedAt = DateTime.UtcNow
                 };
 
-                await _statRepo.Add(stat); // 👈 you need this method
+                await _statRepo.Add(stat); 
             }
 
 
@@ -45,9 +44,8 @@ namespace MCFL.API.Services
 
             return new
             {
-                money = stat.CurrentGameMoney,
-                confidence = stat.CurrentConfidenceScore,
-                resultText = choice.ResultText
+                currentGameMoney = stat.CurrentGameMoney,
+                currentConfidenceScore = stat.CurrentConfidenceScore
             };
         }
     }
