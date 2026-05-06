@@ -9,6 +9,7 @@ export type ScenarioChoice = {
   id: number;
   optionText: string;
   resultText: string;
+  lessonText: string | null;
   moneyImpact: number;
   confidenceImpact: number;
 };

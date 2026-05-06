@@ -308,6 +308,10 @@ export default function GamePage() {
               <p className="text-sm sm:text-base md:text-lg text-nav/70 leading-relaxed">
                 {selectedScenarioChoice?.resultText}
               </p>
+
+              <p className="text-sm sm:text-base md:text-lg text-nav/70 leading-relaxed">
+                {selectedScenarioChoice?.lessonText}
+              </p>
             </div>
 
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">

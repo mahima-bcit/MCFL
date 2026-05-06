@@ -43,6 +43,7 @@ namespace MCFL.API.Repositories
                             id = c.ScenarioChoiceId,
                             optionText = c.OptionText,
                             resultText = c.ResultText,
+                            lessonText = c.LessonText,
                             moneyImpact = c.MoneyImpact,
                             confidenceImpact = c.ConfidenceImpact
                         })
