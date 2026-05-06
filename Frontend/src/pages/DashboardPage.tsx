@@ -75,7 +75,9 @@ function StarRating({ score }: { score: number }) {
 }
 
 export default function DashboardPage() {
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null,
+  );
   const [linkCopied, setLinkCopied] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
 
@@ -148,10 +150,9 @@ export default function DashboardPage() {
     <DashboardLayout>
       <div className="dashboard-shell">
         <div className="dashboard-content">
-
           {/* 1. Quick Start Banner */}
           <Link
-            to="/game-money"
+            to="/game"
             className="scenario-banner scenario-banner-clickable"
           >
             <div className="scenario-banner-copy">
@@ -229,7 +230,9 @@ export default function DashboardPage() {
                 <div className="progress-bar">
                   <div
                     className="progress-bar-fill progress-bar-animated"
-                    style={{ "--goal-pct": `${goalPercent}%` } as React.CSSProperties}
+                    style={
+                      { "--goal-pct": `${goalPercent}%` } as React.CSSProperties
+                    }
                   />
                 </div>
                 <div className="stat-goal-footer">
@@ -242,7 +245,10 @@ export default function DashboardPage() {
                 </div>
               </article>
 
-              <Link to="/real-money" className="stat-card stat-card-row wide-card-clickable">
+              <Link
+                to="/real-money"
+                className="stat-card stat-card-row wide-card-clickable"
+              >
                 <div className="stat-icon-circle">
                   <Banknote size={20} />
                 </div>
@@ -284,7 +290,6 @@ export default function DashboardPage() {
               {isRegenerating ? "Regenerating…" : "Regenerate Link"}
             </button>
           </article>
-
         </div>
       </div>
     </DashboardLayout>
