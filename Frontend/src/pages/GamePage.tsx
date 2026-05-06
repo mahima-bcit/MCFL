@@ -1,29 +1,20 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+import type { Scenario, ScenarioChoice } from "../types/game";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
 import MoneyScenarioHeader from "../components/layout/MoneyScenarioHeader";
 
 import "../styles/SpinTheWheel.css";
+import {
+  addUserSelection,
+  getScenarios,
+  getUserGameStats,
+} from "../services/gameApi";
 
 type StepDefinition = {
   key: "spin-the-wheel" | "scenario-selection" | "scenario-result";
-};
-
-type Scenario = {
-  id: number;
-  title: string;
-  description: string;
-  choices: ScenarioChoice[];
-};
-
-type ScenarioChoice = {
-  id: number;
-  optionText: string;
-  resultText: string;
-  moneyImpact: number;
-  confidenceImpact: number;
 };
 
 function StepCard({
@@ -446,30 +437,12 @@ export default function GamePage() {
     if (!selectedScenarioChoice) return;
 
     try {
-      const response = await fetch("https://localhost:7211/api/Game/choice", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: "e37702dc-1111-400f-b4f8-1c5eeb9989e1",
-          scenarioChoiceId: selectedScenarioChoice.id,
-        }),
-      });
-
-      const data = await response.json();
+      const response = await addUserSelection(selectedScenarioChoice.id);
 
       // updates the header stats w new values
       setUserStats({
-        money: data.money,
-        confidence: data.confidence,
-      });
-
-      setSelectedScenarioChoice({
-        ...selectedScenarioChoice,
-        resultText: data.resultText,
-        moneyImpact: data.money - userStats.money,
-        confidenceImpact: data.confidence - userStats.confidence,
+        money: response.currentGameMoney,
+        confidence: response.currentConfidenceScore,
       });
 
       setStep((current) => current + 1);
@@ -480,26 +453,18 @@ export default function GamePage() {
 
   const fetchScenarios = async () => {
     try {
-      const res = await fetch(
-        "https://localhost:7211/api/GameScenario/random?count=10",
-      );
-
-      const data = await res.json();
+      const data = await getScenarios();
 
       setAllScenarios((prev) => [...prev, ...data]);
     } catch (err) {
       console.error("Failed to load scenarios", err);
     }
   };
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch(
-          "https://localhost:7211/api/UserGameStat/current?userId=e37702dc-1111-400f-b4f8-1c5eeb9989e1",
-        );
-
-        const data = await res.json();
-
+        const data = await getUserGameStats();
         setUserStats({
           money: data.currentGameMoney,
           confidence: data.currentConfidenceScore,
