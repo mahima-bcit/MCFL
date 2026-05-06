@@ -1,6 +1,8 @@
 ﻿using MCFL.API.DTOs.Game;
 using MCFL.API.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace MCFL.API.Controllers
 {
@@ -18,7 +20,11 @@ namespace MCFL.API.Controllers
         [HttpPost("choice")]
         public async Task<IActionResult> ApplyChoice([FromBody] ApplyChoiceRequest request)
         {
-            var result = await _service.ApplyChoice(request.UserId, request.ScenarioChoiceId);
+            var userId =
+            User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var result = await _service.ApplyChoice(userId, request.ScenarioChoiceId);
             return Ok(result);
         }
     }
