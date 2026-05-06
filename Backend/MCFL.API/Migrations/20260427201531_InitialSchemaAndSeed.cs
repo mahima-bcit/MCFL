@@ -364,7 +364,6 @@ namespace MCFL.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserGameStat", x => x.pkUserGameStatId);
-                    table.CheckConstraint("CK_UserGameStat_CurrentGameMoney", "currentGameMoney >= 0");
                     table.ForeignKey(
                         name: "FK_UserGameStat_AspNetUsers_fkUserId",
                         column: x => x.fkUserId,
@@ -569,7 +568,6 @@ namespace MCFL.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ScenarioPlay", x => x.pkScenarioPlayId);
-                    table.CheckConstraint("CK_ScenarioPlay_GameMoney", "gameMoneyBefore >= 0 AND gameMoneyAfter >= 0");
                     table.ForeignKey(
                         name: "FK_ScenarioPlay_AspNetUsers_fkUserId",
                         column: x => x.fkUserId,
