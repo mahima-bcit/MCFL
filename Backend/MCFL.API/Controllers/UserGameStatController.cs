@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MCFL.API.Models.Identity;
 using MCFL.API.Repositories;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace MCFL.API.Controllers
 {
@@ -14,9 +18,13 @@ namespace MCFL.API.Controllers
             _repo = repo;
         }
 
-        [HttpGet("current")]
-        public async Task<IActionResult> GetCurrent(string userId)
+            [HttpGet("current")]
+        public async Task<IActionResult> GetCurrent()
         {
+            var userId =
+    User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+    User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var stat = await _repo.GetByUserId(userId);
 
             if (stat == null)
