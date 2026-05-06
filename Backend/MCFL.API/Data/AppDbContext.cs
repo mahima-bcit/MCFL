@@ -196,15 +196,5 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
             .ToTable(t => t.HasCheckConstraint(
                 "CK_SavingsGoal_Amounts",
                 "targetAmount >= 0 AND currentSavedAmount >= 0"));
-
-        modelBuilder.Entity<ScenarioPlay>()
-            .ToTable(t => t.HasCheckConstraint(
-                "CK_ScenarioPlay_GameMoney",
-                "gameMoneyBefore >= 0 AND gameMoneyAfter >= 0"));
-
-        modelBuilder.Entity<UserGameStat>()
-            .ToTable(t => t.HasCheckConstraint(
-                "CK_UserGameStat_CurrentGameMoney",
-                "currentGameMoney >= 0"));
     }
 }

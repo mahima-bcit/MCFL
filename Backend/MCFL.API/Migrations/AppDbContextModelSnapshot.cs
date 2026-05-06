@@ -641,10 +641,7 @@ namespace MCFL.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ScenarioPlay", t =>
-                        {
-                            t.HasCheckConstraint("CK_ScenarioPlay_GameMoney", "gameMoneyBefore >= 0 AND gameMoneyAfter >= 0");
-                        });
+                    b.ToTable("ScenarioPlay");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.UserFeedback", b =>
@@ -740,10 +737,7 @@ namespace MCFL.API.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserGameStat", t =>
-                        {
-                            t.HasCheckConstraint("CK_UserGameStat_CurrentGameMoney", "currentGameMoney >= 0");
-                        });
+                    b.ToTable("UserGameStat");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.UserLearningPreference", b =>
