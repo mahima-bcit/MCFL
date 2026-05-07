@@ -30,21 +30,36 @@ public class GameMoneyController : ControllerBase
             return Unauthorized();
         }
 
-        
-        var categoryNames = new[] { "Want", "Have", "Need", "Fun", "Save" };
+        var categoryNames = await _db.CashOutCategories
+            .AsNoTracking()
+            .Where(c => c.IsActive)
+            .Select(c => c.CategoryName)
+            .ToListAsync();
 
-        var cashOutEntries = await _db.MoneyEntries
+        var allEntries = await _db.MoneyEntries
             .AsNoTracking()
             .Include(entry => entry.CashOutCategory)
+            .Where(entry => entry.UserId == userId)
+            .ToListAsync();
+
+        var cashInTotal = allEntries
+            .Where(entry => entry.EntryType == "CashIn")
+            .Sum(entry => entry.Amount);
+
+        var cashOutTotal = allEntries
+            .Where(entry => entry.EntryType == "CashOut")
+            .Sum(entry => entry.Amount);
+
+        var have = cashInTotal - cashOutTotal;
+
+        var cashOutEntries = allEntries
             .Where(entry =>
-                entry.UserId == userId &&
                 entry.EntryType == "CashOut" &&
                 entry.CashOutCategory != null &&
                 categoryNames.Contains(entry.CashOutCategory.CategoryName))
-            .ToListAsync();
+            .ToList();
 
-        var want = GetCategoryTotal(cashOutEntries, "Want")
-    + GetCategoryTotal(cashOutEntries, "Have");
+        var want = GetCategoryTotal(cashOutEntries, "Want");
         var need = GetCategoryTotal(cashOutEntries, "Need");
         var fun = GetCategoryTotal(cashOutEntries, "Fun");
         var save = GetCategoryTotal(cashOutEntries, "Save");
@@ -93,14 +108,15 @@ public class GameMoneyController : ControllerBase
             Items = items,
             Totals = new GameMoneyTotalsResponse
             {
+                Have = have,
                 Want = want,
                 Need = need,
                 Fun = fun,
                 Save = save,
                 Total = want + need + fun + save
             },
-            RecentScenario = latestScenarioPlay is null
-                ? new GameMoneyRecentScenarioResponse()
+            RecentScenario = latestScenarioPlay is null || latestScenarioPlay.Scenario is null
+                ? null
                 : new GameMoneyRecentScenarioResponse
                 {
                     Title = latestScenarioPlay.Scenario.Title,
@@ -111,6 +127,19 @@ public class GameMoneyController : ControllerBase
         };
 
         return Ok(response);
+    }
+
+    [HttpGet("feelings")]
+    public async Task<ActionResult<List<string>>> GetFeelings()
+    {
+        var feelings = await _db.MoneyFeelingTypes
+            .AsNoTracking()
+            .Where(f => f.IsActive)
+            .OrderBy(f => f.SortOrder)
+            .Select(f => f.Name)
+            .ToListAsync();
+
+        return Ok(feelings);
     }
 
     [HttpPost("feeling")]
@@ -125,11 +154,12 @@ public class GameMoneyController : ControllerBase
 
         var cleanFeeling = request.Feeling.Trim();
 
-        var allowedFeelings = new[] { "Good", "Unsure", "Worried" };
+        var isValidFeeling = await _db.MoneyFeelingTypes
+            .AnyAsync(f => f.Name == cleanFeeling && f.IsActive);
 
-        if (!allowedFeelings.Contains(cleanFeeling))
+        if (!isValidFeeling)
         {
-            return BadRequest(new { error = "Feeling must be Good, Unsure, or Worried." });
+            return BadRequest(new { error = $"'{cleanFeeling}' is not a valid feeling option." });
         }
 
         var feelingSubmission = new MoneyFeelingSubmission
@@ -142,10 +172,7 @@ public class GameMoneyController : ControllerBase
         _db.MoneyFeelingSubmissions.Add(feelingSubmission);
         await _db.SaveChangesAsync();
 
-        return Ok(new
-        {
-            message = "Feeling saved."
-        });
+        return Ok(new { message = "Feeling saved." });
     }
 
     private string? GetCurrentUserId()

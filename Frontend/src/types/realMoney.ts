@@ -1,8 +1,8 @@
 export type EntryType = "cashIn" | "cashOut";
 
-export type CashInCategory = "Paycheck" | "Gift" | "Allowance / Parents" | "Allowance/Parents" | "Other";
+export type CashInCategory = string;
 
-export type CashOutCategory = "Want" | "Have" | "Need" | "Fun" | "Save";
+export type CashOutCategory = string;
 
 export type RealMoneyEntry = {
   id: number;

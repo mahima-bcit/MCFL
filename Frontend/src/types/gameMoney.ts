@@ -8,6 +8,7 @@ export type GameMoneyItem = {
 };
 
 export type GameMoneyTotals = {
+  have: number;
   want: number;
   need: number;
   fun: number;
@@ -29,5 +30,5 @@ export type GameMoneySummary = {
 };
 
 export type SaveGameMoneyFeelingRequest = {
-  feeling: "Good" | "Unsure" | "Worried";
+  feeling: string;
 };

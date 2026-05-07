@@ -1,6 +1,5 @@
 .game-money-layout {
   min-height: 100vh;
-  background: #eef8f4;
 }
 
 .money-app-header {
@@ -10,7 +9,7 @@
 }
 
 .money-app-header-inner {
-  width: min(100%, 1440px);
+  width: min(100%, 1240px);
   margin: 0 auto;
   padding: 22px 24px;
   display: grid;
@@ -93,10 +92,9 @@
 
 .game-money-page {
   min-height: 100vh;
-  background: #eef8f4;
   padding: 20px 16px 40px;
   color: #1f336e;
-  width: min(100%, 1440px);
+  width: min(100%, 1240px);
   margin: 0 auto;
 }
 
@@ -106,6 +104,14 @@
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.game-money-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .game-money-header-title {
@@ -313,16 +319,21 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;
-  background: none;
-  border: none;
-  border-top: 1px solid #d1ece2;
+  background: white;
+  border: 1.5px solid #cde8db;
+  border-radius: 18px;
   cursor: pointer;
-  padding: 12px 0 0;
+  padding: 12px 16px;
   color: #173f3a;
   font-size: 14px;
   font-weight: 600;
   text-align: left;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.game-total-feeling-trigger:hover {
+  border-color: #20c985;
+  box-shadow: 0 4px 12px rgba(32, 201, 133, 0.12);
 }
 
 .game-total-feeling-trigger span {
@@ -390,11 +401,6 @@
     margin-right: 20px;
   }
 
-  .game-total-feeling-trigger {
-    width: auto;
-    border-top: none;
-    padding: 0;
-  }
 }
 
 .feeling-grid {
@@ -564,7 +570,7 @@
 }
 
 .money-app-footer-inner {
-  width: min(100%, 1440px);
+  width: min(100%, 1240px);
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -642,7 +648,7 @@
   }
 
   .money-app-header-inner {
-    width: min(100%, 1440px);
+    width: min(100%, 1240px);
     margin: 0 auto;
     padding: 28px 48px;
     display: grid;
@@ -737,9 +743,21 @@
   margin: 0 0 20px;
   font-size: 11px;
   font-weight: 900;
-  color: #7aaa93;
+  color: #173f3a;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+
+.total-money-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.total-money-bars {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 /* Horizontal bar rows */
@@ -828,6 +846,7 @@
 .money-allocation-section {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
 .money-allocation-section .recharts-legend-item-text {
@@ -921,7 +940,7 @@
 @media (min-width: 680px) {
   .money-overview-grid {
     grid-template-columns: 1fr auto;
-    align-items: center;
+    align-items: stretch;
     gap: 0;
   }
 
@@ -1077,10 +1096,8 @@
 }
 
 .dark-mode .game-total-feeling-trigger {
-  border-top-color: #2a4039;
-}
-
-.dark-mode .game-total-feeling-trigger {
+  background: #172620;
+  border-color: #2a4039;
   color: #d4efe5;
 }
 
@@ -1105,7 +1122,7 @@
 
 .dark-mode .total-money-section h2,
 .dark-mode .money-allocation-section h2 {
-  color: #4d8a72 !important;
+  color: #d4efe5 !important;
 }
 
 .dark-mode .total-money-section {
