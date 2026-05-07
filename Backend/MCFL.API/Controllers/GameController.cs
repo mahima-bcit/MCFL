@@ -1,5 +1,6 @@
 ﻿using MCFL.API.DTOs.Game;
 using MCFL.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -8,6 +9,7 @@ namespace MCFL.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class GameController : ControllerBase
     {
         private readonly GameService _service;
@@ -25,6 +27,7 @@ namespace MCFL.API.Controllers
             User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var result = await _service.ApplyChoice(userId, request.ScenarioChoiceId);
+            if (result == null) return NotFound("Choice not found or inactive.");
             return Ok(result);
         }
     }
