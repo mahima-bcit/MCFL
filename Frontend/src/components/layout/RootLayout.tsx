@@ -4,9 +4,11 @@ import Footer from './Footer';
 
 export default function RootLayout() {
   return (
-    <div className="min-h-screen bg-mint font-body">
+    <div className="min-h-screen bg-mint font-body flex flex-col">
       <Navbar />
-      <Outlet />
+      <div className="flex-1">
+        <Outlet />
+      </div>
       <Footer />
     </div>
   );

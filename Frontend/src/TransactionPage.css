@@ -382,6 +382,17 @@
   }
 }
 
+/* Smooth theme transition */
+.transactions-page,
+.transactions-layout,
+.transactions-card,
+.transactions-back-link,
+.transaction-row,
+.cash-in-bg,
+.cash-out-bg {
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
 /* ═══════════════════════════════════════
    DARK MODE — Transactions Page
    ═══════════════════════════════════════ */

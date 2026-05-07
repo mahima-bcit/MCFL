@@ -14,6 +14,11 @@
   }
 }
 
+/* Smooth theme transition */
+.game-zone-recent-card {
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
 .dark-mode .game-zone-shell {
   background-image: radial-gradient(circle, rgba(14, 167, 125, 0.07) 1px, transparent 1px);
   background-size: 24px 24px;
