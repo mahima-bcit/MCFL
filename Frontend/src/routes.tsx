@@ -7,12 +7,9 @@ import Signup from "./pages/Signup";
 import ParentsFeedback from "./pages/ParentFeedback";
 import DashboardPage from "./pages/DashboardPage";
 import GamePage from "./pages/GamePage";
-import MoneyPage from "./pages/MoneyPage";
 import FeedbackPage from "./pages/FeedbackPage";
-import UserFeedback from "./pages/UserFeedback";
-import MoneyPicture from "./pages/MoneyPicture";
 import ProfileSetupFlow from "./pages/ProfileSetupFlow";
-import GameMoneyPage from "./pages/GameMoneyPage";
+import MoneyPicturePage from "./pages/MoneyPicturePage";
 import RealMoneyPage from "./pages/RealMoneyPage";
 import TransactionPage from "./pages/TransactionsPage";
 import GameZonePage from "./pages/GameZonePage";
@@ -36,19 +33,15 @@ export default [
             { path: "login", element: <Login /> },
             { path: "signup", element: <Signup /> },
             { path: "profile-setup", element: <ProfileSetupFlow /> },
-            { path: "profile-setup-flow", element: <ProfileSetupFlow /> },
-            { path: "parentFeedback", element: <ParentsFeedback /> },
+            { path: "parent-feedback", element: <ParentsFeedback /> },
         ],
     },
 
     { path: "/dashboard", element: <ProtectedRoute requiredRole="User"><DashboardPage /></ProtectedRoute> },
     { path: "/game-zone", element: <ProtectedRoute requiredRole="User"><GameZonePage /></ProtectedRoute> },
     { path: "/game", element: <ProtectedRoute requiredRole="User"><GamePage /></ProtectedRoute> },
-    { path: "/money", element: <ProtectedRoute requiredRole="User"><MoneyPage /></ProtectedRoute> },
     { path: "/feedback", element: <ProtectedRoute requiredRole="User"><FeedbackPage /></ProtectedRoute> },
-    { path: "/userFeedback", element: <ProtectedRoute requiredRole="User"><UserFeedback /></ProtectedRoute> },
-    { path: "/moneyPicture", element: <ProtectedRoute requiredRole="User"><MoneyPicture /></ProtectedRoute> },
-    { path: "/real-money/picture", element: <ProtectedRoute requiredRole="User"><GameMoneyPage /></ProtectedRoute> },
+    { path: "/real-money/money-picture", element: <ProtectedRoute requiredRole="User"><MoneyPicturePage /></ProtectedRoute> },
     { path: "/real-money", element: <ProtectedRoute requiredRole="User"><RealMoneyPage /></ProtectedRoute> },
     { path: "/real-money/transactions", element: <ProtectedRoute requiredRole="User"><TransactionPage /></ProtectedRoute> },
 
