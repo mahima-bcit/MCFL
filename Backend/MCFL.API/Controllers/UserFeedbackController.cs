@@ -20,6 +20,18 @@ public class UserFeedbackController : ControllerBase
         _db = db;
     }
 
+    [HttpGet("types")]
+    public async Task<IActionResult> GetTypes()
+    {
+        var types = await _db.UserFeedbackTypes
+            .Where(t => t.IsActive)
+            .OrderBy(t => t.SortOrder)
+            .Select(t => t.Name)
+            .ToListAsync();
+
+        return Ok(types);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Submit([FromBody] UserFeedbackRequestDto dto)
     {
@@ -41,7 +53,7 @@ public class UserFeedbackController : ControllerBase
         var feedback = new UserFeedback
         {
             UserFeedbackTypeId = feedbackType.UserFeedbackTypeId,
-            Comment = dto.Comment.Trim(),
+            Comment = dto.Comment?.Trim() ?? string.Empty,
             UserId = userId,
             SubmittedAt = DateTime.UtcNow,
         };
