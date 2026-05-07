@@ -208,7 +208,7 @@ export default function RealMoneyPage() {
             <Link to="/real-money/transactions" className="real-money-add-top-btn">
               View All Transactions
             </Link>
-            <Link to="/real-money/picture" className="real-money-add-top-btn">
+            <Link to="/real-money/money-picture" className="real-money-add-top-btn">
               Money Picture
             </Link>
           </div>

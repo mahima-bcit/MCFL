@@ -318,7 +318,7 @@ export default function DashboardPage() {
                   <ChevronRight size={20} className="wide-card-arrow" />
                 </Link>
 
-                <Link to="/real-money/picture" className="stat-card stat-card-row wide-card-clickable">
+                <Link to="/real-money/money-picture" className="stat-card stat-card-row wide-card-clickable">
                   <div className="stat-icon-circle">
                     <Gamepad2 size={20} />
                   </div>
