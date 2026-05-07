@@ -28,6 +28,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
     public DbSet<UserProfile> UserProfiles { get; set; } = null!;
     public DbSet<LearningTopic> LearningTopics { get; set; } = null!;
     public DbSet<UserLearningPreference> UserLearningPreferences { get; set; } = null!;
+    public DbSet<UserBelief> UserBeliefs { get; set; } = null!;
+    public DbSet<UserFinancialProfile> UserFinancialProfiles { get; set; } = null!;
+    public DbSet<MoneyFeelingType> MoneyFeelingTypes { get; set; } = null!;
+    public DbSet<BeliefDefinition> BeliefDefinitions { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -76,6 +80,18 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
             .HasOne(x => x.UserProfile)
             .WithMany(x => x.UserLearningPreferences)
             .HasForeignKey(x => x.UserProfileId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserBelief>()
+            .HasOne(x => x.UserProfile)
+            .WithMany(x => x.UserBeliefs)
+            .HasForeignKey(x => x.UserProfileId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserFinancialProfile>()
+            .HasOne(x => x.UserProfile)
+            .WithOne(x => x.FinancialProfile)
+            .HasForeignKey<UserFinancialProfile>(x => x.UserProfileId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserLearningPreference>()

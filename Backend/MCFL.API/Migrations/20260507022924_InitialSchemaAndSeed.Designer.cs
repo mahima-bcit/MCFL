@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MCFL.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260427201531_InitialSchemaAndSeed")]
+    [Migration("20260507022924_InitialSchemaAndSeed")]
     partial class InitialSchemaAndSeed
     {
         /// <inheritdoc />
@@ -19,6 +19,33 @@ namespace MCFL.API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.26");
+
+            modelBuilder.Entity("MCFL.API.Models.BeliefDefinition", b =>
+                {
+                    b.Property<int>("BeliefDefinitionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("BeliefDefinitionId");
+
+                    b.ToTable("BeliefDefinitions");
+                });
 
             modelBuilder.Entity("MCFL.API.Models.CashInCategory", b =>
                 {
@@ -341,6 +368,28 @@ namespace MCFL.API.Migrations
                     b.ToTable("MoneyFeelingSubmission");
                 });
 
+            modelBuilder.Entity("MCFL.API.Models.MoneyFeelingType", b =>
+                {
+                    b.Property<int>("MoneyFeelingTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("MoneyFeelingTypeId");
+
+                    b.ToTable("MoneyFeelingTypes");
+                });
+
             modelBuilder.Entity("MCFL.API.Models.ParentAccessLink", b =>
                 {
                     b.Property<int>("ParentAccessLinkId")
@@ -647,6 +696,41 @@ namespace MCFL.API.Migrations
                     b.ToTable("ScenarioPlay");
                 });
 
+            modelBuilder.Entity("MCFL.API.Models.UserBelief", b =>
+                {
+                    b.Property<int>("UserBeliefId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("pkUserBeliefId");
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("answer");
+
+                    b.Property<string>("BeliefKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("beliefKey");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("createdAt");
+
+                    b.Property<int>("UserProfileId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("fkUserProfileId");
+
+                    b.HasKey("UserBeliefId");
+
+                    b.HasIndex("UserProfileId", "BeliefKey")
+                        .IsUnique();
+
+                    b.ToTable("UserBelief");
+                });
+
             modelBuilder.Entity("MCFL.API.Models.UserFeedback", b =>
                 {
                     b.Property<int>("UserFeedbackId")
@@ -708,6 +792,57 @@ namespace MCFL.API.Migrations
                         .IsUnique();
 
                     b.ToTable("UserFeedbackType");
+                });
+
+            modelBuilder.Entity("MCFL.API.Models.UserFinancialProfile", b =>
+                {
+                    b.Property<int>("UserFinancialProfileId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("pkUserFinancialProfileId");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("createdAt");
+
+                    b.Property<string>("EarnsMoneyAnswer")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("earnsMoneyAnswer");
+
+                    b.Property<bool>("HasBankAccount")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("hasBankAccount");
+
+                    b.Property<string>("HasSavingsAnswer")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("hasSavingsAnswer");
+
+                    b.Property<string>("PaysBillsAnswer")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("paysBillsAnswer");
+
+                    b.Property<string>("SpendsOnWantsAnswer")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("spendsOnWantsAnswer");
+
+                    b.Property<int>("UserProfileId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("fkUserProfileId");
+
+                    b.HasKey("UserFinancialProfileId");
+
+                    b.HasIndex("UserProfileId")
+                        .IsUnique();
+
+                    b.ToTable("UserFinancialProfile");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.UserGameStat", b =>
@@ -787,27 +922,11 @@ namespace MCFL.API.Migrations
                         .HasColumnType("date")
                         .HasColumnName("dateOfBirth");
 
-                    b.Property<string>("EarnsMoneyAnswer")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("earnsMoneyAnswer");
-
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("TEXT")
                         .HasColumnName("fullName");
-
-                    b.Property<bool>("HasBankAccount")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("hasBankAccount");
-
-                    b.Property<string>("HasSavingsAnswer")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("hasSavingsAnswer");
 
                     b.Property<string>("LearningComments")
                         .HasColumnType("TEXT")
@@ -821,18 +940,6 @@ namespace MCFL.API.Migrations
                     b.Property<string>("ParentTeachingsAnswer")
                         .HasColumnType("TEXT")
                         .HasColumnName("parentTeachingsAnswer");
-
-                    b.Property<string>("PaysBillsAnswer")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("paysBillsAnswer");
-
-                    b.Property<string>("SpendsOnWantsAnswer")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("spendsOnWantsAnswer");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT")
@@ -1101,6 +1208,17 @@ namespace MCFL.API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MCFL.API.Models.UserBelief", b =>
+                {
+                    b.HasOne("MCFL.API.Models.UserProfile", "UserProfile")
+                        .WithMany("UserBeliefs")
+                        .HasForeignKey("UserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserProfile");
+                });
+
             modelBuilder.Entity("MCFL.API.Models.UserFeedback", b =>
                 {
                     b.HasOne("MCFL.API.Models.UserFeedbackType", "UserFeedbackType")
@@ -1118,6 +1236,17 @@ namespace MCFL.API.Migrations
                     b.Navigation("User");
 
                     b.Navigation("UserFeedbackType");
+                });
+
+            modelBuilder.Entity("MCFL.API.Models.UserFinancialProfile", b =>
+                {
+                    b.HasOne("MCFL.API.Models.UserProfile", "UserProfile")
+                        .WithOne("FinancialProfile")
+                        .HasForeignKey("MCFL.API.Models.UserFinancialProfile", "UserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserProfile");
                 });
 
             modelBuilder.Entity("MCFL.API.Models.UserGameStat", b =>
@@ -1229,6 +1358,10 @@ namespace MCFL.API.Migrations
 
             modelBuilder.Entity("MCFL.API.Models.UserProfile", b =>
                 {
+                    b.Navigation("FinancialProfile");
+
+                    b.Navigation("UserBeliefs");
+
                     b.Navigation("UserLearningPreferences");
                 });
 #pragma warning restore 612, 618

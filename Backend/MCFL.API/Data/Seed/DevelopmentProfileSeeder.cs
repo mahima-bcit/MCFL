@@ -1,4 +1,4 @@
-﻿using MCFL.API.Models;
+using MCFL.API.Models;
 using MCFL.API.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +23,10 @@ namespace MCFL.API.Data.Seed
                 new
                 {
                     Email = "mahima@mcfl.local",
+                    GoalTitle = "Save for a new phone",
+                    GoalTarget = 300.00m,
+                    GoalSaved = 150.00m,
+                    GoalTargetDate = (DateOnly?)new DateOnly(2026, 8, 1),
                     FullName = "Mahima Sharma",
                     NickName = (string?)"Masha",
                     DateOfBirth = new DateOnly(2009, 5, 12),
@@ -34,15 +38,28 @@ namespace MCFL.API.Data.Seed
                     LearningComments = "I want to learn how to manage money better and save regularly.",
                     LearningTopics = new[] { "How to save money", "How to budget" },
                     ParentTeachingsAnswer = (string?)"Save first before spending.",
+                    Beliefs = new Dictionary<string, string>
+                    {
+                        { "moneyIsGood",             "agree"    },
+                        { "moneyIsBad",              "disagree" },
+                        { "likeHavingMoney",         "agree"    },
+                        { "likeDoingThingsForFree",  "agree"    },
+                        { "loveSpendingMoney",       "disagree" },
+                        { "parentsGiveMeMoney",      "agree"    },
+                        { "dontNeedMoney",           "disagree" },
+                        { "likeHelpingOthers",       "agree"    },
+                    },
                     CreatedAt = DateTime.UtcNow.Date.AddDays(-24),
                     CurrentGameMoney = 150.00m,
-                    CurrentConfidenceScore = 72,
-                    LearningGoalTitle = "Save $300 for your future iPad",
-                    LearningGoalTargetAmount = 300.00m
+                    CurrentConfidenceScore = 72
                 },
                 new
                 {
                     Email = "susie@mcfl.local",
+                    GoalTitle = "Save for a concert ticket",
+                    GoalTarget = 120.00m,
+                    GoalSaved = 80.00m,
+                    GoalTargetDate = (DateOnly?)new DateOnly(2026, 7, 15),
                     FullName = "Susie Larson",
                     NickName = (string?)null,
                     DateOfBirth = new DateOnly(2004, 8, 20),
@@ -54,15 +71,28 @@ namespace MCFL.API.Data.Seed
                     LearningComments = "I want to understand investing and how to plan my monthly spending better.",
                     LearningTopics = new[] { "How to invest", "How to budget" },
                     ParentTeachingsAnswer = (string?)null,
+                    Beliefs = new Dictionary<string, string>
+                    {
+                        { "moneyIsGood",             "agree"    },
+                        { "moneyIsBad",              "disagree" },
+                        { "likeHavingMoney",         "agree"    },
+                        { "likeDoingThingsForFree",  "unsure"   },
+                        { "loveSpendingMoney",       "unsure"   },
+                        { "parentsGiveMeMoney",      "disagree" },
+                        { "dontNeedMoney",           "disagree" },
+                        { "likeHelpingOthers",       "agree"    },
+                    },
                     CreatedAt = DateTime.UtcNow.Date.AddDays(-17),
                     CurrentGameMoney = 140.00m,
-                    CurrentConfidenceScore = 68,
-                    LearningGoalTitle = "Save $300 for your future iPad",
-                    LearningGoalTargetAmount = 300.00m
+                    CurrentConfidenceScore = 68
                 },
                 new
                 {
                     Email = "saman@mcfl.local",
+                    GoalTitle = "Save for new shoes",
+                    GoalTarget = 80.00m,
+                    GoalSaved = 20.00m,
+                    GoalTargetDate = (DateOnly?)null,
                     FullName = "Saman Kayhanian",
                     NickName = (string?)"Sam",
                     DateOfBirth = new DateOnly(2010, 2, 8),
@@ -74,15 +104,28 @@ namespace MCFL.API.Data.Seed
                     LearningComments = "I want to start learning the basics of saving and making smarter money choices.",
                     LearningTopics = new[] { "How to save money", "How to take care of my money" },
                     ParentTeachingsAnswer = (string?)null,
+                    Beliefs = new Dictionary<string, string>
+                    {
+                        { "moneyIsGood",             "unsure"   },
+                        { "moneyIsBad",              "unsure"   },
+                        { "likeHavingMoney",         "agree"    },
+                        { "likeDoingThingsForFree",  "agree"    },
+                        { "loveSpendingMoney",       "agree"    },
+                        { "parentsGiveMeMoney",      "agree"    },
+                        { "dontNeedMoney",           "disagree" },
+                        { "likeHelpingOthers",       "agree"    },
+                    },
                     CreatedAt = DateTime.UtcNow.Date.AddDays(-11),
                     CurrentGameMoney = 100.00m,
-                    CurrentConfidenceScore = 60,
-                    LearningGoalTitle = "Save $300 for your future iPad",
-                    LearningGoalTargetAmount = 300.00m
+                    CurrentConfidenceScore = 60
                 },
                 new
                 {
                     Email = "harry@mcfl.local",
+                    GoalTitle = "Save for a gaming headset",
+                    GoalTarget = 200.00m,
+                    GoalSaved = 50.00m,
+                    GoalTargetDate = (DateOnly?)new DateOnly(2026, 9, 1),
                     FullName = "Harry",
                     NickName = (string?)null,
                     DateOfBirth = new DateOnly(2010, 2, 8),
@@ -94,15 +137,28 @@ namespace MCFL.API.Data.Seed
                     LearningComments = "I want to learn everything from saving money to budgeting and investing.",
                     LearningTopics = new[] { "How to save money", "How to budget", "How to invest" },
                     ParentTeachingsAnswer = (string?)null,
+                    Beliefs = new Dictionary<string, string>
+                    {
+                        { "moneyIsGood",             "agree"    },
+                        { "moneyIsBad",              "disagree" },
+                        { "likeHavingMoney",         "agree"    },
+                        { "likeDoingThingsForFree",  "disagree" },
+                        { "loveSpendingMoney",       "agree"    },
+                        { "parentsGiveMeMoney",      "agree"    },
+                        { "dontNeedMoney",           "disagree" },
+                        { "likeHelpingOthers",       "unsure"   },
+                    },
                     CreatedAt = DateTime.UtcNow.Date.AddDays(-6),
                     CurrentGameMoney = 95.00m,
-                    CurrentConfidenceScore = 58,
-                    LearningGoalTitle = "Save $300 for your future iPad",
-                    LearningGoalTargetAmount = 300.00m
+                    CurrentConfidenceScore = 58
                 },
                 new
                 {
                     Email = "amrit@mcfl.local",
+                    GoalTitle = "Save for a laptop",
+                    GoalTarget = 1200.00m,
+                    GoalSaved = 400.00m,
+                    GoalTargetDate = (DateOnly?)new DateOnly(2026, 12, 1),
                     FullName = "Amrit",
                     NickName = (string?)null,
                     DateOfBirth = new DateOnly(2003, 11, 3),
@@ -114,11 +170,20 @@ namespace MCFL.API.Data.Seed
                     LearningComments = "I want to improve my long-term money planning and investing habits.",
                     LearningTopics = new[] { "How to invest", "How to take care of my money" },
                     ParentTeachingsAnswer = (string?)null,
+                    Beliefs = new Dictionary<string, string>
+                    {
+                        { "moneyIsGood",             "agree"    },
+                        { "moneyIsBad",              "disagree" },
+                        { "likeHavingMoney",         "agree"    },
+                        { "likeDoingThingsForFree",  "disagree" },
+                        { "loveSpendingMoney",       "unsure"   },
+                        { "parentsGiveMeMoney",      "disagree" },
+                        { "dontNeedMoney",           "disagree" },
+                        { "likeHelpingOthers",       "agree"    },
+                    },
                     CreatedAt = DateTime.UtcNow.Date.AddDays(-2),
                     CurrentGameMoney = 165.00m,
-                    CurrentConfidenceScore = 67,
-                    LearningGoalTitle = "Save $300 for your future iPad",
-                    LearningGoalTargetAmount = 300.00m
+                    CurrentConfidenceScore = 67
                 }
             };
 
@@ -139,11 +204,6 @@ namespace MCFL.API.Data.Seed
                         FullName = item.FullName,
                         NickName = item.NickName,
                         DateOfBirth = item.DateOfBirth,
-                        HasBankAccount = item.HasBankAccount,
-                        EarnsMoneyAnswer = item.EarnsMoneyAnswer,
-                        HasSavingsAnswer = item.HasSavingsAnswer,
-                        PaysBillsAnswer = item.PaysBillsAnswer,
-                        SpendsOnWantsAnswer = item.SpendsOnWantsAnswer,
                         LearningComments = item.LearningComments,
                         ParentTeachingsAnswer = item.ParentTeachingsAnswer,
                         CreatedAt = item.CreatedAt,
@@ -153,6 +213,42 @@ namespace MCFL.API.Data.Seed
 
                     _context.UserProfiles.Add(existingProfile);
                     await _context.SaveChangesAsync();
+                }
+
+                var hasFinancialProfile = await _context.UserFinancialProfiles
+                    .AnyAsync(x => x.UserProfileId == existingProfile.UserProfileId);
+
+                if (!hasFinancialProfile)
+                {
+                    _context.UserFinancialProfiles.Add(new UserFinancialProfile
+                    {
+                        UserProfileId = existingProfile.UserProfileId,
+                        HasBankAccount = item.HasBankAccount,
+                        EarnsMoneyAnswer = item.EarnsMoneyAnswer,
+                        HasSavingsAnswer = item.HasSavingsAnswer,
+                        PaysBillsAnswer = item.PaysBillsAnswer,
+                        SpendsOnWantsAnswer = item.SpendsOnWantsAnswer,
+                        CreatedAt = item.CreatedAt
+                    });
+                }
+
+                var existingBeliefKeys = await _context.UserBeliefs
+                    .Where(x => x.UserProfileId == existingProfile.UserProfileId)
+                    .Select(x => x.BeliefKey)
+                    .ToListAsync();
+
+                foreach (var (key, answer) in item.Beliefs)
+                {
+                    if (!existingBeliefKeys.Contains(key))
+                    {
+                        _context.UserBeliefs.Add(new UserBelief
+                        {
+                            UserProfileId = existingProfile.UserProfileId,
+                            BeliefKey = key,
+                            Answer = answer,
+                            CreatedAt = item.CreatedAt
+                        });
+                    }
                 }
 
                 var existingPreferenceTopicIds = await _context.UserLearningPreferences
@@ -191,19 +287,20 @@ namespace MCFL.API.Data.Seed
                     });
                 }
 
-                var hasGoal = await _context.LearningSavingsGoals.AnyAsync(x => x.UserId == user.Id && x.IsActive);
+                var hasGoal = await _context.LearningSavingsGoals
+                    .AnyAsync(g => g.UserId == user.Id && g.IsActive);
 
                 if (!hasGoal)
                 {
                     _context.LearningSavingsGoals.Add(new LearningSavingsGoal
                     {
-                        GoalTitle = item.LearningGoalTitle,
-                        TargetAmount = item.LearningGoalTargetAmount,
-                        CurrentSavedAmount = 0.00m,
+                        GoalTitle = item.GoalTitle,
+                        TargetAmount = item.GoalTarget,
+                        CurrentSavedAmount = item.GoalSaved,
+                        TargetDate = item.GoalTargetDate,
                         IsActive = true,
-                        CreatedAt = item.CreatedAt.AddDays(1),
-                        UpdatedAt = item.CreatedAt.AddDays(1),
-                        TargetDate = GetEndOfMonth(item.CreatedAt),
+                        CreatedAt = item.CreatedAt.AddHours(1),
+                        UpdatedAt = item.CreatedAt.AddHours(1),
                         UserId = user.Id
                     });
                 }
@@ -212,10 +309,6 @@ namespace MCFL.API.Data.Seed
             await _context.SaveChangesAsync();
         }
 
-        private static DateOnly GetEndOfMonth(DateTime date)
-        {
-            var lastDay = DateTime.DaysInMonth(date.Year, date.Month);
-            return new DateOnly(date.Year, date.Month, lastDay);
-        }
+
     }
 }

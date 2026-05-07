@@ -16,10 +16,11 @@ namespace MCFL.API.Data.Seed
         {
             var topics = new[]
             {
+                "How to get rich",
+                "How to take care of my money",
                 "How to save money",
                 "How to budget",
                 "How to invest",
-                "How to take care of my money"
             };
 
             foreach (var topicName in topics)
