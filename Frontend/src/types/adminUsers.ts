@@ -14,6 +14,7 @@ export type AdminUserListItem = {
 
 export type AdminUserDetail = AdminUserListItem & {
   financialStuff: Record<string, string>;
+  moneyBeliefs: Record<string, string>;
   learningPreferences: Record<string, string>;
   parentTeachings: string;
   learningGoalTitle: string;

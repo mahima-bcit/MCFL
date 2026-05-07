@@ -185,6 +185,8 @@ namespace MCFL.API.Services
                 return null;
             }
 
+            var beliefLabels = await _adminRepository.GetBeliefLabelsAsync();
+
             return new AdminUserDetailDto
             {
                 UserId = data.UserId,
@@ -201,12 +203,14 @@ namespace MCFL.API.Services
 
                 FinancialStuff = new Dictionary<string, string>
                 {
-                    { "Has Bank Account", data.HasBankAccount ? "Yes" : "No" },
+                    { "Has Bank Account", data.HasBankAccount ? "yes" : "no" },
                     { "Earns Money", data.EarnsMoneyAnswer },
                     { "Has Savings", data.HasSavingsAnswer },
                     { "Pays Bills", data.PaysBillsAnswer },
                     { "Spends On Wants", data.SpendsOnWantsAnswer }
                 },
+
+                MoneyBeliefs = MapBeliefs(data.Beliefs, beliefLabels),
 
                 LearningPreferences = new Dictionary<string, string>
                 {
@@ -228,7 +232,7 @@ namespace MCFL.API.Services
                     ? "Not provided"
                     : data.ParentTeachingsAnswer,
 
-                LearningGoalTitle = data.LearningGoalTitle,
+                LearningGoalTitle = data.LearningGoalTitle ?? "",
                 LearningGoalProgress = data.LearningGoalProgress,
                 LearningGoalTargetAmount = data.LearningGoalTargetAmount,
                 LearningGoalTargetDate = data.LearningGoalTargetDate?.ToString("yyyy-MM-dd") ?? ""
@@ -534,6 +538,21 @@ namespace MCFL.API.Services
         private static string NormalizeEmail(string email)
         {
             return email.Trim().ToLowerInvariant();
+        }
+
+        private static Dictionary<string, string> MapBeliefs(
+            Dictionary<string, string> raw,
+            Dictionary<string, string> beliefLabels)
+        {
+            var result = new Dictionary<string, string>();
+
+            foreach (var (key, answer) in raw)
+            {
+                var label = beliefLabels.TryGetValue(key, out var l) ? l : key;
+                result[label] = string.IsNullOrEmpty(answer) ? "Unknown" : char.ToUpper(answer[0]) + answer[1..];
+            }
+
+            return result;
         }
 
         private static int CalculateAge(DateOnly dateOfBirth)

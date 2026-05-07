@@ -116,14 +116,11 @@ namespace MCFL.API.Repositories
                     g => g.Sum(x => x.Amount)
                 );
 
-            var scenarioCountsByUser =
-                from scenarioPlay in _context.ScenarioPlays.AsNoTracking()
-                group scenarioPlay by scenarioPlay.UserId into g
-                select new
-                {
-                    UserId = g.Key,
-                    ScenariosCompleted = g.Count()
-                };
+            var scenarioCountsByUser = await _context.ScenarioPlays
+                .AsNoTracking()
+                .GroupBy(x => x.UserId)
+                .Select(g => new { UserId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.UserId, x => x.Count);
 
             var searchTerm = search?.Trim().ToLowerInvariant();
 
@@ -137,9 +134,6 @@ namespace MCFL.API.Repositories
                 join parent in _context.ParentConsents.AsNoTracking()
                     on user.Id equals parent.UserId into parents
                 from parent in parents.DefaultIfEmpty()
-                join scenario in scenarioCountsByUser
-                    on user.Id equals scenario.UserId into scenarios
-                from scenario in scenarios.DefaultIfEmpty()
                 select new
                 {
                     UserId = user.Id,
@@ -150,8 +144,7 @@ namespace MCFL.API.Repositories
                     DateOfBirth = profile.DateOfBirth,
                     CreatedAt = profile.CreatedAt,
                     Confidence = stat != null ? stat.CurrentConfidenceScore : 0,
-                    GameMoney = stat != null ? stat.CurrentGameMoney : 0m,
-                    ScenariosCompleted = scenario != null ? scenario.ScenariosCompleted : 0
+                    GameMoney = stat != null ? stat.CurrentGameMoney : 0m
                 };
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -177,7 +170,7 @@ namespace MCFL.API.Repositories
                 GoalProgress = goalProgressLookup.TryGetValue(user.UserId, out var goalProgress)
                     ? goalProgress
                     : 0m,
-                ScenariosCompleted = user.ScenariosCompleted
+                ScenariosCompleted = scenarioCountsByUser.TryGetValue(user.UserId, out var sc) ? sc : 0
             }).ToList();
         }
 
@@ -194,6 +187,8 @@ namespace MCFL.API.Repositories
 
             var profile = await _context.UserProfiles
                 .AsNoTracking()
+                .Include(x => x.FinancialProfile)
+                .Include(x => x.UserBeliefs)
                 .Include(x => x.UserLearningPreferences)
                     .ThenInclude(x => x.LearningTopic)
                 .FirstOrDefaultAsync(x => x.UserId == userId);
@@ -235,23 +230,26 @@ namespace MCFL.API.Repositories
                 GoalProgress = activeGoal?.CurrentSavedAmount ?? 0m,
                 ScenariosCompleted = scenariosCompleted,
 
-                HasBankAccount = profile.HasBankAccount,
-                EarnsMoneyAnswer = profile.EarnsMoneyAnswer,
-                HasSavingsAnswer = profile.HasSavingsAnswer,
-                PaysBillsAnswer = profile.PaysBillsAnswer,
-                SpendsOnWantsAnswer = profile.SpendsOnWantsAnswer,
+                HasBankAccount = profile.FinancialProfile?.HasBankAccount ?? false,
+                EarnsMoneyAnswer = profile.FinancialProfile?.EarnsMoneyAnswer ?? "",
+                HasSavingsAnswer = profile.FinancialProfile?.HasSavingsAnswer ?? "",
+                PaysBillsAnswer = profile.FinancialProfile?.PaysBillsAnswer ?? "",
+                SpendsOnWantsAnswer = profile.FinancialProfile?.SpendsOnWantsAnswer ?? "",
 
                 SelectedTopicNames = profile.UserLearningPreferences
                     .OrderBy(x => x.LearningTopic.SortOrder)
                     .Select(x => x.LearningTopic.TopicName)
                     .ToList(),
 
+                Beliefs = profile.UserBeliefs
+                    .ToDictionary(x => x.BeliefKey, x => x.Answer),
+
                 LearningComments = profile.LearningComments,
                 ParentTeachingsAnswer = profile.ParentTeachingsAnswer,
 
-                LearningGoalTitle = activeGoal?.GoalTitle ?? "Save $300 per month",
+                LearningGoalTitle = activeGoal?.GoalTitle,
                 LearningGoalProgress = activeGoal?.CurrentSavedAmount ?? 0m,
-                LearningGoalTargetAmount = activeGoal?.TargetAmount ?? 300m,
+                LearningGoalTargetAmount = activeGoal?.TargetAmount ?? 0m,
                 LearningGoalTargetDate = activeGoal?.TargetDate
             };
         }
@@ -796,6 +794,15 @@ namespace MCFL.API.Repositories
                     SubmittedAt = x.Submission.SubmittedAt
                 })
                 .ToListAsync();
+        }
+
+        public async Task<Dictionary<string, string>> GetBeliefLabelsAsync()
+        {
+            return await _context.BeliefDefinitions
+                .AsNoTracking()
+                .Where(b => b.IsActive)
+                .OrderBy(b => b.SortOrder)
+                .ToDictionaryAsync(b => b.Key, b => b.Label);
         }
 
         private static AdminManageScenarioProjection MapManageScenarioProjection(Scenario scenario)

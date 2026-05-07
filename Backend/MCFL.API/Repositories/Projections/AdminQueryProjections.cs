@@ -38,10 +38,11 @@
         public List<string> SelectedTopicNames { get; set; } = new();
         public string? LearningComments { get; set; }
         public string? ParentTeachingsAnswer { get; set; }
+        public Dictionary<string, string> Beliefs { get; set; } = new();
 
-        public string LearningGoalTitle { get; set; } = "Save $300 per month";
+        public string? LearningGoalTitle { get; set; }
         public decimal LearningGoalProgress { get; set; }
-        public decimal LearningGoalTargetAmount { get; set; } = 300m;
+        public decimal LearningGoalTargetAmount { get; set; }
         public DateOnly? LearningGoalTargetDate { get; set; }
     }
 

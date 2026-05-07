@@ -43,8 +43,15 @@ namespace MCFL.API.Controllers
         [HttpGet("users")]
         public async Task<ActionResult<List<AdminUserListItemDto>>> GetUsers([FromQuery] string? search = null)
         {
-            var users = await _adminService.GetUsersAsync(search);
-            return Ok(users);
+            try
+            {
+                var users = await _adminService.GetUsersAsync(search);
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve users.", detail = ex.Message });
+            }
         }
 
         [HttpGet("users/{id}")]

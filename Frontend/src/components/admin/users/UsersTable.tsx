@@ -72,6 +72,20 @@ export default function UsersTable({
         setDetails(allDetails);
       }
 
+      const loadedBeliefLabels = Array.from(
+        new Set(Object.values(allDetails).flatMap(d => d ? Object.keys(d.moneyBeliefs) : []))
+      );
+      const beliefLabels = loadedBeliefLabels.length > 0 ? loadedBeliefLabels : [
+        "Money is good",
+        "Money is bad",
+        "I like having money",
+        "I like doing things for free",
+        "I love spending money",
+        "My parents give me money",
+        "I don't need money",
+        "I like helping others",
+      ];
+
       const headers = [
         // Table basics
         "Name",
@@ -95,6 +109,8 @@ export default function UsersTable({
         "Has Savings",
         "Pays Bills",
         "Spends On Wants",
+        // Money Beliefs
+        ...beliefLabels.map((l) => `Belief: ${l}`),
         // Learning Preferences
         "Selected Topics",
         "Learning Comments",
@@ -123,6 +139,7 @@ export default function UsersTable({
           d?.financialStuff?.["Has Savings"] ?? "",
           d?.financialStuff?.["Pays Bills"] ?? "",
           d?.financialStuff?.["Spends On Wants"] ?? "",
+          ...beliefLabels.map((l) => d?.moneyBeliefs?.[l] ?? ""),
           d?.learningPreferences?.["Selected Topics"] ?? "",
           d?.learningPreferences?.["Learning Comments"] ?? "",
           d?.parentTeachings ?? "",
