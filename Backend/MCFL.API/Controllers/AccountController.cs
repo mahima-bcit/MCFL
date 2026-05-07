@@ -1,7 +1,7 @@
 using MCFL.API.Data;
 using MCFL.API.DTOs.Admin.AdminSettings;
 using MCFL.API.Models;
-using MCFL.API.Models.DTOs;
+using MCFL.API.DTOs;
 using MCFL.API.Models.Identity;
 using MCFL.API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -104,6 +104,9 @@ public class AccountController : ControllerBase
             return BadRequest(ModelState);
         }
 
+        if (string.IsNullOrWhiteSpace(model.FullName))
+            return BadRequest(new { error = "Full name is required." });
+
         var email = model.Email.Trim().ToLowerInvariant();
 
         var isAllowed = await _context.RegistrationAllowLists
@@ -177,7 +180,7 @@ public class AccountController : ControllerBase
         {
             var profile = new UserProfile
             {
-                FullName = string.IsNullOrWhiteSpace(model.FullName) ? string.Empty : model.FullName.Trim(),
+                FullName = model.FullName.Trim(),
                 NickName = string.IsNullOrWhiteSpace(model.Nickname) ? null : model.Nickname.Trim(),
                 DateOfBirth = model.DateOfBirth,
                 ParentTeachingsAnswer = string.IsNullOrWhiteSpace(model.ProfileSetup.ParentsTaughtMoney)

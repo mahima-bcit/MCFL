@@ -26,51 +26,62 @@ namespace MCFL.API.Services
             var choice = await _scenarioRepo.GetChoiceById(choiceId);
             if (choice == null) return null;
 
-            var stat = await _statRepo.GetByUserId(userId);
-
-            if (stat == null)
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                stat = new UserGameStat
+                var stat = await _statRepo.GetByUserId(userId);
+
+                if (stat == null)
+                {
+                    stat = new UserGameStat
+                    {
+                        UserId = userId,
+                        CurrentGameMoney = 0,
+                        CurrentConfidenceScore = 0,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+
+                    await _statRepo.Add(stat);
+                }
+
+                var moneyBefore = stat.CurrentGameMoney;
+                var confidenceBefore = stat.CurrentConfidenceScore;
+
+                stat.CurrentGameMoney += choice.MoneyImpact;
+                stat.CurrentConfidenceScore = Math.Max(0, Math.Min(100, stat.CurrentConfidenceScore + choice.ConfidenceImpact));
+                stat.UpdatedAt = DateTime.UtcNow;
+
+                await _statRepo.Update(stat);
+
+                _context.ScenarioPlays.Add(new ScenarioPlay
                 {
                     UserId = userId,
-                    CurrentGameMoney = 0,
-                    CurrentConfidenceScore = 0,
-                    UpdatedAt = DateTime.UtcNow
+                    ScenarioId = choice.ScenarioId,
+                    ScenarioChoiceId = choiceId,
+                    PlayedAt = DateTime.UtcNow,
+                    GameMoneyBefore = moneyBefore,
+                    GameMoneyAfter = stat.CurrentGameMoney,
+                    ConfidenceBefore = confidenceBefore,
+                    ConfidenceAfter = stat.CurrentConfidenceScore,
+                    MoneyImpactSnapshot = choice.MoneyImpact,
+                    ConfidenceImpactSnapshot = choice.ConfidenceImpact,
+                    LessonTextSnapshot = choice.LessonText
+                });
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return new
+                {
+                    currentGameMoney = stat.CurrentGameMoney,
+                    currentConfidenceScore = stat.CurrentConfidenceScore
                 };
-
-                await _statRepo.Add(stat);
             }
-
-            var moneyBefore = stat.CurrentGameMoney;
-            var confidenceBefore = stat.CurrentConfidenceScore;
-
-            stat.CurrentGameMoney += choice.MoneyImpact;
-            stat.CurrentConfidenceScore = Math.Max(0, Math.Min(100, stat.CurrentConfidenceScore + choice.ConfidenceImpact));
-            stat.UpdatedAt = DateTime.UtcNow;
-
-            await _statRepo.Update(stat);
-
-            _context.ScenarioPlays.Add(new ScenarioPlay
+            catch
             {
-                UserId = userId,
-                ScenarioId = choice.ScenarioId,
-                ScenarioChoiceId = choiceId,
-                PlayedAt = DateTime.UtcNow,
-                GameMoneyBefore = moneyBefore,
-                GameMoneyAfter = stat.CurrentGameMoney,
-                ConfidenceBefore = confidenceBefore,
-                ConfidenceAfter = stat.CurrentConfidenceScore,
-                MoneyImpactSnapshot = choice.MoneyImpact,
-                ConfidenceImpactSnapshot = choice.ConfidenceImpact,
-                LessonTextSnapshot = choice.LessonText
-            });
-            await _context.SaveChangesAsync();
-
-            return new
-            {
-                currentGameMoney = stat.CurrentGameMoney,
-                currentConfidenceScore = stat.CurrentConfidenceScore
-            };
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

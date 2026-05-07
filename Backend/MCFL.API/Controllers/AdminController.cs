@@ -17,10 +17,12 @@ namespace MCFL.API.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
+        private readonly ILogger<AdminController> _logger;
 
-        public AdminController(IAdminService adminService)
+        public AdminController(IAdminService adminService, ILogger<AdminController> logger)
         {
             _adminService = adminService;
+            _logger = logger;
         }
 
         [HttpGet("overview")]
@@ -50,7 +52,8 @@ namespace MCFL.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Failed to retrieve users.", detail = ex.Message });
+                _logger.LogError(ex, "Failed to retrieve users.");
+                return StatusCode(500, new { error = "Failed to retrieve users." });
             }
         }
 

@@ -21,7 +21,7 @@ const sampleData: Pick<DashboardData, "gameBalance" | "confidence" | "recentScen
 
 function formatMoney(value: number) {
   const sign = value < 0 ? "-" : "";
-  return `${sign}$${Math.abs(value)}`;
+  return `${sign}$${Math.abs(value).toFixed(2)}`;
 }
 
 function confidenceToStars(score: number): number {
