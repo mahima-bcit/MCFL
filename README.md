@@ -4,6 +4,23 @@ MCFL is a full-stack web application that teaches financial literacy through int
 
 ---
 
+## Team
+
+**Project:** Money Confidence For Life (MCFL)
+**Program:** BCIT SSD Industry Project
+**Duration:** April – May 2026
+**Sponsor:** Rejeanne Bischoff
+
+| Name |
+|------|
+| Mahima Sharma |
+| Susie Lar-son |
+| Amrit Pal Singh |
+| Harry Yu |
+| Saman Kayhanian |
+
+---
+
 ## Table of Contents
 
 1. [Prerequisites](#prerequisites)
@@ -106,30 +123,31 @@ Copy-Item Backend/MCFL.API/secrets.example.json Backend/MCFL.API/appsettings.Dev
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Data Source=mcfl.db"
+    "DefaultConnection": "<YOUR_DATABASE_CONNECTION_STRING>"
   },
   "SeedAdmin": {
-    "Email": "admin@example.com",
-    "Password": "Admin@123!"
+    "Email": "<YOUR_ADMIN_EMAIL>",
+    "Password": "<YOUR_ADMIN_PASSWORD>"
   },
   "Cors": {
     "AllowedOrigins": [
-      "http://localhost:5173"
+      "<YOUR_FRONTEND_HTTP_ORIGIN>",
+      "<YOUR_FRONTEND_HTTPS_ORIGIN>"
     ]
   },
   "Jwt": {
-    "Key": "your-super-secret-key-must-be-at-least-32-characters",
-    "Issuer": "mcfl",
-    "Audience": "mcfl",
-    "ExpireMinutes": "60"
+    "Key": "<YOUR_JWT_SECRET_KEY>",
+    "Issuer": "<YOUR_JWT_ISSUER>",
+    "Audience": "<YOUR_JWT_AUDIENCE>",
+    "ExpireMinutes": "<YOUR_JWT_EXPIRE_MINUTES>"
   },
   "Brevo": {
-    "ApiKey": "your-brevo-api-key",
-    "SenderEmail": "your-sender@email.com",
-    "SenderName": "MCFL"
+    "ApiKey": "<YOUR_BREVO_API_KEY>",
+    "SenderEmail": "<YOUR_SENDER_EMAIL>",
+    "SenderName": "<YOUR_SENDER_NAME>"
   },
   "Frontend": {
-    "ConsentConfirmUrl": "http://localhost:5173/consent-confirm"
+    "ConsentConfirmUrl": "<YOUR_FRONTEND_CONSENT_CONFIRM_URL>"
   }
 }
 ```
