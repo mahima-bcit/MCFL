@@ -1,6 +1,300 @@
-@MCFL.API_HostAddress = http://localhost:5096
+@MCFL.API_HostAddress = https://localhost:7211
 
-GET {{MCFL.API_HostAddress}}/weatherforecast/
+# After you login, copy the token from the login response
+# and paste it here without quotes.
+@authToken = paste-token-here
+
+# Example test values
+@testUserId = paste-user-id-here
+@allowListId = paste-allowlist-id-here
+@scenarioId = paste-scenario-id-here
+@parentToken = paste-parent-token-here
+
+
+####################################################
+# ACCOUNT
+####################################################
+
+### Validate registration email
+GET {{MCFL.API_HostAddress}}/api/Account/validate-registration-email?email=test@example.com
 Accept: application/json
 
-###
+
+### Register
+POST {{MCFL.API_HostAddress}}/api/Account/register
+Content-Type: application/json
+
+{
+  "fullName": "Test User",
+  "nickname": "Tester",
+  "dateOfBirth": "2008-05-01",
+  "email": "test@example.com",
+  "password": "Test123!",
+  "confirmPassword": "Test123!"
+}
+
+
+### Login
+POST {{MCFL.API_HostAddress}}/api/Account/login
+Content-Type: application/json
+
+{
+  "email": "admin@mcfl.local",
+  "password": "your-local-admin-password"
+}
+
+
+### Get current account settings - requires login token
+GET {{MCFL.API_HostAddress}}/api/Account/settings
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Change password - requires login token
+PUT {{MCFL.API_HostAddress}}/api/Account/password
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "currentPassword": "old-password",
+  "newPassword": "new-password",
+  "confirmNewPassword": "new-password"
+}
+
+
+####################################################
+# ADMIN
+# Most admin endpoints require Admin token
+####################################################
+
+### Admin overview
+GET {{MCFL.API_HostAddress}}/api/admin/overview
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Admin users
+GET {{MCFL.API_HostAddress}}/api/admin/users
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Admin user detail
+GET {{MCFL.API_HostAddress}}/api/admin/users/{{testUserId}}
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Admin user feedback
+GET {{MCFL.API_HostAddress}}/api/admin/user-feedback
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Admin user feedback types
+GET {{MCFL.API_HostAddress}}/api/admin/user-feedback/types
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Admin parent feedbacks
+GET {{MCFL.API_HostAddress}}/api/admin/parent-feedbacks
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Admin access control allowlist
+GET {{MCFL.API_HostAddress}}/api/admin/access-control/allowlist
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Add email to allowlist
+POST {{MCFL.API_HostAddress}}/api/admin/access-control/allowlist
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "email": "student@example.com"
+}
+
+
+### Delete email from allowlist
+DELETE {{MCFL.API_HostAddress}}/api/admin/access-control/allowlist/{{allowListId}}
+Authorization: Bearer {{authToken}}
+
+
+### Admin scenarios summary
+GET {{MCFL.API_HostAddress}}/api/admin/scenarios
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Admin manage scenarios
+GET {{MCFL.API_HostAddress}}/api/admin/scenarios/manage
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Activate scenario
+POST {{MCFL.API_HostAddress}}/api/admin/scenarios/manage/{{scenarioId}}/activate
+Authorization: Bearer {{authToken}}
+
+
+### Delete scenario
+DELETE {{MCFL.API_HostAddress}}/api/admin/scenarios/manage/{{scenarioId}}
+Authorization: Bearer {{authToken}}
+
+
+### Admin money feelings
+GET {{MCFL.API_HostAddress}}/api/admin/money-feelings
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+####################################################
+# DASHBOARD
+####################################################
+
+### Dashboard summary - requires login token
+GET {{MCFL.API_HostAddress}}/api/dashboard/summary
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+####################################################
+# GAME MONEY
+####################################################
+
+### Game money summary - requires login token
+GET {{MCFL.API_HostAddress}}/api/game-money/summary
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Save game money feeling - requires login token
+POST {{MCFL.API_HostAddress}}/api/game-money/feeling
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "feeling": "Confident"
+}
+
+
+####################################################
+# REAL MONEY
+####################################################
+
+### Real money summary - requires login token
+GET {{MCFL.API_HostAddress}}/api/real-money/summary
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Real money entries - requires login token
+GET {{MCFL.API_HostAddress}}/api/real-money/entries
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Create real money entry - requires login token
+POST {{MCFL.API_HostAddress}}/api/real-money/entries
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "amount": 25.00,
+  "description": "Test entry",
+  "categoryId": 1,
+  "entryType": "CashIn"
+}
+
+
+####################################################
+# PARENT CONSENT
+####################################################
+
+### Request parent consent
+POST {{MCFL.API_HostAddress}}/api/ParentConsent/request
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "userId": "{{testUserId}}"
+}
+
+
+### Confirm parent consent
+GET {{MCFL.API_HostAddress}}/api/ParentConsent/confirm?token={{parentToken}}
+Accept: application/json
+
+
+### Parent consent status
+GET {{MCFL.API_HostAddress}}/api/ParentConsent/status/{{testUserId}}
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+####################################################
+# PARENT ACCESS LINK
+####################################################
+
+### Generate parent access link
+POST {{MCFL.API_HostAddress}}/api/ParentAccessLink/generate
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "userId": "{{testUserId}}"
+}
+
+
+### Regenerate parent access link
+POST {{MCFL.API_HostAddress}}/api/ParentAccessLink/regenerate
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "userId": "{{testUserId}}"
+}
+
+
+### Delete parent access link
+DELETE {{MCFL.API_HostAddress}}/api/ParentAccessLink/{{parentToken}}
+Authorization: Bearer {{authToken}}
+
+
+####################################################
+# PARENT FEEDBACK
+####################################################
+
+### Get parent feedback info
+GET {{MCFL.API_HostAddress}}/api/ParentFeedback/info?token={{parentToken}}
+Accept: application/json
+
+
+### Submit parent feedback
+POST {{MCFL.API_HostAddress}}/api/ParentFeedback
+Content-Type: application/json
+
+{
+  "token": "{{parentToken}}",
+  "parentName": "Test Parent",
+  "feedback": "This is test feedback."
+}
+
+
+####################################################
+# USER FEEDBACK
+####################################################
+
+### Submit user feedback - requires login token
+POST {{MCFL.API_HostAddress}}/api/UserFeedback
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "feedbackTypeId": 1,
+  "message": "This is a test feedback message."
+}

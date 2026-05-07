@@ -36,13 +36,6 @@ export async function apiFetch<T>(
   });
 
   if (!response.ok) {
-    if (response.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      sessionStorage.removeItem("token");
-      sessionStorage.removeItem("role");
-    }
-
     const message = await response.text();
     throw new Error(message || `Request failed with status ${response.status}`);
   }

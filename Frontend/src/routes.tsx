@@ -15,6 +15,7 @@ import ProfileSetupFlow from "./pages/ProfileSetupFlow";
 import GameMoneyPage from "./pages/GameMoneyPage";
 import RealMoneyPage from "./pages/RealMoneyPage";
 import TransactionPage from "./pages/TransactionsPage";
+import GameZonePage from "./pages/GameZonePage";
 
 import AdminOverviewPage from "./pages/admin/AdminOverviewPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
@@ -41,12 +42,13 @@ export default [
     },
 
     { path: "/dashboard", element: <ProtectedRoute requiredRole="User"><DashboardPage /></ProtectedRoute> },
+    { path: "/game-zone", element: <ProtectedRoute requiredRole="User"><GameZonePage /></ProtectedRoute> },
     { path: "/game", element: <ProtectedRoute requiredRole="User"><GamePage /></ProtectedRoute> },
     { path: "/money", element: <ProtectedRoute requiredRole="User"><MoneyPage /></ProtectedRoute> },
     { path: "/feedback", element: <ProtectedRoute requiredRole="User"><FeedbackPage /></ProtectedRoute> },
     { path: "/userFeedback", element: <ProtectedRoute requiredRole="User"><UserFeedback /></ProtectedRoute> },
     { path: "/moneyPicture", element: <ProtectedRoute requiredRole="User"><MoneyPicture /></ProtectedRoute> },
-    { path: "/game-money", element: <ProtectedRoute requiredRole="User"><GameMoneyPage /></ProtectedRoute> },
+    { path: "/real-money/picture", element: <ProtectedRoute requiredRole="User"><GameMoneyPage /></ProtectedRoute> },
     { path: "/real-money", element: <ProtectedRoute requiredRole="User"><RealMoneyPage /></ProtectedRoute> },
     { path: "/real-money/transactions", element: <ProtectedRoute requiredRole="User"><TransactionPage /></ProtectedRoute> },
 
