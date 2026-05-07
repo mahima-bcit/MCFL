@@ -163,6 +163,20 @@ Authorization: Bearer {{authToken}}
 
 
 ####################################################
+# GAME
+####################################################
+
+### Apply scenario choice - requires login token
+POST {{MCFL.API_HostAddress}}/api/game/choice
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "scenarioChoiceId": 1
+}
+
+
+####################################################
 # GAME MONEY
 ####################################################
 
@@ -280,8 +294,10 @@ Content-Type: application/json
 
 {
   "token": "{{parentToken}}",
+  "parentEmail": "parent@example.com",
   "parentName": "Test Parent",
-  "feedback": "This is test feedback."
+  "moneyStory": "We budget every month as a family.",
+  "whatChildShouldLearn": "How to save and spend wisely."
 }
 
 
@@ -295,6 +311,6 @@ Content-Type: application/json
 Authorization: Bearer {{authToken}}
 
 {
-  "feedbackTypeId": 1,
-  "message": "This is a test feedback message."
+  "feedbackType": "Bug",
+  "comment": "This is a test feedback message."
 }

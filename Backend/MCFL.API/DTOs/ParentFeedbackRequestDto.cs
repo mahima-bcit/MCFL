@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace MCFL.API.Models.DTOs;
+namespace MCFL.API.DTOs;
 
 public class ParentFeedbackRequestDto
 {

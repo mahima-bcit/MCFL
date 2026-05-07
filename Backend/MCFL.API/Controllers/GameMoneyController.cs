@@ -120,7 +120,7 @@ public class GameMoneyController : ControllerBase
                 : new GameMoneyRecentScenarioResponse
                 {
                     Title = latestScenarioPlay.Scenario.Title,
-                    Description = latestScenarioPlay.LessonTextSnapshot,
+                    Description = latestScenarioPlay.LessonTextSnapshot ?? string.Empty,
                     MoneyImpact = latestScenarioPlay.MoneyImpactSnapshot,
                     ConfidenceBoost = latestScenarioPlay.ConfidenceImpactSnapshot
                 }

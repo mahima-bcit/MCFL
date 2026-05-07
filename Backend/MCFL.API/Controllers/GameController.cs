@@ -23,8 +23,10 @@ namespace MCFL.API.Controllers
         public async Task<IActionResult> ApplyChoice([FromBody] ApplyChoiceRequest request)
         {
             var userId =
-            User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
-            User.FindFirstValue(ClaimTypes.NameIdentifier);
+                User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null) return Unauthorized();
 
             var result = await _service.ApplyChoice(userId, request.ScenarioChoiceId);
             if (result == null) return NotFound("Choice not found or inactive.");
