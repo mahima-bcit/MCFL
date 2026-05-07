@@ -19,7 +19,7 @@ public class DashboardSummaryDto
     public GameMoneyPictureDto GameMoneyPicture { get; set; } = new();
     public RealMoneySnapshotDto RealMoneySnapshot { get; set; } = new();
     public ParentFeedbackLinkDto ParentFeedback { get; set; } = new();
-    public RecentScenarioDto RecentScenario { get; set; } = new();
+    public RecentScenarioDto? RecentScenario { get; set; }
 }
 
 public class GameMoneyPictureDto

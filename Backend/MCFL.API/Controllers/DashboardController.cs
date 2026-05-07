@@ -97,9 +97,7 @@ public class DashboardController : ControllerBase
             .ToList();
 
         var wantTotal = cashOutEntries
-            .Where(x =>
-                IsCategory(x.CashOutCategory?.CategoryName, "Want") ||
-                IsCategory(x.CashOutCategory?.CategoryName, "Have"))
+            .Where(x => IsCategory(x.CashOutCategory?.CategoryName, "Want"))
             .Sum(x => x.Amount);
 
         var needTotal = cashOutEntries
@@ -182,11 +180,11 @@ public class DashboardController : ControllerBase
             },
 
             RecentScenario = recentPlay == null || recentPlay.Scenario == null || recentPlay.ScenarioChoice == null
-                ? new RecentScenarioDto()
+                ? null
                 : new RecentScenarioDto
                 {
                     Title = recentPlay.Scenario.Title,
-                    Description = recentPlay.ScenarioChoice.ResultText,
+                    Description = recentPlay.LessonTextSnapshot ?? string.Empty,
                     MoneyImpact = recentPlay.MoneyImpactSnapshot,
                     ConfidenceBoost = recentPlay.ConfidenceImpactSnapshot
                 }

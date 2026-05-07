@@ -9,7 +9,7 @@ type Props = {
 
 const tabs = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/game-money", label: "Game Money Picture", icon: Gamepad2 },
+  { to: "/game-zone", label: "Game Zone", icon: Gamepad2 },
   { to: "/real-money", label: "Real Money", icon: Wallet },
   { to: "/feedback", label: "Share Feedback", icon: MessageCircle },
 ];

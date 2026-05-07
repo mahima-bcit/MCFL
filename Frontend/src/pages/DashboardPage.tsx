@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Banknote,
   ChevronRight,
   CircleDollarSign,
   Gamepad2,
+  Pencil,
+  Plus,
   ShieldCheck,
   Star,
   Target,
@@ -15,6 +17,7 @@ import "../DashboardPage.css";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import { getDashboardSummary } from "../services/dashboardApi";
 import { regenerateParentFeedbackToken } from "../services/parentFeedbackApi";
+import { createGoal } from "../services/goalApi";
 import type { DashboardData } from "../types/dashboard";
 
 const sampleDashboardData: DashboardData = {
@@ -27,6 +30,9 @@ const sampleDashboardData: DashboardData = {
   goalTarget: 0,
   goalDueLabel: "",
   goalTitle: "Save towards your goal",
+  monthlyNet: 0,
+  gameMoneyPicture: { want: 0, need: 0, fun: 0, save: 0 },
+  realMoneySnapshot: { availableBalance: 0, monthlyIncome: 0, monthlyExpenses: 0, monthlyNet: 0 },
   parentFeedback: {
     name: "",
     link: "",
@@ -75,11 +81,14 @@ function StarRating({ score }: { score: number }) {
 }
 
 export default function DashboardPage() {
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null,
-  );
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [showGoalModal, setShowGoalModal] = useState(false);
+  const [goalForm, setGoalForm] = useState({ goalTitle: "", targetAmount: "", targetDate: "" });
+  const [goalError, setGoalError] = useState("");
+  const [isSavingGoal, setIsSavingGoal] = useState(false);
+  const goalTitleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let isCancelled = false;
@@ -146,10 +155,48 @@ export default function DashboardPage() {
     }
   }
 
+  function openGoalModal() {
+    setGoalForm({ goalTitle: "", targetAmount: "", targetDate: "" });
+    setGoalError("");
+    setShowGoalModal(true);
+    setTimeout(() => goalTitleRef.current?.focus(), 50);
+  }
+
+  async function saveGoal(e: React.FormEvent) {
+    e.preventDefault();
+    const amount = parseFloat(goalForm.targetAmount);
+    if (!goalForm.goalTitle.trim()) {
+      setGoalError("Goal title is required.");
+      return;
+    }
+    if (isNaN(amount) || amount <= 0) {
+      setGoalError("Enter a valid target amount.");
+      return;
+    }
+    setGoalError("");
+    setIsSavingGoal(true);
+    try {
+      await createGoal({
+        goalTitle: goalForm.goalTitle.trim(),
+        targetAmount: amount,
+        targetDate: goalForm.targetDate || undefined,
+      });
+      const fresh = await getDashboardSummary();
+      setDashboardData(mergeDashboardData(fresh));
+      setShowGoalModal(false);
+    } catch (err) {
+      console.error("Failed to save goal.", err);
+      setGoalError("Could not save goal. Please try again.");
+    } finally {
+      setIsSavingGoal(false);
+    }
+  }
+
   return (
     <DashboardLayout>
       <div className="dashboard-shell">
         <div className="dashboard-content">
+
           {/* 1. Quick Start Banner */}
           <Link
             to="/game"
@@ -197,18 +244,6 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          {/* 3. Game Money Picture card */}
-          <Link to="/game-money" className="wide-card wide-card-clickable">
-            <div className="wide-card-icon-circle">
-              <Gamepad2 size={20} />
-            </div>
-            <div className="wide-card-text">
-              <strong>Game Money Picture</strong>
-              <p>View your Have, Need, Fun, Save breakdown</p>
-            </div>
-            <ChevronRight size={20} className="wide-card-arrow" />
-          </Link>
-
           {/* 4. Real Money */}
           <section className="section-block">
             <div className="section-heading-row">
@@ -218,80 +253,179 @@ export default function DashboardPage() {
 
             <div className="stats-grid two-grid">
               <article className="stat-card stat-card-goal">
-                <div className="stat-card-goal-header">
-                  <div className="stat-icon-circle">
-                    <Target size={20} />
-                  </div>
-                  <div>
-                    <strong className="stat-label">Your Goal</strong>
-                    <p className="stat-goal-desc">{dashboardData.goalTitle}</p>
-                  </div>
-                </div>
-                <div className="progress-bar">
-                  <div
-                    className="progress-bar-fill progress-bar-animated"
-                    style={
-                      { "--goal-pct": `${goalPercent}%` } as React.CSSProperties
-                    }
-                  />
-                </div>
-                <div className="stat-goal-footer">
-                  <span>
-                    {formatMoney(dashboardData.goalCurrent)} /{" "}
-                    {formatMoney(dashboardData.goalTarget)}
-                  </span>
-                  <span className="goal-pct-label">{goalPercent}%</span>
-                  <span>By {dashboardData.goalDueLabel}</span>
-                </div>
+                {dashboardData.goalTitle ? (
+                  <>
+                    <div className="stat-card-goal-header">
+                      <div className="stat-icon-circle">
+                        <Target size={20} />
+                      </div>
+                      <div className="goal-header-text">
+                        <strong className="stat-label">Your Goal</strong>
+                        <p className="stat-goal-desc">{dashboardData.goalTitle}</p>
+                      </div>
+                      <button
+                        type="button"
+                        className="goal-edit-btn"
+                        onClick={openGoalModal}
+                        title="Edit Goal"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                    </div>
+                    <div className="progress-bar">
+                      <div
+                        className="progress-bar-fill progress-bar-animated"
+                        style={{ "--goal-pct": `${goalPercent}%` } as React.CSSProperties}
+                      />
+                    </div>
+                    <div className="stat-goal-footer">
+                      <span>
+                        {formatMoney(dashboardData.goalCurrent)} /{" "}
+                        {formatMoney(dashboardData.goalTarget)}
+                      </span>
+                      <span className="goal-pct-label">{goalPercent}%</span>
+                      <span>By {dashboardData.goalDueLabel}</span>
+                    </div>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="goal-empty-prompt"
+                    onClick={openGoalModal}
+                  >
+                    <div className="goal-empty-icon">
+                      <Target size={26} />
+                    </div>
+                    <strong className="goal-empty-title">Set a savings goal</strong>
+                    <span className="goal-empty-sub">Track what you're working towards</span>
+                    <span className="goal-empty-cta">
+                      <Plus size={14} strokeWidth={2.5} />
+                      Add Goal
+                    </span>
+                  </button>
+                )}
               </article>
 
-              <Link
-                to="/real-money"
-                className="stat-card stat-card-row wide-card-clickable"
-              >
-                <div className="stat-icon-circle">
-                  <Banknote size={20} />
-                </div>
-                <div className="wide-card-text">
-                  <strong className="stat-label">Track Real Money</strong>
-                  <p>Cash In &amp; Cash Out transactions</p>
-                </div>
-                <ChevronRight size={20} className="wide-card-arrow" />
-              </Link>
+              <div className="real-money-right-col">
+                <Link to="/real-money" className="stat-card stat-card-row wide-card-clickable">
+                  <div className="stat-icon-circle">
+                    <Banknote size={20} />
+                  </div>
+                  <div className="wide-card-text">
+                    <strong className="stat-label">Track Real Money</strong>
+                    <p>Cash In &amp; Cash Out transactions</p>
+                  </div>
+                  <ChevronRight size={20} className="wide-card-arrow" />
+                </Link>
+
+                <Link to="/real-money/picture" className="stat-card stat-card-row wide-card-clickable">
+                  <div className="stat-icon-circle">
+                    <Gamepad2 size={20} />
+                  </div>
+                  <div className="wide-card-text">
+                    <strong className="stat-label">Money Picture</strong>
+                    <p>View your Have, Need, Fun, Save breakdown</p>
+                  </div>
+                  <ChevronRight size={20} className="wide-card-arrow" />
+                </Link>
+              </div>
             </div>
           </section>
 
           {/* 5. Parent Feedback card */}
           <article className="wide-card parent-feedback-card">
-            <div className="wide-card-icon-circle">
-              <Users size={20} />
-            </div>
-            <div className="wide-card-text">
+            <div className="parent-feedback-header">
+              <div className="wide-card-icon-circle">
+                <Users size={20} />
+              </div>
               <strong>Parent Feedback</strong>
-              <p>
-                Share this link with your parent/guardian so they can provide
-                feedback about your money learning journey.
-              </p>
             </div>
-            <div className="feedback-link-pill">{parentFeedbackUrl}</div>
-            <button
-              type="button"
-              className="feedback-copy-btn"
-              onClick={copyLink}
-            >
-              {linkCopied ? "Copied!" : "Copy Link"}
-            </button>
-            <button
-              type="button"
-              className="feedback-copy-btn"
-              onClick={regenerateLink}
-              disabled={isRegenerating}
-            >
-              {isRegenerating ? "Regenerating…" : "Regenerate Link"}
-            </button>
+            <p className="parent-feedback-desc">
+              Share this link with your parent/guardian so they can provide
+              feedback about your money learning journey.
+            </p>
+            <div className="parent-feedback-link-row">
+              <div className="feedback-link-pill">{parentFeedbackUrl}</div>
+              <button
+                type="button"
+                className="feedback-copy-btn"
+                onClick={copyLink}
+              >
+                {linkCopied ? "Copied!" : "Copy Link"}
+              </button>
+              <button
+                type="button"
+                className="feedback-copy-btn"
+                onClick={regenerateLink}
+                disabled={isRegenerating}
+              >
+                {isRegenerating ? "Regenerating…" : "Regenerate Link"}
+              </button>
+            </div>
           </article>
+
         </div>
       </div>
+
+      {showGoalModal && (
+        <div className="goal-modal-overlay" onClick={() => setShowGoalModal(false)}>
+          <div className="goal-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="goal-modal-title">Set Your Goal</h3>
+            <form onSubmit={saveGoal} className="goal-modal-form">
+              <label className="goal-modal-label">
+                Goal Title
+                <input
+                  ref={goalTitleRef}
+                  className="goal-modal-input"
+                  type="text"
+                  maxLength={100}
+                  placeholder="e.g. Save for an iPad"
+                  value={goalForm.goalTitle}
+                  onChange={(e) => setGoalForm((f) => ({ ...f, goalTitle: e.target.value }))}
+                />
+              </label>
+              <label className="goal-modal-label">
+                Target Amount ($)
+                <input
+                  className="goal-modal-input"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  placeholder="e.g. 300"
+                  value={goalForm.targetAmount}
+                  onChange={(e) => setGoalForm((f) => ({ ...f, targetAmount: e.target.value }))}
+                />
+              </label>
+              <label className="goal-modal-label">
+                Target Date (optional)
+                <input
+                  className="goal-modal-input"
+                  type="date"
+                  value={goalForm.targetDate}
+                  onChange={(e) => setGoalForm((f) => ({ ...f, targetDate: e.target.value }))}
+                />
+              </label>
+              {goalError && <p className="goal-modal-error">{goalError}</p>}
+              <div className="goal-modal-actions">
+                <button
+                  type="button"
+                  className="goal-modal-cancel"
+                  onClick={() => setShowGoalModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="goal-modal-save"
+                  disabled={isSavingGoal}
+                >
+                  {isSavingGoal ? "Saving…" : "Save Goal"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
