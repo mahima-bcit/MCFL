@@ -111,7 +111,7 @@ export default function FeedbackPage() {
   }, []);
 
   const parentLink = parentToken
-    ? `${window.location.origin}/parentFeedback?token=${parentToken}`
+    ? `${window.location.origin}/parent-feedback?token=${parentToken}`
     : "";
 
   const handleSubmit = async (e: React.FormEvent) => {

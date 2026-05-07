@@ -143,7 +143,7 @@ public class DashboardController : ControllerBase
             await _context.SaveChangesAsync();
         }
 
-        var parentFeedbackUrl = BuildParentFeedbackUrl(userName, parentAccessLink.Token);
+        var parentFeedbackUrl = BuildParentFeedbackUrl(parentAccessLink.Token);
 
         var result = new DashboardSummaryDto
         {
@@ -251,29 +251,16 @@ public class DashboardController : ControllerBase
         return date.ToString("MMMM yyyy", CultureInfo.InvariantCulture);
     }
 
-    private string BuildParentFeedbackUrl(string userName, string? token)
+    private string BuildParentFeedbackUrl(string? token)
     {
         var frontendBaseUrl =
             _configuration.GetValue<string>("Frontend:BaseUrl") ??
             _configuration.GetValue<string>("ClientApp:BaseUrl") ??
             "http://localhost:5173";
 
-        var query = new Dictionary<string, string?>
-        {
-            ["username"] = userName
-        };
+        if (string.IsNullOrWhiteSpace(token))
+            return $"{frontendBaseUrl.TrimEnd('/')}/parent-feedback";
 
-        if (!string.IsNullOrWhiteSpace(token))
-        {
-            query["token"] = token;
-        }
-
-        var queryString = string.Join(
-            "&",
-            query
-                .Where(x => !string.IsNullOrWhiteSpace(x.Value))
-                .Select(x => $"{Uri.EscapeDataString(x.Key)}={Uri.EscapeDataString(x.Value!)}"));
-
-        return $"{frontendBaseUrl.TrimEnd('/')}/parentFeedback?{queryString}";
+        return $"{frontendBaseUrl.TrimEnd('/')}/parent-feedback?token={Uri.EscapeDataString(token)}";
     }
 }
