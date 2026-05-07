@@ -17,10 +17,12 @@ namespace MCFL.API.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
+        private readonly ILogger<AdminController> _logger;
 
-        public AdminController(IAdminService adminService)
+        public AdminController(IAdminService adminService, ILogger<AdminController> logger)
         {
             _adminService = adminService;
+            _logger = logger;
         }
 
         [HttpGet("overview")]
@@ -43,8 +45,16 @@ namespace MCFL.API.Controllers
         [HttpGet("users")]
         public async Task<ActionResult<List<AdminUserListItemDto>>> GetUsers([FromQuery] string? search = null)
         {
-            var users = await _adminService.GetUsersAsync(search);
-            return Ok(users);
+            try
+            {
+                var users = await _adminService.GetUsersAsync(search);
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to retrieve users.");
+                return StatusCode(500, new { error = "Failed to retrieve users." });
+            }
         }
 
         [HttpGet("users/{id}")]

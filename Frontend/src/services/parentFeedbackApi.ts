@@ -12,6 +12,10 @@ export function resolveParentFeedbackToken(
   );
 }
 
+export function getParentFeedbackToken(): Promise<{ token: string }> {
+  return apiFetch<{ token: string }>("/ParentAccessLink/current");
+}
+
 export function regenerateParentFeedbackToken(): Promise<{ token: string }> {
   return apiFetch<{ token: string }>("/ParentAccessLink/regenerate", {
     method: "POST",

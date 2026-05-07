@@ -20,8 +20,8 @@ const ParentsFeedback: React.FC = () => {
   const token = new URLSearchParams(window.location.search).get("token") ?? "";
 
   const [childName, setChildName] = useState("");
-  const [isLoadingToken, setIsLoadingToken] = useState(true);
-  const [tokenError, setTokenError] = useState(false);
+  const [tokenError, setTokenError] = useState(!token);
+  const [isLoadingToken, setIsLoadingToken] = useState(!!token);
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -36,11 +36,7 @@ const ParentsFeedback: React.FC = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) {
-      setTokenError(true);
-      setIsLoadingToken(false);
-      return;
-    }
+    if (!token) return;
 
     resolveParentFeedbackToken(token)
       .then((info) => {

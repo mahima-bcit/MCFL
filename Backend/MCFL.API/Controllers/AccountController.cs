@@ -1,7 +1,7 @@
 using MCFL.API.Data;
 using MCFL.API.DTOs.Admin.AdminSettings;
 using MCFL.API.Models;
-using MCFL.API.Models.DTOs;
+using MCFL.API.DTOs;
 using MCFL.API.Models.Identity;
 using MCFL.API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -37,6 +37,34 @@ public class AccountController : ControllerBase
         _logger = logger;
     }
 
+    [HttpGet("learning-topics")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetLearningTopics()
+    {
+        var topics = await _context.LearningTopics
+            .AsNoTracking()
+            .Where(t => t.IsActive)
+            .OrderBy(t => t.SortOrder)
+            .Select(t => new { t.LearningTopicId, t.TopicName })
+            .ToListAsync();
+
+        return Ok(topics);
+    }
+
+    [HttpGet("belief-definitions")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetBeliefDefinitions()
+    {
+        var beliefs = await _context.BeliefDefinitions
+            .AsNoTracking()
+            .Where(b => b.IsActive)
+            .OrderBy(b => b.SortOrder)
+            .Select(b => new { b.Key, b.Label })
+            .ToListAsync();
+
+        return Ok(beliefs);
+    }
+
     [HttpGet("validate-registration-email")]
     [AllowAnonymous]
     public async Task<IActionResult> ValidateRegistrationEmail([FromQuery] string email)
@@ -54,7 +82,7 @@ public class AccountController : ControllerBase
 
         if (!isAllowed)
         {
-            return BadRequest(new { error = "This email is not approved for registration." });
+            return BadRequest(new { error = "This email is not approved for registration. Please contact support." });
         }
 
         var existing = await _userManager.FindByEmailAsync(normalizedEmail);
@@ -75,6 +103,9 @@ public class AccountController : ControllerBase
         {
             return BadRequest(ModelState);
         }
+
+        if (string.IsNullOrWhiteSpace(model.FullName))
+            return BadRequest(new { error = "Full name is required." });
 
         var email = model.Email.Trim().ToLowerInvariant();
 
@@ -152,11 +183,6 @@ public class AccountController : ControllerBase
                 FullName = model.FullName.Trim(),
                 NickName = string.IsNullOrWhiteSpace(model.Nickname) ? null : model.Nickname.Trim(),
                 DateOfBirth = model.DateOfBirth,
-                HasBankAccount = model.ProfileSetup.BankAccount.Equals("yes", StringComparison.OrdinalIgnoreCase),
-                EarnsMoneyAnswer = NormalizeAnswer(model.ProfileSetup.EarnMoney),
-                HasSavingsAnswer = NormalizeAnswer(model.ProfileSetup.HaveSavings),
-                PaysBillsAnswer = NormalizeAnswer(model.ProfileSetup.PayBills),
-                SpendsOnWantsAnswer = NormalizeAnswer(model.ProfileSetup.SpendOnWants),
                 ParentTeachingsAnswer = string.IsNullOrWhiteSpace(model.ProfileSetup.ParentsTaughtMoney)
                     ? null
                     : model.ProfileSetup.ParentsTaughtMoney.Trim(),
@@ -169,6 +195,18 @@ public class AccountController : ControllerBase
             };
 
             _context.UserProfiles.Add(profile);
+            await _context.SaveChangesAsync(); // flush to get UserProfileId
+
+            _context.UserFinancialProfiles.Add(new UserFinancialProfile
+            {
+                UserProfileId = profile.UserProfileId,
+                HasBankAccount = model.ProfileSetup.BankAccount.Equals("yes", StringComparison.OrdinalIgnoreCase),
+                EarnsMoneyAnswer = NormalizeAnswer(model.ProfileSetup.EarnMoney),
+                HasSavingsAnswer = NormalizeAnswer(model.ProfileSetup.HaveSavings),
+                PaysBillsAnswer = NormalizeAnswer(model.ProfileSetup.PayBills),
+                SpendsOnWantsAnswer = NormalizeAnswer(model.ProfileSetup.SpendOnWants),
+                CreatedAt = DateTime.UtcNow
+            });
 
             if (model.RequiresParentConsent && model.ParentAuthorization is not null)
             {
@@ -184,6 +222,25 @@ public class AccountController : ControllerBase
             }
 
             await _context.SaveChangesAsync();
+
+            if (model.ProfileSetup.Beliefs.Count > 0)
+            {
+                foreach (var (key, answer) in model.ProfileSetup.Beliefs)
+                {
+                    if (!string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(answer))
+                    {
+                        _context.UserBeliefs.Add(new UserBelief
+                        {
+                            UserProfileId = profile.UserProfileId,
+                            BeliefKey = key.Trim(),
+                            Answer = answer.Trim().ToLowerInvariant(),
+                            CreatedAt = DateTime.UtcNow
+                        });
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
 
             var selectedLearningGoals = model.ProfileSetup.LearningGoals
                 .Where(goal => !string.IsNullOrWhiteSpace(goal))

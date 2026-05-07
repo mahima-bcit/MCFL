@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { clearAuthStorage } from "../utils/auth";
+import { displayCategory } from "../utils/categoryUtils";
+import { Link } from "react-router-dom";
 import "../TransactionPage.css";
+import DashboardLayout from "../components/layout/DashboardLayout";
 import { getRealMoneyEntries } from "../services/realMoneyApi";
 import type { RealMoneyEntry } from "../types/realMoney";
 
@@ -9,13 +10,6 @@ export default function TransactionsPage() {
   const [entries, setEntries] = useState<RealMoneyEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
-
-  function handleLogout() {
-    clearAuthStorage();
-    navigate("/login");
-  }
 
   useEffect(() => {
     let isCurrent = true;
@@ -67,70 +61,7 @@ export default function TransactionsPage() {
   }, [entries]);
 
   return (
-    <div className="transactions-layout">
-      <header className="money-app-header">
-        <div className="money-app-header-inner">
-          <Link
-            to="/"
-            className="money-app-brand"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <img
-              src="/MCFL.png"
-              alt="Money Confidence for Life"
-              className="money-app-logo"
-            />
-
-            <div>
-              <h1>Money Confidence for Life</h1>
-              <p>Level Up Your Future</p>
-            </div>
-          </Link>
-
-          <button
-            type="button"
-            className="money-mobile-menu-button"
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileMenuOpen}
-            onClick={() => setMobileMenuOpen((oldValue) => !oldValue)}
-          >
-            {mobileMenuOpen ? "×" : "☰"}
-          </button>
-
-          <div className={`money-app-menu ${mobileMenuOpen ? "open" : ""}`}>
-            <nav className="money-app-nav">
-              <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                Dashboard
-              </Link>
-
-              <Link to="/game-money" onClick={() => setMobileMenuOpen(false)}>
-                Game Money
-              </Link>
-
-              <Link
-                to="/real-money"
-                className="active"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Real Money
-              </Link>
-
-              <Link to="/feedback" onClick={() => setMobileMenuOpen(false)}>
-                Share Feedback
-              </Link>
-            </nav>
-
-            <button
-              type="button"
-              className="money-app-logout"
-              onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
-
+    <DashboardLayout>
       <main className="transactions-page">
         <section className="transactions-header">
           <div>
@@ -144,28 +75,6 @@ export default function TransactionsPage() {
           </Link>
         </section>
 
-        <section className="transactions-summary-grid">
-          <article className="transactions-card">
-            <p>Total Cash In</p>
-            <strong className="cash-in">
-              +${totals.totalCashIn.toFixed(2)}
-            </strong>
-          </article>
-
-          <article className="transactions-card">
-            <p>Total Cash Out</p>
-            <strong className="cash-out">
-              -${totals.totalCashOut.toFixed(2)}
-            </strong>
-          </article>
-
-          <article className="transactions-card">
-            <p>Net</p>
-            <strong className={totals.net >= 0 ? "cash-in" : "cash-out"}>
-              ${totals.net.toFixed(2)}
-            </strong>
-          </article>
-        </section>
 
         {isLoading && (
           <section className="transactions-card">
@@ -221,21 +130,10 @@ export default function TransactionsPage() {
           </section>
         )}
       </main>
-    </div>
+    </DashboardLayout>
   );
 }
 
-function displayCategory(category: string) {
-  if (category === "Have") {
-    return "Want";
-  }
-
-  if (category === "Allowance/Parents") {
-    return "Allowance / Parents";
-  }
-
-  return category;
-}
 
 function formatDate(value: string) {
   const date = new Date(value);

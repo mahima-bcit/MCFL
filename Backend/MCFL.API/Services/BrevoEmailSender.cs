@@ -1,8 +1,5 @@
-using MCFL.API.Services;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Logging;
+using System.Net.Http.Headers;
 
 namespace MCFL.API.Services;
 

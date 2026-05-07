@@ -23,9 +23,7 @@ export default function Footer() {
 
           {/* Links */}
           <nav className="flex gap-6 text-sm">
-            <a href="#" className="text-white/50 transition-colors hover:text-white">Privacy</a>
-            <a href="#" className="text-white/50 transition-colors hover:text-white">Terms</a>
-            <a href="#" className="text-white/50 transition-colors hover:text-white">Contact</a>
+            <a href="mailto:ssi.mcfl@gmail.com" className="text-white/50 transition-colors hover:text-white">Contact</a>
           </nav>
 
         </div>

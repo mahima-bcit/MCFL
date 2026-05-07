@@ -58,6 +58,22 @@ namespace MCFL.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BeliefDefinitions",
+                columns: table => new
+                {
+                    BeliefDefinitionId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Key = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Label = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
+                    SortOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BeliefDefinitions", x => x.BeliefDefinitionId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CashInCategory",
                 columns: table => new
                 {
@@ -100,6 +116,21 @@ namespace MCFL.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_LearningTopic", x => x.pkLearningTopicId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MoneyFeelingTypes",
+                columns: table => new
+                {
+                    MoneyFeelingTypeId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    SortOrder = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MoneyFeelingTypes", x => x.MoneyFeelingTypeId);
                 });
 
             migrationBuilder.CreateTable(
@@ -381,11 +412,6 @@ namespace MCFL.API.Migrations
                     fullName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     nickName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     dateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
-                    hasBankAccount = table.Column<bool>(type: "INTEGER", nullable: false),
-                    earnsMoneyAnswer = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
-                    hasSavingsAnswer = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
-                    paysBillsAnswer = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
-                    spendsOnWantsAnswer = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
                     learningComments = table.Column<string>(type: "TEXT", nullable: true),
                     parentTeachingsAnswer = table.Column<string>(type: "TEXT", nullable: true),
                     createdAt = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -517,6 +543,53 @@ namespace MCFL.API.Migrations
                         column: x => x.fkParentAccessLinkId,
                         principalTable: "ParentAccessLink",
                         principalColumn: "pkParentAccessLinkId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserBelief",
+                columns: table => new
+                {
+                    pkUserBeliefId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    fkUserProfileId = table.Column<int>(type: "INTEGER", nullable: false),
+                    beliefKey = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    answer = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    createdAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserBelief", x => x.pkUserBeliefId);
+                    table.ForeignKey(
+                        name: "FK_UserBelief_UserProfile_fkUserProfileId",
+                        column: x => x.fkUserProfileId,
+                        principalTable: "UserProfile",
+                        principalColumn: "pkUserProfileId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserFinancialProfile",
+                columns: table => new
+                {
+                    pkUserFinancialProfileId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    fkUserProfileId = table.Column<int>(type: "INTEGER", nullable: false),
+                    hasBankAccount = table.Column<bool>(type: "INTEGER", nullable: false),
+                    earnsMoneyAnswer = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    hasSavingsAnswer = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    paysBillsAnswer = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    spendsOnWantsAnswer = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    createdAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserFinancialProfile", x => x.pkUserFinancialProfileId);
+                    table.ForeignKey(
+                        name: "FK_UserFinancialProfile_UserProfile_fkUserProfileId",
+                        column: x => x.fkUserProfileId,
+                        principalTable: "UserProfile",
+                        principalColumn: "pkUserProfileId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -717,6 +790,12 @@ namespace MCFL.API.Migrations
                 column: "fkUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserBelief_fkUserProfileId_beliefKey",
+                table: "UserBelief",
+                columns: new[] { "fkUserProfileId", "beliefKey" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserFeedback_fkUserFeedbackTypeId",
                 table: "UserFeedback",
                 column: "fkUserFeedbackTypeId");
@@ -730,6 +809,12 @@ namespace MCFL.API.Migrations
                 name: "IX_UserFeedbackType_name",
                 table: "UserFeedbackType",
                 column: "name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFinancialProfile_fkUserProfileId",
+                table: "UserFinancialProfile",
+                column: "fkUserProfileId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -775,6 +860,9 @@ namespace MCFL.API.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "BeliefDefinitions");
+
+            migrationBuilder.DropTable(
                 name: "LearningSavingsGoal");
 
             migrationBuilder.DropTable(
@@ -782,6 +870,9 @@ namespace MCFL.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "MoneyFeelingSubmission");
+
+            migrationBuilder.DropTable(
+                name: "MoneyFeelingTypes");
 
             migrationBuilder.DropTable(
                 name: "ParentConsent");
@@ -796,7 +887,13 @@ namespace MCFL.API.Migrations
                 name: "ScenarioPlay");
 
             migrationBuilder.DropTable(
+                name: "UserBelief");
+
+            migrationBuilder.DropTable(
                 name: "UserFeedback");
+
+            migrationBuilder.DropTable(
+                name: "UserFinancialProfile");
 
             migrationBuilder.DropTable(
                 name: "UserGameStat");

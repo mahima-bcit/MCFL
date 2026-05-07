@@ -52,5 +52,7 @@ namespace MCFL.API.Repositories
             string? email,
             DateTime? startDate,
             DateTime? endDate);
+
+        Task<Dictionary<string, string>> GetBeliefLabelsAsync();
     }
 }

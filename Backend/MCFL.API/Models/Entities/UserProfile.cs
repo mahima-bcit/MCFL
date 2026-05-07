@@ -26,30 +26,6 @@ namespace MCFL.API.Models
         [Column("dateOfBirth", TypeName = "date")]
         public DateOnly DateOfBirth { get; set; }
 
-        [Required]
-        [Column("hasBankAccount")]
-        public bool HasBankAccount { get; set; }
-
-        [Required]
-        [MaxLength(20)]
-        [Column("earnsMoneyAnswer")]
-        public string EarnsMoneyAnswer { get; set; } = null!;
-
-        [Required]
-        [MaxLength(20)]
-        [Column("hasSavingsAnswer")]
-        public string HasSavingsAnswer { get; set; } = null!;
-
-        [Required]
-        [MaxLength(20)]
-        [Column("paysBillsAnswer")]
-        public string PaysBillsAnswer { get; set; } = null!;
-
-        [Required]
-        [MaxLength(20)]
-        [Column("spendsOnWantsAnswer")]
-        public string SpendsOnWantsAnswer { get; set; } = null!;
-
         [Column("learningComments", TypeName = "TEXT")]
         public string? LearningComments { get; set; }
 
@@ -69,6 +45,8 @@ namespace MCFL.API.Models
         [ForeignKey(nameof(UserId))]
         public ApplicationUser User { get; set; } = null!;
 
+        public UserFinancialProfile? FinancialProfile { get; set; }
         public ICollection<UserLearningPreference> UserLearningPreferences { get; set; } = new List<UserLearningPreference>();
+        public ICollection<UserBelief> UserBeliefs { get; set; } = new List<UserBelief>();
     }
 }

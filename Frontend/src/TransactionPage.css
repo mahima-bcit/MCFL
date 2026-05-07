@@ -1,14 +1,14 @@
 .transactions-layout {
   min-height: 100vh;
-  background: #eef8f4;
+  background: #edf4f0;
 }
 
 .transactions-page {
   min-height: 100vh;
-  background: #eef8f4;
+  background: #edf4f0;
   padding: 24px 20px 40px;
   color: #1f336e;
-  width: min(100%, 1440px);
+  width: min(100%, 1240px);
   margin: 0 auto;
 }
 
@@ -197,7 +197,7 @@
 }
 
 .money-app-header-inner {
-  width: min(100%, 1440px);
+  width: min(100%, 1240px);
   margin: 0 auto;
   padding: 22px 24px;
   display: grid;
@@ -281,7 +281,7 @@
 
 @media (min-width: 901px) {
   .money-app-header-inner {
-    width: min(100%, 1440px);
+    width: min(100%, 1240px);
     margin: 0 auto;
     padding: 28px 48px;
     display: grid;
@@ -380,4 +380,81 @@
     flex-direction: row;
     gap: 16px;
   }
+}
+
+/* Smooth theme transition */
+.transactions-page,
+.transactions-layout,
+.transactions-card,
+.transactions-back-link,
+.transaction-row,
+.cash-in-bg,
+.cash-out-bg {
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* ═══════════════════════════════════════
+   DARK MODE — Transactions Page
+   ═══════════════════════════════════════ */
+
+.dark-mode .transactions-layout,
+.dark-mode .transactions-page {
+  background: #0d1a15;
+  color: #d4efe5;
+  background-image: radial-gradient(circle, rgba(14, 167, 125, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark-mode .transactions-header h1 {
+  color: #d4efe5;
+}
+
+.dark-mode .transactions-header p {
+  color: #7aaa98;
+}
+
+.dark-mode .transactions-back-link {
+  border-color: #2a4039;
+  background: #172620;
+  color: #d4efe5;
+}
+
+.dark-mode .transactions-card {
+  background: #172620;
+  border-color: #2a4039;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .transactions-card p {
+  color: #7aaa98;
+}
+
+.dark-mode .transactions-list-header h2 {
+  color: #d4efe5;
+}
+
+.dark-mode .transactions-list-header span {
+  color: #7aaa98;
+}
+
+.dark-mode .transaction-row {
+  background: #1c3028;
+}
+
+.dark-mode .transaction-row h3 {
+  color: #d4efe5;
+}
+
+.dark-mode .transaction-row p {
+  color: #7aaa98;
+}
+
+.dark-mode .cash-in-bg {
+  background: #0e2e20;
+  color: #34d39a;
+}
+
+.dark-mode .cash-out-bg {
+  background: #2e1010;
+  color: #f07070;
 }

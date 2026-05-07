@@ -1,25 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { apiFetch } from "../services/apiClient";
+import Button from "../components/ui/Button";
+import { useAuth } from "../context/AuthContext";
 
 type TernaryAnswer = "yes" | "no" | "sometimes";
 type YesNoAnswer = "yes" | "no";
 type BeliefAnswer = "agree" | "disagree" | "unsure";
-type LearningGoal =
-  | "How to get rich"
-  | "How to take care of my money"
-  | "How to save money"
-  | "How to budget"
-  | "How to invest";
 
-type BeliefKey =
-  | "moneyIsGood"
-  | "moneyIsBad"
-  | "likeHavingMoney"
-  | "likeDoingThingsForFree"
-  | "loveSpendingMoney"
-  | "parentsGiveMeMoney"
-  | "dontNeedMoney"
-  | "likeHelpingOthers";
+type BeliefKey = string;
 
 type RegistrationDraft = {
   fullName?: string;
@@ -42,7 +31,7 @@ type ProfileSetupData = {
   spendOnWants: TernaryAnswer | "";
   beliefs: Record<BeliefKey, BeliefAnswer | "">;
   parentsTaughtMoney: string;
-  learningGoals: LearningGoal[];
+  learningGoals: string[];
   learningGoalText: string;
 };
 
@@ -67,39 +56,13 @@ const initialData: ProfileSetupData = {
   haveSavings: "",
   payBills: "",
   spendOnWants: "",
-  beliefs: {
-    moneyIsGood: "",
-    moneyIsBad: "",
-    likeHavingMoney: "",
-    likeDoingThingsForFree: "",
-    loveSpendingMoney: "",
-    parentsGiveMeMoney: "",
-    dontNeedMoney: "",
-    likeHelpingOthers: "",
-  },
+  beliefs: {},
   parentsTaughtMoney: "",
   learningGoals: [],
   learningGoalText: "",
 };
 
-const beliefRows: { key: BeliefKey; label: string }[] = [
-  { key: "moneyIsGood", label: "Money is good" },
-  { key: "moneyIsBad", label: "Money is bad" },
-  { key: "likeHavingMoney", label: "I like having money" },
-  { key: "likeDoingThingsForFree", label: "I like doing things for free" },
-  { key: "loveSpendingMoney", label: "I love spending money" },
-  { key: "parentsGiveMeMoney", label: "My parents give me money" },
-  { key: "dontNeedMoney", label: "I don't need money" },
-  { key: "likeHelpingOthers", label: "I like helping others, they don't have to pay me" },
-];
 
-const learningGoals: LearningGoal[] = [
-  "How to get rich",
-  "How to take care of my money",
-  "How to save money",
-  "How to budget",
-  "How to invest",
-];
 
 const parentSteps: StepDefinition[] = [
   {
@@ -133,14 +96,13 @@ const setupSteps: StepDefinition[] = [
 ];
 
 const optionBaseClass =
-  "rounded-2xl border border-[#d7e6f3] bg-[#f7fbff] px-5 py-3 text-[15px] font-medium text-[#264a74] transition-all duration-200";
-const API_BASE_URL = "";
+  "rounded-2xl border px-5 py-3 text-[15px] font-medium transition-all duration-200";
 
 const pageFontClass = "font-sans";
 const pageTitleClass =
-  "font-sans text-[1.55rem] font-black leading-tight tracking-[-0.04em] text-black md:text-[2rem]";
-const subtitleClass = "font-sans mt-2 text-sm text-[#7c90aa] md:text-base";
-const fieldLabelClass = "font-sans mb-3 block text-sm font-bold text-black";
+  "font-display text-[1.55rem] font-bold leading-tight text-nav md:text-[2rem]";
+const subtitleClass = "mt-2 text-sm text-nav/60 md:text-base";
+const fieldLabelClass = "mb-1.5 block text-sm font-semibold text-nav";
 
 type RegisterResponse = {
   token: string;
@@ -174,19 +136,19 @@ function ArrowRightIcon({ className = "h-5 w-5" }: { className?: string }) {
   );
 }
 
-function PageTitle({ title, subtitle }: Pick<StepDefinition, "title" | "subtitle">) {
-  return (
-    <header className="mb-7">
-      <h1 className={pageTitleClass}>{title}</h1>
-      <p className={subtitleClass}>{subtitle}</p>
-    </header>
-  );
-}
 
-function StepCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+function StepCard({ title, subtitle, children, className = "" }: { title?: string; subtitle?: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={`rounded-[28px] border border-[#edf1f6] bg-white p-5 shadow-[0_14px_34px_rgba(23,42,79,0.07)] md:p-7 ${className}`}>
-      {children}
+    <div className={`rounded-2xl border border-nav/10 bg-white shadow-lg ${className}`}>
+      {title && (
+        <div className="border-b border-nav/10 px-6 py-5 md:px-8">
+          <h2 className={pageTitleClass}>{title}</h2>
+          {subtitle && <p className={subtitleClass}>{subtitle}</p>}
+        </div>
+      )}
+      <div className="p-6 md:p-8">
+        {children}
+      </div>
     </div>
   );
 }
@@ -198,7 +160,11 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
 
-  return <p className="mt-2 text-xs font-semibold text-[#c53030]">{message}</p>;
+  return (
+    <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-700">
+      {message}
+    </p>
+  );
 }
 
 function TextField({ value, placeholder, onChange }: { value: string; placeholder: string; onChange: (nextValue: string) => void }) {
@@ -206,19 +172,20 @@ function TextField({ value, placeholder, onChange }: { value: string; placeholde
     <input
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-12 w-full rounded-2xl border border-[#dce6ef] bg-[#f7fbff] px-4 text-sm text-[#1f3a60] outline-none transition-all placeholder:text-[#9aa9bc] focus:border-[#6fbf9a] focus:bg-white focus:shadow-[0_0_8px_rgba(111,191,154,0.9)]"
+      className="w-full px-4 py-3 rounded-lg border-2 border-nav/20 text-nav placeholder-nav/40 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/15 transition-colors"
       placeholder={placeholder}
     />
   );
 }
 
-function LargeTextarea({ value, placeholder, rows = 6, onChange }: { value: string; placeholder: string; rows?: number; onChange: (nextValue: string) => void }) {
+function LargeTextarea({ value, placeholder, rows = 6, maxLength, onChange }: { value: string; placeholder: string; rows?: number; maxLength?: number; onChange: (nextValue: string) => void }) {
   return (
     <textarea
       value={value}
       rows={rows}
+      maxLength={maxLength}
       onChange={(event) => onChange(event.target.value)}
-      className="w-full resize-none rounded-2xl border border-[#dce6ef] bg-[#f7fbff] px-4 py-4 text-sm leading-7 text-[#1f3a60] outline-none transition-all placeholder:text-[#9aa9bc] focus:border-[#6fbf9a] focus:bg-white focus:shadow-[0_0_8px_rgba(111,191,154,0.9)]"
+      className="w-full resize-none rounded-lg border-2 border-nav/20 px-4 py-3 text-sm leading-7 text-nav outline-none transition-colors placeholder:text-nav/40 focus:border-primary focus:ring-4 focus:ring-primary/15"
       placeholder={placeholder}
     />
   );
@@ -231,8 +198,8 @@ function TogglePill({ active, children, onClick }: { active: boolean; children: 
       onClick={onClick}
       className={`${optionBaseClass} ${
         active
-          ? "border-[#6fbf9a] bg-[#eefaf5] text-[#153c73] shadow-[0_0_8px_rgba(111,191,154,0.9)]"
-          : "hover:border-[#bfd2ea] hover:bg-white"
+          ? "border-primary bg-primary text-white shadow-md"
+          : "border-nav/20 bg-white text-nav hover:border-nav/30 hover:bg-nav/5"
       }`}
     >
       {children}
@@ -242,33 +209,35 @@ function TogglePill({ active, children, onClick }: { active: boolean; children: 
 
 function FooterNav({ showBack, nextLabel, nextDisabled, onBack }: { showBack: boolean; nextLabel: string; nextDisabled: boolean; onBack: () => void }) {
   return (
-    <div className="mt-8 flex items-center justify-between gap-4">
+    <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
       {showBack ? (
-        <button type="button" onClick={onBack} className="inline-flex items-center gap-2 px-2 py-2 text-sm font-medium text-[#2d4c72] hover:text-[#295cff]">
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-nav/20 px-6 py-2.5 text-sm font-medium text-nav/70 transition-all hover:border-nav/40 hover:text-nav sm:w-auto"
+        >
           <ArrowLeftIcon className="h-4 w-4" />
           Back
         </button>
       ) : (
-        <span />
+        <span className="hidden sm:block" />
       )}
 
-      <button
+      <Button
         type="submit"
+        variant="primary"
         disabled={nextDisabled}
-        className={`inline-flex min-w-[220px] items-center justify-center gap-2 rounded-2xl px-8 py-4 text-sm font-semibold transition-all ${
-        nextDisabled
-        ? "bg-[#d8e3ee] text-[#9aa9bc]"
-         : "bg-[#21A879] text-white shadow-[0_10px_24px_rgba(33,168,121,0.24)] hover:bg-[#1c9169]"
-      } md:min-w-[320px]`}
+        className="w-full justify-center sm:w-auto sm:min-w-64"
       >
         {nextLabel}
         <ArrowRightIcon className="h-4 w-4" />
-      </button>
+      </Button>
     </div>
   );
 }
 
 export default function ProfileSetupFlow() {
+  const { login } = useAuth();
   const registrationDraft = useMemo(() => readRegistrationDraft(), []);
   const requiresParentAuthorization = registrationDraft?.requiresParentConsent ?? false;
   const visibleSteps = useMemo(
@@ -282,6 +251,31 @@ export default function ProfileSetupFlow() {
   const [submitError, setSubmitError] = useState("");
   const [formData, setFormData] = useState<ProfileSetupData>(initialData);
   const [parentAuthorizationErrors, setParentAuthorizationErrors] = useState<ParentAuthorizationErrors>({});
+  const [availableGoals, setAvailableGoals] = useState<string[]>([]);
+  const [goalsLoading, setGoalsLoading] = useState(true);
+  const [beliefDefinitions, setBeliefDefinitions] = useState<{ key: string; label: string }[]>([]);
+
+  useEffect(() => {
+    apiFetch<{ learningTopicId: number; topicName: string }[]>("/account/learning-topics")
+      .then((data) => setAvailableGoals(data.map((t) => t.topicName)))
+      .catch(() => setAvailableGoals([]))
+      .finally(() => setGoalsLoading(false));
+  }, []);
+
+  useEffect(() => {
+    apiFetch<{ key: string; label: string }[]>("/account/belief-definitions")
+      .then((defs) => {
+        setBeliefDefinitions(defs);
+        setFormData((current) => {
+          const updatedBeliefs = { ...current.beliefs };
+          for (const { key } of defs) {
+            if (!(key in updatedBeliefs)) updatedBeliefs[key] = "";
+          }
+          return { ...current, beliefs: updatedBeliefs };
+        });
+      })
+      .catch(console.error);
+  }, []);
 
   const currentStepDefinition = visibleSteps[step] ?? visibleSteps[0];
 
@@ -296,7 +290,8 @@ export default function ProfileSetupFlow() {
       case "financial":
         return Boolean(formData.bankAccount && formData.earnMoney && formData.haveSavings && formData.payBills && formData.spendOnWants);
       case "beliefs":
-        return beliefRows.every(({ key }) => Boolean(formData.beliefs[key]));
+        return beliefDefinitions.length > 0 &&
+          beliefDefinitions.every(({ key }) => Boolean(formData.beliefs[key]));
       case "parents-taught":
         return formData.parentsTaughtMoney.trim().length >= 10;
       case "learning-goals":
@@ -403,22 +398,12 @@ export default function ProfileSetupFlow() {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch(`${API_BASE_URL}/api/account/register`, {
+      const result = await apiFetch<RegisterResponse>("/account/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      const responseBody = await response.json().catch(() => null);
-
-      if (!response.ok) {
-        const message = responseBody?.error ?? "Registration failed. Please try again.";
-        throw new Error(message);
-      }
-
-      const result = responseBody as RegisterResponse;
-      localStorage.setItem("mcflAuthToken", result.token);
-      localStorage.setItem("mcflUserRole", result.role);
+      login(result.token, result.role, true);
       localStorage.removeItem("mcflRegistrationDraft");
       setSubmitted(true);
     } catch (error) {
@@ -430,12 +415,23 @@ export default function ProfileSetupFlow() {
 
   function renderParentAuthorizationStep() {
     return (
-      <StepCard>
-        <div className="rounded-2xl border border-[#f2e6b5] bg-[#fff8e6] px-4 py-4 text-sm leading-6 text-[#8d6a22]">
-          Because you are under 18, a parent or guardian authorization is required before continuing.
+      <StepCard title="Parent authorization" subtitle="Required for players age 17 or under">
+        {/* Notice banner */}
+        <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-4">
+          <svg className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          <p className="text-sm leading-6 text-amber-800">
+            Because you are under 18, a parent or guardian authorization is required before continuing.
+          </p>
         </div>
 
-        <label className="mt-6 flex items-start gap-3">
+        {/* Consent checkbox */}
+        <label className={`mt-5 flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4 transition-colors ${
+          formData.parentAuthorized ? "border-primary bg-primary/5" : "border-nav/15 bg-nav/2 hover:border-nav/25"
+        }`}>
           <input
             type="checkbox"
             checked={formData.parentAuthorized}
@@ -443,20 +439,21 @@ export default function ProfileSetupFlow() {
               setFormData((current) => ({ ...current, parentAuthorized: event.target.checked }));
               setParentAuthorizationErrors((current) => ({ ...current, parentAuthorized: undefined }));
             }}
-            className="mt-1 h-4 w-4 rounded border-[#bcc9d8] accent-[#1d2b39]"
+            className="mt-0.5 h-4 w-4 rounded border-nav/30 accent-primary"
           />
-          <span className="text-sm leading-6 text-[#2b466a]">
+          <span className="text-sm font-medium leading-6 text-nav">
             I confirm that a parent or guardian has authorized this player to continue.
           </span>
         </label>
         <FieldError message={parentAuthorizationErrors.parentAuthorized} />
 
-        <div className="mt-6 space-y-5">
+        {/* Parent details */}
+        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div>
             <FieldLabel>Parent / guardian name</FieldLabel>
             <TextField
               value={formData.parentGuardianName}
-              placeholder="Parent or guardian name"
+              placeholder="Full name"
               onChange={(nextValue) => {
                 setFormData((current) => ({ ...current, parentGuardianName: nextValue }));
                 setParentAuthorizationErrors((current) => ({ ...current, parentGuardianName: undefined }));
@@ -484,7 +481,7 @@ export default function ProfileSetupFlow() {
 
   function renderFinancialStuffStep() {
     return (
-      <StepCard>
+      <StepCard title="Financial stuff" subtitle="Bank account, earning money, savings, bills, and spending basics">
         <div className="space-y-7">
           <div>
             <FieldLabel>Do you have a bank account?</FieldLabel>
@@ -523,9 +520,9 @@ export default function ProfileSetupFlow() {
 
   function renderMoneyBeliefsStep() {
     return (
-      <StepCard>
+      <StepCard title="Money beliefs" subtitle="Agree / disagree to help personalize the experience">
         <div className="space-y-6">
-          {beliefRows.map(({ key, label }) => (
+          {beliefDefinitions.map(({ key, label }) => (
             <div key={key}>
               <FieldLabel>{label}</FieldLabel>
               <div className="flex flex-wrap gap-3">
@@ -542,32 +539,52 @@ export default function ProfileSetupFlow() {
 
   function renderParentsTeachMoneyStep() {
     return (
-      <StepCard>
-        <LargeTextarea value={formData.parentsTaughtMoney} placeholder="They told me to be careful with money and not spend too quickly." rows={7} onChange={(nextValue) => setFormData((current) => ({ ...current, parentsTaughtMoney: nextValue }))} />
+      <StepCard title="What did your parents teach you about money?" subtitle="Comment freely here">
+        <div className="relative">
+          <LargeTextarea value={formData.parentsTaughtMoney} placeholder="They told me to be careful with money and not spend too quickly." rows={7} maxLength={1000} onChange={(nextValue) => setFormData((current) => ({ ...current, parentsTaughtMoney: nextValue }))} />
+          <span className={`absolute bottom-3 right-4 text-xs tabular-nums ${
+            formData.parentsTaughtMoney.trim().length < 10 && formData.parentsTaughtMoney.length > 0
+              ? "text-red-400"
+              : formData.parentsTaughtMoney.length >= 900
+              ? "text-amber-500"
+              : "text-nav/40"
+          }`}>
+            {formData.parentsTaughtMoney.length} / 1000
+          </span>
+        </div>
       </StepCard>
     );
   }
 
   function renderLearningGoalsStep() {
     return (
-      <StepCard>
-        <div className="grid gap-4 md:grid-cols-2">
-          {learningGoals.map((goal, index) => {
-            const isSelected = formData.learningGoals.includes(goal);
-            return (
-              <button
-                key={goal}
-                type="button"
-                onClick={() => setFormData((current) => ({ ...current, learningGoals: isSelected ? current.learningGoals.filter((item) => item !== goal) : [...current.learningGoals, goal] }))}
-                className={`${optionBaseClass} min-h-[58px] text-left ${index === 4 ? "md:col-span-2" : ""} ${
-                  isSelected ? "border-[#6fbf9a] bg-[#eefaf5] text-[#153c73] shadow-[0_0_8px_rgba(111,191,154,0.9)]" : "hover:border-[#bfd2ea] hover:bg-white"
-                }`}
-              >
-                {goal}
-              </button>
-            );
-          })}
-        </div>
+      <StepCard title="What do you want to learn?" subtitle="Tick as many as you like">
+        {goalsLoading ? (
+          <div className="grid gap-4 md:grid-cols-2">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="min-h-14 animate-pulse rounded-2xl bg-nav/10" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {availableGoals.map((goal, index) => {
+              const isSelected = formData.learningGoals.includes(goal);
+              const isLastOdd = availableGoals.length % 2 !== 0 && index === availableGoals.length - 1;
+              return (
+                <button
+                  key={goal}
+                  type="button"
+                  onClick={() => setFormData((current) => ({ ...current, learningGoals: isSelected ? current.learningGoals.filter((item) => item !== goal) : [...current.learningGoals, goal] }))}
+                  className={`${optionBaseClass} min-h-14 text-left ${isLastOdd ? "md:col-span-2" : ""} ${
+                    isSelected ? "border-primary bg-primary text-white shadow-md" : "border-nav/20 bg-white text-nav hover:border-nav/30 hover:bg-nav/5"
+                  }`}
+                >
+                  {goal}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <div className="mt-6">
           <FieldLabel>Tell us what you want to learn?</FieldLabel>
@@ -604,23 +621,22 @@ export default function ProfileSetupFlow() {
   }
 
   return (
-    <section className={`mx-auto max-w-3xl px-5 py-10 md:px-8 md:py-12 ${pageFontClass}`}>
+    <section className={`mx-auto max-w-3xl px-4 py-6 sm:px-5 sm:py-10 md:px-8 md:py-12 ${pageFontClass}`}>
       {submitted ? (
-        <div className="mx-auto rounded-[32px] border border-[#edf1f6] bg-white p-8 text-center shadow-[0_16px_38px_rgba(23,42,79,0.08)]">
-          <h1 className="font-sans text-[2rem] font-black tracking-[-0.04em] text-black">Registration complete</h1>
-          <p className="mt-3 text-sm leading-6 text-[#7c90aa]">
+        <div className="mx-auto rounded-2xl border border-nav/10 bg-white p-8 text-center shadow-lg">
+          <h1 className="font-display text-[2rem] font-bold text-nav">Registration complete</h1>
+          <p className="mt-3 text-sm leading-6 text-nav/60">
             Your account and profile setup answers were saved successfully.
           </p>
-          <Link to="/login" className="mt-7 inline-flex rounded-2xl bg-[#21A879] px-7 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(33,168,121,0.24)] hover:bg-[#1c9169]">
+          <Link to="/login" className="mt-7 inline-flex items-center rounded-full bg-primary px-7 py-3 text-sm font-medium text-white transition-all hover:bg-gold hover:shadow-md">
             Go to login
           </Link>
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
-          <PageTitle title={currentStepDefinition.title} subtitle={currentStepDefinition.subtitle} />
           {renderCurrentStep()}
           {submitError && (
-            <div className="mt-5 rounded-2xl border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 text-sm font-semibold text-[#b42318]">
+            <div className="mt-5 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
               {submitError}
             </div>
           )}

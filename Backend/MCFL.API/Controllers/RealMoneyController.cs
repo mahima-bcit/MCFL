@@ -123,12 +123,8 @@ public class RealMoneyController : ControllerBase
         }
         else
         {
-            var databaseCashOutCategoryName = NormalizeCashOutCategoryName(cleanCategory);
-
             cashOutCategory = await _db.CashOutCategories
-                .FirstOrDefaultAsync(category =>
-                    category.CategoryName == cleanCategory ||
-                    category.CategoryName == databaseCashOutCategoryName);
+                .FirstOrDefaultAsync(category => category.CategoryName == cleanCategory);
 
             if (cashOutCategory is null)
             {
@@ -152,6 +148,24 @@ public class RealMoneyController : ControllerBase
         _db.MoneyEntries.Add(entry);
         await _db.SaveChangesAsync();
 
+        if (cashOutCategory?.CategoryName == "Save")
+        {
+            var activeGoal = await _db.LearningSavingsGoals
+                .Where(g => g.UserId == userId && g.IsActive)
+                .OrderByDescending(g => g.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (activeGoal != null)
+            {
+                activeGoal.CurrentSavedAmount = Math.Min(
+                    activeGoal.TargetAmount,
+                    (activeGoal.CurrentSavedAmount ?? 0) + request.Amount
+                );
+                activeGoal.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+            }
+        }
+
         var savedEntry = await _db.MoneyEntries
             .AsNoTracking()
             .Include(item => item.CashInCategory)
@@ -159,6 +173,30 @@ public class RealMoneyController : ControllerBase
             .FirstAsync(item => item.MoneyEntryId == entry.MoneyEntryId);
 
         return Ok(ToEntryResponse(savedEntry));
+    }
+
+    [HttpGet("categories")]
+    public async Task<IActionResult> GetCategories()
+    {
+        var cashIn = await _db.CashInCategories
+            .AsNoTracking()
+            .Where(c => c.IsActive)
+            .OrderBy(c => c.SortOrder)
+            .Select(c => c.CategoryName)
+            .ToListAsync();
+
+        var cashOut = await _db.CashOutCategories
+            .AsNoTracking()
+            .Where(c => c.IsActive)
+            .OrderBy(c => c.SortOrder)
+            .Select(c => c.CategoryName)
+            .ToListAsync();
+
+        return Ok(new
+        {
+            cashIn = cashIn.Select(DisplayCategoryName).ToList(),
+            cashOut = cashOut.Select(DisplayCategoryName).ToList()
+        });
     }
 
     private string? GetCurrentUserId()
@@ -169,42 +207,14 @@ public class RealMoneyController : ControllerBase
 
     private static string NormalizeCashInCategoryName(string category)
     {
-        // Frontend uses "Allowance / Parents".
-        // Database uses "Allowance/Parents".
-        if (category == "Allowance / Parents")
-        {
-            return "Allowance/Parents";
-        }
-
-        return category;
-    }
-
-    private static string NormalizeCashOutCategoryName(string category)
-    {
-        // Frontend uses "Want".
-        // Database currently uses "Have".
-        if (category == "Want")
-        {
-            return "Have";
-        }
-
+        // Frontend uses "Allowance / Parents". Database uses "Allowance/Parents".
+        if (category == "Allowance / Parents") return "Allowance/Parents";
         return category;
     }
 
     private static string DisplayCategoryName(string category)
     {
-        // Database stores "Have".
-        // Frontend should display "Want".
-        if (category == "Have")
-        {
-            return "Want";
-        }
-
-        if (category == "Allowance/Parents")
-        {
-            return "Allowance / Parents";
-        }
-
+        if (category == "Allowance/Parents") return "Allowance / Parents";
         return category;
     }
 

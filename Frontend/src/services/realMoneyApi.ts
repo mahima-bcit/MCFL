@@ -5,6 +5,15 @@ import type {
   RealMoneySummary,
 } from "../types/realMoney";
 
+export type RealMoneyCategories = {
+  cashIn: string[];
+  cashOut: string[];
+};
+
+export function getRealMoneyCategories(): Promise<RealMoneyCategories> {
+  return apiFetch<RealMoneyCategories>("/real-money/categories");
+}
+
 export function getRealMoneySummary(): Promise<RealMoneySummary> {
   return apiFetch<RealMoneySummary>("/real-money/summary");
 }

@@ -1,21 +1,41 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { ChevronRight, Frown, Gamepad2, Meh, Smile } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ChevronRight, Frown, Meh, Smile } from "lucide-react";
 import {
   Pie,
   PieChart,
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import "../GameMoneyPage.css";
+import "../MoneyPicturePage.css";
 import DashboardLayout from "../components/layout/DashboardLayout";
-import { getDashboardSummary } from "../services/dashboardApi";
 import {
   getGameMoneySummary,
+  getMoneyFeelings,
   saveGameMoneyFeeling,
 } from "../services/gameMoneyApi";
 import type { GameMoneyCategory, GameMoneySummary } from "../types/gameMoney";
 
-type Feeling = "Good" | "Unsure" | "Worried";
+const feelingIcons: Record<string, React.ReactNode> = {
+  Good: <Smile size={28} strokeWidth={2} />,
+  Unsure: <Meh size={28} strokeWidth={2} />,
+  Worried: <Frown size={28} strokeWidth={2} />,
+};
+
+const feelingFeedback: Record<string, { title: string; message: string }> = {
+  Good: {
+    title: "Great job!",
+    message: "Congratulations! You are moving on to the next level 🎉",
+  },
+  Unsure: {
+    title: "That is okay",
+    message: "You are still learning, and every step helps you understand your money better.",
+  },
+  Worried: {
+    title: "Take one small step",
+    message: "That is okay. Take a breath, review your money picture, and choose one small next step.",
+  },
+};
 
 const categoryColors: Record<GameMoneyCategory, string> = {
   Want: "#1f7f5c",
@@ -30,6 +50,7 @@ const HAVE_COLOR = "#0ea77d";
 const emptyGameMoneySummary: GameMoneySummary = {
   items: [],
   totals: {
+    have: 0,
     want: 0,
     need: 0,
     fun: 0,
@@ -38,13 +59,12 @@ const emptyGameMoneySummary: GameMoneySummary = {
   },
 };
 
-export default function GameMoneyPage() {
-  const [feeling, setFeeling] = useState<Feeling | null>(null);
+export default function MoneyPicturePage() {
+  const [feeling, setFeeling] = useState<string | null>(null);
+  const [feelings, setFeelings] = useState<string[]>([]);
   const [summary, setSummary] = useState<GameMoneySummary>(
     emptyGameMoneySummary,
   );
-  const [gameBalance, setGameBalance] = useState(0);
-  const [confidence, setConfidence] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [feelingModalOpen, setFeelingModalOpen] = useState(false);
@@ -56,50 +76,37 @@ export default function GameMoneyPage() {
   useEffect(() => {
     let isCurrent = true;
 
-    async function loadGameMoneySummary() {
+    async function loadData() {
       try {
-        const [data, dashboard] = await Promise.all([
+        const [data, fetchedFeelings] = await Promise.all([
           getGameMoneySummary(),
-          getDashboardSummary(),
+          getMoneyFeelings(),
         ]);
 
-        if (!isCurrent) {
-          return;
-        }
+        if (!isCurrent) return;
 
         setSummary({
           ...emptyGameMoneySummary,
           ...data,
-          totals: {
-            ...emptyGameMoneySummary.totals,
-            ...data.totals,
-          },
+          totals: { ...emptyGameMoneySummary.totals, ...data.totals },
         });
-
-        setGameBalance(dashboard.gameBalance ?? 0);
-        setConfidence(dashboard.confidence ?? 0);
+        setFeelings(fetchedFeelings);
         setErrorMessage("");
       } catch (error) {
-        console.error("Could not load game money summary.", error);
-
+        console.error("Could not load game money data.", error);
         if (isCurrent) {
-          setErrorMessage(
-            "Could not load game money data. Please log in again.",
-          );
+          setErrorMessage("Could not load game money data. Please log in again.");
         }
       } finally {
-        if (isCurrent) {
-          setIsLoading(false);
-        }
+        if (isCurrent) setIsLoading(false);
       }
     }
 
-    void loadGameMoneySummary();
+    void loadData();
 
-    return () => {
-      isCurrent = false;
-    };
+    return () => { isCurrent = false; };
   }, []);
+
 
   const categoryItems = useMemo(
     () => [
@@ -131,26 +138,13 @@ export default function GameMoneyPage() {
     try {
       await saveGameMoneyFeeling({ feeling });
       setFeelingModalOpen(false);
-      setFeeling(null);
 
-      if (feeling === "Good") {
-        setFeedbackModal({
-          title: "Great job!",
-          message: "Congratulations! You are moving on to the next level 🎉",
-        });
-      } else if (feeling === "Unsure") {
-        setFeedbackModal({
-          title: "That is okay",
-          message:
-            "You are still learning, and every step helps you understand your money better.",
-        });
-      } else if (feeling === "Worried") {
-        setFeedbackModal({
-          title: "Take one small step",
-          message:
-            "That is okay. Take a breath, review your money picture, and choose one small next step.",
-        });
-      }
+      const fb = feelingFeedback[feeling] ?? {
+        title: "Thanks!",
+        message: "Your feeling has been recorded.",
+      };
+      setFeedbackModal(fb);
+      setFeeling(null);
     } catch (error) {
       console.error("Could not save feeling.", error);
       setFeedbackModal({
@@ -165,8 +159,27 @@ export default function GameMoneyPage() {
       <main className="game-money-page">
         <section className="game-money-header">
           <div className="game-money-header-title">
-            <Gamepad2 size={32} strokeWidth={2} />
-            <h1>Game Money Picture</h1>
+            <h1>Money Picture</h1>
+          </div>
+          <div className="game-money-header-actions">
+            {!isLoading && (
+              <button
+                type="button"
+                className="game-total-feeling-trigger"
+                onClick={() => setFeelingModalOpen(true)}
+              >
+                <div className="feeling-trigger-icons">
+                  <Smile size={20} strokeWidth={2} />
+                  <Meh size={20} strokeWidth={2} />
+                  <Frown size={20} strokeWidth={2} />
+                </div>
+                <span>Share how you feel about your money picture today</span>
+                <ChevronRight size={18} strokeWidth={2} className="feeling-trigger-arrow" />
+              </button>
+            )}
+            <Link to="/real-money" className="transactions-back-link">
+              Back to Real Money
+            </Link>
           </div>
         </section>
 
@@ -184,36 +197,6 @@ export default function GameMoneyPage() {
 
         {!isLoading && (
           <>
-            <section className="game-money-card game-total-card">
-              <div className="game-total-stats">
-                <div>
-                  <p>Game Balance</p>
-                  <strong>${gameBalance.toFixed(2)}</strong>
-                </div>
-
-                <div>
-                  <p>Confidence</p>
-                  <strong>{confidence}</strong>
-                </div>
-              </div>
-
-              <div className="game-total-separator" />
-
-              <button
-                type="button"
-                className="game-total-feeling-trigger"
-                onClick={() => setFeelingModalOpen(true)}
-              >
-                <div className="feeling-trigger-icons">
-                  <Smile size={20} strokeWidth={2} />
-                  <Meh size={20} strokeWidth={2} />
-                  <Frown size={20} strokeWidth={2} />
-                </div>
-                <span>Share how you feel about your money picture today</span>
-                <ChevronRight size={18} strokeWidth={2} className="feeling-trigger-arrow" />
-              </button>
-            </section>
-
             <section className="game-money-top-grid">
               <div className="game-money-card breakdown-card">
                 <h2>Breakdown</h2>
@@ -246,36 +229,39 @@ export default function GameMoneyPage() {
             </section>
 
             {(() => {
-              const overage = summary.totals.need - gameBalance;
+              const have = summary.totals.have;
+              const overage = summary.totals.need - have;
               const inTheRed = overage > 0;
-              const maxBar = Math.max(gameBalance, summary.totals.need, 1);
+              const maxBar = Math.max(have, summary.totals.need, 1);
               return (
                 <section className="game-money-card money-overview-card">
                   <div className="money-overview-grid">
                     <div className="total-money-section">
                       <h2>Total Money</h2>
-                      <HorizontalBar
-                        label="Have"
-                        amount={gameBalance}
-                        maxAmount={maxBar}
-                        color={HAVE_COLOR}
-                      />
-                      <HorizontalBar
-                        label="Need"
-                        amount={summary.totals.need}
-                        maxAmount={maxBar}
-                        color={inTheRed ? IN_THE_RED_COLOR : categoryColors["Need"]}
-                      />
-                      {inTheRed && (
-                        <div className="h-bar-balance h-bar-balance--red">
-                          <span className="h-bar-balance-label">
-                            Needs exceed Have by
-                          </span>
-                          <span className="h-bar-balance-amount">
-                            -${overage.toFixed(2)}
-                          </span>
-                        </div>
-                      )}
+                      <div className="total-money-bars">
+                        <HorizontalBar
+                          label="Have"
+                          amount={have}
+                          maxAmount={maxBar}
+                          color={HAVE_COLOR}
+                        />
+                        <HorizontalBar
+                          label="Need"
+                          amount={summary.totals.need}
+                          maxAmount={maxBar}
+                          color={inTheRed ? IN_THE_RED_COLOR : categoryColors["Need"]}
+                        />
+                        {inTheRed && (
+                          <div className="h-bar-balance h-bar-balance--red">
+                            <span className="h-bar-balance-label">
+                              Needs exceed Have by
+                            </span>
+                            <span className="h-bar-balance-amount">
+                              -${overage.toFixed(2)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="money-allocation-section">
@@ -378,32 +364,17 @@ export default function GameMoneyPage() {
             <p className="feeling-modal-subtitle">Share how you feel about your money picture today</p>
 
             <div className="feeling-grid">
-              <button
-                type="button"
-                onClick={() => setFeeling("Good")}
-                className={feeling === "Good" ? "selected" : ""}
-              >
-                <Smile size={28} strokeWidth={2} />
-                Good
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setFeeling("Unsure")}
-                className={feeling === "Unsure" ? "selected" : ""}
-              >
-                <Meh size={28} strokeWidth={2} />
-                Unsure
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setFeeling("Worried")}
-                className={feeling === "Worried" ? "selected" : ""}
-              >
-                <Frown size={28} strokeWidth={2} />
-                Worried
-              </button>
+              {feelings.map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setFeeling(f)}
+                  className={feeling === f ? "selected" : ""}
+                >
+                  {feelingIcons[f] ?? <Smile size={28} strokeWidth={2} />}
+                  {f}
+                </button>
+              ))}
             </div>
 
             <button

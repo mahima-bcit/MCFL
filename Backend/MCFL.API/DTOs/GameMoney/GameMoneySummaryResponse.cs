@@ -6,5 +6,5 @@ public class GameMoneySummaryResponse
 
     public GameMoneyTotalsResponse Totals { get; set; } = new();
 
-    public GameMoneyRecentScenarioResponse RecentScenario { get; set; } = new();
+    public GameMoneyRecentScenarioResponse? RecentScenario { get; set; }
 }

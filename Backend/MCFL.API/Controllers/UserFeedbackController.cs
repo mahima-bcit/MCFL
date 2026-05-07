@@ -1,6 +1,6 @@
 using MCFL.API.Data;
 using MCFL.API.Models;
-using MCFL.API.Models.DTOs;
+using MCFL.API.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +18,18 @@ public class UserFeedbackController : ControllerBase
     public UserFeedbackController(AppDbContext db)
     {
         _db = db;
+    }
+
+    [HttpGet("types")]
+    public async Task<IActionResult> GetTypes()
+    {
+        var types = await _db.UserFeedbackTypes
+            .Where(t => t.IsActive)
+            .OrderBy(t => t.SortOrder)
+            .Select(t => t.Name)
+            .ToListAsync();
+
+        return Ok(types);
     }
 
     [HttpPost]
@@ -41,7 +53,7 @@ public class UserFeedbackController : ControllerBase
         var feedback = new UserFeedback
         {
             UserFeedbackTypeId = feedbackType.UserFeedbackTypeId,
-            Comment = dto.Comment.Trim(),
+            Comment = dto.Comment?.Trim() ?? string.Empty,
             UserId = userId,
             SubmittedAt = DateTime.UtcNow,
         };

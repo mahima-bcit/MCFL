@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import { ShieldX } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 type Props = { unauthenticated?: boolean };
 
 export default function AccessDenied({ unauthenticated = false }: Props) {
-  const role = localStorage.getItem("role") ?? sessionStorage.getItem("role");
+  const { role } = useAuth();
 
   const backTo = unauthenticated
     ? "/login"

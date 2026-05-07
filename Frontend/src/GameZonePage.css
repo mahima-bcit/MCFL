@@ -1,0 +1,133 @@
+.game-zone-shell {
+  width: 100%;
+}
+
+.game-zone-content {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 18px 14px 28px;
+}
+
+@media (min-width: 769px) {
+  .game-zone-content {
+    padding: 28px 24px 40px;
+  }
+}
+
+/* Smooth theme transition */
+.game-zone-recent-card {
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.dark-mode .game-zone-shell {
+  background-image: radial-gradient(circle, rgba(14, 167, 125, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.game-zone-recent-card {
+  border-radius: 18px;
+  padding: 22px 24px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(21, 79, 61, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dark-mode .game-zone-recent-card {
+  background: #1e3d2e;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
+}
+
+.game-zone-recent-kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0ea77d;
+}
+
+.game-zone-recent-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #173f3a;
+}
+
+.dark-mode .game-zone-recent-card h3 {
+  color: #d4efe6;
+}
+
+.game-zone-recent-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #4c5f91;
+  line-height: 1.5;
+}
+
+.dark-mode .game-zone-recent-card p {
+  color: #8ab5a0;
+}
+
+.game-zone-scenario-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 480px) {
+  .game-zone-scenario-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.game-zone-scenario-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.game-zone-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.game-zone-play-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: #154f3d;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+@media (min-width: 480px) {
+  .game-zone-play-btn {
+    align-self: center;
+    flex-shrink: 0;
+  }
+}
+
+.game-zone-play-btn:hover {
+  background: #0ea77d;
+  transform: translateY(-1px);
+}
+
+.dark-mode .game-zone-play-btn {
+  background: #0ea77d;
+}
+
+.dark-mode .game-zone-play-btn:hover {
+  background: #12c490;
+}
