@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import AccessDenied from "../../pages/AccessDenied";
 import { clearAuthStorage } from "../../utils/auth";
+import { useAuth } from "../../context/AuthContext";
 
 type Props = {
   children: React.ReactNode;
@@ -17,8 +18,7 @@ function isTokenExpired(token: string): boolean {
 }
 
 export default function ProtectedRoute({ children, requiredRole }: Props) {
-  const token = localStorage.getItem("token") ?? sessionStorage.getItem("token");
-  const role = localStorage.getItem("role") ?? sessionStorage.getItem("role");
+  const { token, role } = useAuth();
 
   if (!token || isTokenExpired(token)) {
     clearAuthStorage();

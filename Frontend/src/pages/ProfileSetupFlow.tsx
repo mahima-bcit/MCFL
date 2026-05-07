@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiFetch } from "../services/apiClient";
 import Button from "../components/ui/Button";
+import { useAuth } from "../context/AuthContext";
 
 type TernaryAnswer = "yes" | "no" | "sometimes";
 type YesNoAnswer = "yes" | "no";
@@ -236,6 +237,7 @@ function FooterNav({ showBack, nextLabel, nextDisabled, onBack }: { showBack: bo
 }
 
 export default function ProfileSetupFlow() {
+  const { login } = useAuth();
   const registrationDraft = useMemo(() => readRegistrationDraft(), []);
   const requiresParentAuthorization = registrationDraft?.requiresParentConsent ?? false;
   const visibleSteps = useMemo(
@@ -401,8 +403,7 @@ export default function ProfileSetupFlow() {
         body: JSON.stringify(payload),
       });
 
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("role", result.role);
+      login(result.token, result.role, true);
       localStorage.removeItem("mcflRegistrationDraft");
       setSubmitted(true);
     } catch (error) {

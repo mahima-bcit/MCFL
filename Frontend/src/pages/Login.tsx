@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
 import { apiFetch } from "../services/apiClient";
+import { useAuth } from "../context/AuthContext";
 
 type LoginResponse = {
   token: string;
@@ -16,6 +17,7 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,14 +29,7 @@ export default function Login() {
         body: JSON.stringify({ email, password, rememberMe }),
       });
 
-      const storage = rememberMe ? localStorage : sessionStorage;
-      const otherStorage = rememberMe ? sessionStorage : localStorage;
-
-      otherStorage.removeItem("token");
-      otherStorage.removeItem("role");
-
-      storage.setItem("token", data.token);
-      storage.setItem("role", data.role);
+      login(data.token, data.role, rememberMe);
 
       if (data.role === "Admin") {
         navigate(
@@ -114,9 +109,6 @@ export default function Login() {
                   />
                   <span className="text-sm text-nav/70 font-medium">Remember me</span>
                 </label>
-                <a href="/forgot-password" className="text-sm font-semibold text-primary hover:text-primary-dark transition-colors">
-                  Forgot password?
-                </a>
               </div>
 
               <Button type="submit" variant="primary" className="w-full text-base py-3 justify-center">
