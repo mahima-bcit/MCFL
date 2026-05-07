@@ -28,7 +28,8 @@ MCFL is a full-stack web application that teaches financial literacy through int
 3. [Backend Setup](#backend-setup)
 4. [Frontend Setup](#frontend-setup)
 5. [Running the Full Application](#running-the-full-application)
-6. [Troubleshooting](#troubleshooting)
+6. [Testing the API](#testing-the-api)
+7. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -55,6 +56,7 @@ Each command should print a version number. If any command is not found, restart
 
 **Optional but helpful:**
 - [VS Code](https://code.visualstudio.com/) with the **C# Dev Kit** extension (for backend)
+- [VS Code REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) (to run requests from `MCFL.API.http`)
 - [DB Browser for SQLite](https://sqlitebrowser.org/) (to inspect the database visually)
 
 ---
@@ -214,9 +216,19 @@ npm install
 
 ### Step 2 — Configure the environment file
 
-The frontend uses a `.env.development` file to know where the backend API is. This file is already included in the repository at `Frontend/.env.development`.
+The frontend uses a `.env.development` file to know where the backend API is. A template is included at `Frontend/.env.example`.
 
-Open it and make sure the port matches your backend's HTTPS port from Step 5 above:
+If `Frontend/.env.development` does not exist yet, create it from the template:
+
+```bash
+# Mac/Linux
+cp Frontend/.env.example Frontend/.env.development
+
+# Windows (PowerShell)
+Copy-Item Frontend/.env.example Frontend/.env.development
+```
+
+Then open `Frontend/.env.development` and set the port to match your backend's HTTPS port from Step 5 above:
 
 ```env
 VITE_API_BASE_URL=https://localhost:<your-https-port>/api
@@ -227,6 +239,8 @@ For example, if your backend is running on port `7211`:
 ```env
 VITE_API_BASE_URL=https://localhost:7211/api
 ```
+
+> If `VITE_API_BASE_URL` is not set, the frontend falls back to the Vite dev proxy (`/api`) which also targets the same backend port.
 
 ---
 
@@ -258,6 +272,19 @@ npm run dev
 Then open **`http://localhost:5173`** in your browser.
 
 Log in using the `SeedAdmin` email and password you set in `appsettings.Development.json`.
+
+---
+
+## Testing the API
+
+A `Backend/MCFL.API/MCFL.API.http` file is included with pre-built requests for every endpoint.
+
+**To use it:**
+1. Install the [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension in VS Code (or use the built-in HTTP client in Rider/Visual Studio)
+2. Open `Backend/MCFL.API/MCFL.API.http`
+3. Run `### Login` first and copy the token from the response
+4. Paste it into `@authToken = paste-token-here` at the top of the file
+5. Click **Send Request** above any endpoint to test it
 
 ---
 
