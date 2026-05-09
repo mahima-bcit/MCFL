@@ -7,7 +7,7 @@ export default function Footer() {
 
           {/* Brand */}
           <div className="flex items-center gap-2.5 text-center md:text-left">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white shadow-sm">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center">
               <img
                 src="/MCFL.png"
                 alt="MCFL"

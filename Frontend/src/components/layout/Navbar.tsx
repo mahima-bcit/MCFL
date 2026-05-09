@@ -11,7 +11,7 @@ export default function Navbar() {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 md:gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white shadow-sm">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center">
             <img
               src="/MCFL.png"
               alt="MCFL"
